@@ -2,7 +2,16 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getUserStats } from "../services/user";
 import { getOrdersPerMonth } from "../services/order";
-import { Button, Center, Group, Loader, Stack, Table, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Center,
+  Group,
+  Loader,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import { LineChart } from "@mantine/charts";
 import FormatPrice from "../components/misc/FormatPrice";
 import { useNavigate } from "react-router-dom";
@@ -25,16 +34,16 @@ const ProfilePage = () => {
     "Nov",
     "Dec",
   ];
-  const [userStats, setUserStats] = useState([
+  const [userStats, setUserStats] = useState(
     MONTHS.map((month) => {
       return { month: month, users: 0 };
-    }),
-  ]);
-  const [orders, setOrders] = useState([
+    })
+  );
+  const [orders, setOrders] = useState(
     MONTHS.map((month) => {
       return { month: month, totalOrder: 0, total: 0 };
-    }),
-  ]);
+    })
+  );
   useEffect(() => {
     const getStats = async () => {
       if (user.role !== "user") {
@@ -45,12 +54,9 @@ const ProfilePage = () => {
         result1.data.map((item) => {
           setUserStats((prev) => ({
             ...prev,
-            [0]: {
-              ...prev[0],
-              [item._id - 1]: {
-                ...prev[0][item._id - 1],
-                ["users"]: item.total,
-              },
+            [item._id - 1]: {
+              ...prev[item._id - 1],
+              ["users"]: item.total,
             },
           }));
         });
@@ -58,13 +64,10 @@ const ProfilePage = () => {
           setTotal((prev) => prev + item.income);
           setOrders((prev) => ({
             ...prev,
-            [0]: {
-              ...prev[0],
-              [item._id - 1]: {
-                ...prev[0][item._id - 1],
-                ["totalOrder"]: item.sum,
-                ["total"]: item.income,
-              },
+            [item._id - 1]: {
+              ...prev[item._id - 1],
+              ["totalOrder"]: item.sum,
+              ["total"]: item.income,
             },
           }));
         });
@@ -75,7 +78,7 @@ const ProfilePage = () => {
     getStats();
   }, []);
 
-  const rows = Object.values(orders[0]).map((item) => {
+  const rows = Object.values(orders).map((item) => {
     return (
       <Table.Tr key={item.month}>
         <Table.Td>{item.month}</Table.Td>
@@ -86,7 +89,7 @@ const ProfilePage = () => {
   });
 
   return (
-    <Center maw={"90%"} h={'100%'}>
+    <Center maw={"90%"} h={"100%"}>
       {user.role === "user" ? (
         <Group>
           <Button
@@ -113,7 +116,7 @@ const ProfilePage = () => {
               <Title>Users Visited Site Per Year</Title>
               <LineChart
                 h={300}
-                data={Object.values(userStats[0])}
+                data={Object.values(userStats)}
                 dataKey={"month"}
                 series={[{ name: "users", color: "blue.6" }]}
                 curveType="linear"

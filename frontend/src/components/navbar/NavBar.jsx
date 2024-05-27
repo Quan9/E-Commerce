@@ -227,8 +227,8 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
               </Menu>
               <Button
                 leftSection={
-                  <AspectRatio ratio={1080 / 720} maw={100}>
-                    <Image src={currentUser?.image} alt="UserImage" />
+                  <AspectRatio ratio={1080 / 720} maw={30}>
+                    <Image src={currentUser?.img} alt="UserImage" />
                   </AspectRatio>
                 }
                 autoContrast={true}
@@ -399,10 +399,9 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
           {currentUser ? (
             <Group justify="center">
               <Button
-                // leftSection={<IconUser size={20} />}
                 leftSection={
-                  <AspectRatio ratio={1080 / 720} maw={100}>
-                    <Image src={currentUser?.image} alt="UserImage" />
+                  <AspectRatio ratio={1080 / 720} maw={30}>
+                    <Image src={currentUser?.img} alt="UserImage" />
                   </AspectRatio>
                 }
                 autoContrast={true}
@@ -427,7 +426,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
               </Button>
             </Group>
           ) : (
-            <Group justify="space-between">
+            <Group justify="center">
               <Button
                 leftSection={<IconUser size={20} />}
                 rightSection={
