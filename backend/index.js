@@ -14,7 +14,7 @@ const CryptoJS = require("crypto-js");
 const cors = require("cors");
 const User = require("./models/User");
 const app = express();
-const http = require("http").Server(app);
+const https = require("https").Server(app);
 dotenv.config();
 const connect = async () => {
   try {
@@ -30,7 +30,7 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
   next();
 });
-const socketIO = require("socket.io")(http, {
+const socketIO = require("socket.io")(https, {
   cors: {
     origin: [
       "http://localhost:5173",
