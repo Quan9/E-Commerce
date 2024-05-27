@@ -32,7 +32,11 @@ app.use(function (req, res, next) {
 });
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://e-commerce-frontend4139.netlify.app/",
+    ],
   },
 });
 
