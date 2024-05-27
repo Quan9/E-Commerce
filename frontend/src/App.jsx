@@ -40,7 +40,7 @@ const App = () => {
   const [socket, setSocket] = useState(null);
   const [anoUser, setAnoUser] = useState();
   const { user } = useSelector((state) => state.user);
-  const clientSocket = io("http://localhost:8080");
+  const clientSocket = io("https://e-commerce-frontend-g39l.onrender.com");
   useEffect(() => {
     if (!socket && user === null) {
       setSocket(clientSocket);
