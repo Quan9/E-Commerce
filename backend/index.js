@@ -31,14 +31,14 @@ app.use(function (req, res, next) {
   next();
 });
 const socketIO = require("socket.io");
-socketIO(
-  (http,
-  {
-    cors: {
-      origin: ["http://localhost:5173", "http://localhost:3000"],
-    },
-  })
-);
+// socketIO(
+//   (http,
+//   {
+//     cors: {
+//       origin: ["http://localhost:5173", "http://localhost:3000"],
+//     },
+//   })
+// );
 socketIO(
   (https,
   {
