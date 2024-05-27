@@ -10,11 +10,11 @@ const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
 const model3DRoute = require("./routes/model3D");
 const CryptoJS = require("crypto-js");
-
+const https = require("https").Server(app);
 const cors = require("cors");
 const User = require("./models/User");
 const app = express();
-const https = require("https").Server(app);
+const http = require("http").Server(app);
 dotenv.config();
 const connect = async () => {
   try {
@@ -30,16 +30,23 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
   next();
 });
-const socketIO = require("socket.io")(https, {
-  cors: {
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "https://e-commerce-frontend4139.netlify.app/",
-    ],
-  },
-});
-
+const socketIO = require("socket.io");
+socketIO(
+  (http,
+  {
+    cors: {
+      origin: ["http://localhost:5173", "http://localhost:3000"],
+    },
+  })
+);
+socketIO(
+  (https,
+  {
+    cors: {
+      origin: ["https://e-commerce-i23i.onrender.com"],
+    },
+  })
+);
 //Add this before the app.get() block
 let onlineUsers = [];
 
