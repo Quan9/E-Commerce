@@ -8,8 +8,9 @@ export default defineConfig({
     proxy: {
       "/api": {
         target:
-          "https://e-commerce-backend-studentquan9-9b1574ae.koyeb.app" ||
-          "http://localhost:8080",
+          "https://e-commerce-backend-studentquan9-9b1574ae.koyeb.app" ,
+          // ||
+          // "http://localhost:8080",
         changeOrigin: true,
         secure: false,
         ws: true,

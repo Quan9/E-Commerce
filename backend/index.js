@@ -29,15 +29,18 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
   next();
 });
-const socketIO = require("socket.io")(http, {
-  cors: {
-    origin: [
-      "wss://e-commerce-frontend4139.netlify.app/",
-      "http://localhost:5173",
-      "http://localhost:3000",
-    ],
-  },
-});
+const socketIO = require("socket.io")(
+  http
+  //   , {
+  //   cors: {
+  //     origin: [
+  //       "wss://e-commerce-frontend4139.netlify.app",
+  //       "http://localhost:5173",
+  //       "http://localhost:3000",
+  //     ],
+  //   },
+  // }
+);
 //Add this before the app.get() block
 let onlineUsers = [];
 
