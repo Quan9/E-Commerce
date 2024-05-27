@@ -14,13 +14,6 @@ export default defineConfig({
         secure: true,
         ws: true,
       },
-      "/local": {
-        target:
-          "http://e-commerce-backend-studentquan9-9b1574ae.koyeb.app/local",
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-      },
     },
   },
 });
