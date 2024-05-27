@@ -10,12 +10,11 @@ const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
 const model3DRoute = require("./routes/model3D");
 const CryptoJS = require("crypto-js");
-const https = require("https");
+// const https = require("https");
 const cors = require("cors");
 const User = require("./models/User");
 const app = express();
-const http = require("http");
-const fs = require('fs');
+const http = require("http").Server(app);
 dotenv.config();
 const connect = async () => {
   try {
@@ -25,12 +24,6 @@ const connect = async () => {
     throw error;
   }
 };
-var options = {
-  key: fs.readFileSync("test/fixtures/keys/agent2-key.pem"),
-  cert: fs.readFileSync("test/fixtures/keys/agent2-cert.cert"),
-};
-http.createServer(app);
-https.createServer(options, app).listen(3000);
 app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
@@ -47,10 +40,10 @@ const socketIO = require("socket.io");
 //   })
 // );
 socketIO(
-  (https,
+  (http,
   {
     cors: {
-      origin: ["https://e-commerce-frontend4139.netlify.app/"],
+      origin: ["wss://e-commerce-frontend4139.netlify.app/"],
     },
   })
 );
