@@ -49,7 +49,7 @@ socketIO(
   (https,
   {
     cors: {
-      origin: ["https://e-commerce-i23i.onrender.com"],
+      origin: ["https://e-commerce-frontend4139.netlify.app/"],
     },
   })
 );
