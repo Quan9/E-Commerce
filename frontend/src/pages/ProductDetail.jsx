@@ -126,8 +126,8 @@ const ProductDetail = (props) => {
     });
     return (
       <>
-        {values.map((review) => (
-          <Card key={review} bg={"rgba(195, 195, 195, 0.2)"} w={"100%"}>
+        {values.map((review, index) => (
+          <Card key={review + index} bg={"rgba(195, 195, 195, 0.2)"} w={"100%"}>
             <Title order={5}>{review.name}</Title>
             <Text span inline>
               {review.comment} <Rating value={review.rating} readOnly />
