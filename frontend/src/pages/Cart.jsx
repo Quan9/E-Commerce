@@ -116,8 +116,17 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          fields: {
-            billingDetails:'auto'
+          defaultValues: {
+            billingDetails: {
+              name: "",
+              email: "",
+              address: {
+                city: "",
+                country: "",
+                line1: "",
+              },
+              phone: "",
+            },
           },
         });
 
