@@ -105,26 +105,18 @@ const Cart = () => {
         }
         stripe12 = await loadStripe(stripePublish);
 
-        const clientSecret = await createPaymentIntent({
+        const fetchData = createPaymentIntent({
           amount: cart.total,
-        }).then((res) => {
-          return res.data.clientSecret;
         });
+        const res = await fetchData;
+        const data = await res.json();
         elements = stripe12?.elements({
-          clientSecret: clientSecret,
-          loader: "auto",
+          clientSecret: data.clientSecret,
+          loader:'auto'
         });
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          fields: {
-            billingDetails: {
-              name: "auto",
-              email: "auto",
-              phone: "auto",
-              address: { city: "auto", country: "auto", line1: "auto" },
-            },
-          },
         });
         payEl?.mount(el);
       }
