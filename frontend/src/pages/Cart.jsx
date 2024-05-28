@@ -1,7 +1,7 @@
 /* eslint-disable no-extra-boolean-cast */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { redirect, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate } from "react-router-dom";
 import {
   addItem,
   removeItem,
@@ -45,6 +45,7 @@ const Cart = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
   const nav = useNavigate();
+  const location = useLocation().pathname;
   const EmptyCart = () => {
     return (
       <Center w={"100%"} h={"100%"}>
@@ -95,7 +96,6 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.querySelector("#payment");
       const btn = document.querySelector("#submit");
-      const location = useLocation().pathname;
       console.log(location);
       let stripe12;
       let elements;
