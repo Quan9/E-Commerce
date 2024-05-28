@@ -153,7 +153,7 @@ const Cart = () => {
     const stripe = () => {
       getConfig().then((res) => {
         setStripePublish(res.data.publishableKey);
-        setType("card");
+        setType("stripe");
       });
       // createPaymentIntent({ cart, user })
       //   .then((res) => {
