@@ -25,9 +25,7 @@ router.post("/create-payment-intent", async (req, res) => {
       },
     });
 
-    res.send({
-      clientSecret: p?.client_secret,
-    });
+    res.status(200).json({ clientSecret: p?.client_secret });
   } catch (e) {
     res.status(500).send({});
   }
