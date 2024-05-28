@@ -95,7 +95,7 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.getElementById("payment");
       const btn = document.getElementById("submit");
-      console.log(el,btn,'----')
+      console.log(el, btn, "----");
       let stripe12;
       let elements;
       async function load() {
@@ -147,11 +147,13 @@ const Cart = () => {
 
       load();
     };
+    useEffect(() => {
+      stripePublish && getStripe();
+    }, [stripePublish]);
     const stripe = () => {
       getConfig().then((res) => {
         setStripePublish(res.data.publishableKey);
         setType("card");
-        getStripe();
       });
       // createPaymentIntent({ cart, user })
       //   .then((res) => {
