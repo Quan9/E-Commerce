@@ -9,7 +9,6 @@ const stripeRoute = require("./routes/stripe");
 const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
 const model3DRoute = require("./routes/model3D");
-const CryptoJS = require("crypto-js");
 const cors = require("cors");
 const User = require("./models/User");
 const app = express();
@@ -33,16 +32,12 @@ const socketIO = require("socket.io")(http, {
   cors: {
     origin: [
       "http://localhost:8080",
-      "https://admin.socket.io",
-      "https://e-commerce-frontend4139.netlify.app",
+      "https://e-commerce-frontend41.netlify.app",
     ],
   },
 });
 //Add this before the app.get() block
 let onlineUsers = [];
-// instrument(io, {
-//   auth: false
-// });
 const removeUser = (socketId) => {
   onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
 };
