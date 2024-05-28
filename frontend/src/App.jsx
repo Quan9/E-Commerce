@@ -40,7 +40,9 @@ const App = () => {
   const [socket, setSocket] = useState(null);
   const [anoUser, setAnoUser] = useState();
   const { user } = useSelector((state) => state.user);
-  const clientSocket = io.connect("http://localhost:8000");
+  const clientSocket = io.connect(
+    "https://e-commerce-backend-studentquan9-9b1574ae.koyeb.app/"
+  );
   useEffect(() => {
     if (!socket && user === null) {
       setSocket(clientSocket);
