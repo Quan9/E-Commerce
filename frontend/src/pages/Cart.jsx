@@ -95,6 +95,8 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.querySelector("#payment");
       const btn = document.querySelector("#submit");
+      const location = useLocation().pathname;
+      console.log(location);
       let stripe12;
       let elements;
       async function load() {
@@ -102,7 +104,6 @@ const Cart = () => {
           return;
         }
         stripe12 = await loadStripe(stripePublish);
-        console.log(el, btn, "----", stripe12);
 
         const clientSecret = await createPaymentIntent({
           amount: cart.total,
@@ -132,6 +133,7 @@ const Cart = () => {
           elements,
           confirmParams: {
             redirect: "if_required",
+            return_url: location,
           },
         });
         if (sResult) {
