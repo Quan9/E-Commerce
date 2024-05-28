@@ -95,6 +95,7 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.getElementById("payment");
       const btn = document.getElementById("submit");
+      console.log(el,btn,'----')
       let stripe12;
       let elements;
       async function load() {
