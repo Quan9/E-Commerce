@@ -33,6 +33,8 @@ const socketIO = require("socket.io")(http, {
     origin: [
       "http://localhost:8080",
       "https://e-commerce-frontend41.netlify.app",
+      "https://e-commerce-frontend4139.netlify.app",
+
     ],
   },
 });
