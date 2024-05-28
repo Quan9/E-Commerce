@@ -118,7 +118,7 @@ const Cart = () => {
       <Container>
         <Center h={"100%"}>
           <Grid>
-            <GridCol span={{ base: 12, lg: 8 }}>
+            <GridCol span={{ base: 12, lg: 8 }} me={"sm"}>
               <Stack w={"100%"} justify="center" align="center">
                 <Title order={1}>Item List</Title>
                 <Button
@@ -198,7 +198,7 @@ const Cart = () => {
                 </Group>
               </Stack>
             </GridCol>
-            <GridCol span={{ base: 12, lg: 3 }} ps={"sm"}>
+            <GridCol span={{ base: 12, lg: 3 }}>
               <Card pos={"sticky"} top={40}>
                 <Title order={3} ta={"center"}>
                   Order Summary
@@ -225,18 +225,29 @@ const Cart = () => {
                   <FormatPrice price={cart.total} />
 
                   {!payment ? (
-                    <Group justify="flex-start">
-                      <Button onClick={() => stripe()} variant="default">
+                    <Group justify={{ base: "center", lg: "space-evenly" }}>
+                      <Button
+                        onClick={() => stripe()}
+                        variant="default"
+                        size="14"
+                      >
                         Pay with Card
                       </Button>
-                      <Button onClick={() => manual()} variant="default">
+                      <Button
+                        onClick={() => manual()}
+                        variant="default"
+                        size="14"
+                      >
                         Cash Payment
                       </Button>
                     </Group>
                   ) : (
                     <Card>
                       <CardSection>
-                        <Button onClick={() => setPayment(false)} variant="default">
+                        <Button
+                          onClick={() => setPayment(false)}
+                          variant="default"
+                        >
                           <IconArrowLeft />
                         </Button>
                       </CardSection>

@@ -24,7 +24,7 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LOGOUT } from "../../slices/UserSlice.jsx";
 import { useEffect, useState } from "react";
 import { getTotals } from "../../slices/CartSlice.jsx";
@@ -35,6 +35,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   const [user, setUser] = useState(currentUser);
   const medium = useMediaQuery("(max-width:50em)");
   const navigate = useNavigate();
+  const location = useLocation();
   const pathname = location.pathname.split("/")[1];
   const dispatch = useDispatch();
   const redirectPage = (path) => {
@@ -56,8 +57,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
     socket.emit("logout", anoUser.username);
     sessionStorage.removeItem("userSes");
     dispatch(LOGOUT());
-    if (pathname === "") window.location.reload();
-    else navigate("/");
+    if (pathname !== "") navigate("/");
   };
   const checkNoti = () => {
     let noti = true;
@@ -91,6 +91,9 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
       }
     });
     socket.on("new order", (userOrder) => {
+      if (location.pathname === "/user/orders") {
+        handleClick("orders");
+      }
       let editUser = JSON.parse(JSON.stringify(currentUser));
       editUser.noti = userOrder;
       localStorage.setItem("user", JSON.stringify(editUser));
