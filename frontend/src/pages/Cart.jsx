@@ -84,7 +84,7 @@ const Cart = () => {
     useEffect(() => {
       const stripeCheckout = () => {
         createPaymentIntent({ cart, user }).then((res) => {
-          window.location.href = res.data.url;
+          nav(res.data.url);
         });
       };
       payment === "stripe" && stripeCheckout();

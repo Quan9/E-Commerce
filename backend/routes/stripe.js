@@ -58,8 +58,8 @@ router.post("/create-payment-intent", async (req, res) => {
       phone_number_collection: {
         enabled: true,
       },
-      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cart`,
+      success_url: `/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `/cart`,
     });
     res.status(200).send({ url: session.url });
   } catch (e) {
