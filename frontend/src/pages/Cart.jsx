@@ -112,7 +112,7 @@ const Cart = () => {
         const data = await res.json();
         elements = stripe12?.elements({
           clientSecret: data.clientSecret,
-          loader:'auto'
+          loader: "auto",
         });
 
         const payEl = elements?.create("payment", {

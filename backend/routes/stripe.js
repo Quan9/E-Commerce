@@ -20,10 +20,9 @@ router.post("/create-payment-intent", async (req, res) => {
     const p = await stripe.paymentIntents.create({
       amount: amount,
       currency: "VND",
-      // automatic_payment_methods: {
-      // enabled: true,
-      // },
-      payment_method: "card",
+      automatic_payment_methods: {
+        enabled: true,
+      },
       shipping,
     });
 
