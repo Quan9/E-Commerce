@@ -115,7 +115,9 @@ const Cart = () => {
           loader: "auto",
         });
 
-        const payEl = elements?.create("payment", {
+        let payEl = elements?.create("address", { mode: "shipping" });
+
+        payEl = elements?.create("payment", {
           layout: "tabs",
         });
         payEl?.mount(el);
