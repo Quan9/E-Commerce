@@ -12,7 +12,6 @@ const model3DRoute = require("./routes/model3D");
 const CryptoJS = require("crypto-js");
 const cors = require("cors");
 const User = require("./models/User");
-// const { instrument } = require("@socket.io/admin-ui");
 const app = express();
 const http = require("http").Server(app);
 dotenv.config();
@@ -30,19 +29,15 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
   next();
 });
-const socketIO = require("socket.io")(
-  http,{
-
-    cors: {
-      origin: [
-          "http://localhost:8080",
-          "https://admin.socket.io",
-          "https://e-commerce-frontend4139.netlify.app",
-      ],
-      // credentials: true
-    }
-  }
-);
+const socketIO = require("socket.io")(http, {
+  cors: {
+    origin: [
+      "http://localhost:8080",
+      "https://admin.socket.io",
+      "https://e-commerce-frontend4139.netlify.app",
+    ],
+  },
+});
 //Add this before the app.get() block
 let onlineUsers = [];
 // instrument(io, {
