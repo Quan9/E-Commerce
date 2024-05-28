@@ -1,7 +1,6 @@
-/* eslint-disable no-extra-boolean-cast */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { redirect, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   addItem,
   removeItem,
@@ -10,8 +9,7 @@ import {
   clearCart,
 } from "../slices/CartSlice";
 import FormatPrice from "../components/misc/FormatPrice";
-import { Stripe, StripeElements, loadStripe } from "@stripe/stripe-js";
-import { createPaymentIntent, getConfig } from "../services/payment";
+import { createPaymentIntent } from "../services/payment";
 import {
   Box,
   Button,
@@ -25,6 +23,7 @@ import {
   Image,
   List,
   NavLink,
+  Notification,
   Space,
   Stack,
   Text,
@@ -36,9 +35,9 @@ import {
   IconMinus,
   IconPlus,
   IconTrash,
+  IconX,
 } from "@tabler/icons-react";
 import { isNotEmpty, useForm } from "@mantine/form";
-import { toast } from "react-toastify";
 
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
@@ -62,8 +61,8 @@ const Cart = () => {
   };
 
   const ShowCart = () => {
-    const [stripePublish, setStripePublish] = useState();
-    const [type, setType] = useState("");
+    const [checkOut, setCheckOut] = useState(false);
+    const [payment, setPayment] = useState("");
     const form = useForm({
       initialValues: { name: "", email: "", phonenumber: "", address: "" },
 
@@ -77,6 +76,19 @@ const Cart = () => {
         address: isNotEmpty("Address must not be empty"),
       },
     });
+    useEffect(() => {
+      dispatch(getTotals());
+      if (user) setCheckOut(true);
+    }, [cart, dispatch, user]);
+
+    useEffect(() => {
+      const stripeCheckout = () => {
+        createPaymentIntent({ cart, user }).then((res) => {
+          window.location.href = res.data.url;
+        });
+      };
+      payment === "stripe" && stripeCheckout();
+    }, [payment]);
     const increase = (product) => {
       dispatch(addItem(product));
     };
@@ -89,79 +101,20 @@ const Cart = () => {
     const clear = () => {
       dispatch(clearCart());
     };
-    useEffect(() => {
-      dispatch(getTotals());
-    }, [cart, dispatch, user]);
-    const getStripe = async () => {
-      const el = document.querySelector("#payment");
-      const btn = document.querySelector("#submit");
-      const location = window.location.href;
-      console.log(location);
-      let stripe12;
-      let elements;
-      async function load() {
-        if (!el) {
-          return;
-        }
-        stripe12 = await loadStripe(stripePublish);
-        let data;
-        const a = { amount: cart.total };
-        await createPaymentIntent(a)
-          .then((res) => {
-            console.log(res);
-            data = res.data.clientSecret;
-          })
-          .catch((err) => {
-            toast.error(err, { position: "top-right" });
-            console.log(err);
-          });
-        elements = stripe12?.elements({
-          clientSecret: data,
-          loader: "auto",
-        });
-        payEl = elements?.create("payment", {
-          layout: "tabs",
-        });
-        payEl?.mount(el);
-      }
-      await load();
-      btn?.addEventListener("click", async () => {
-        const sResult = await stripe12?.confirmPayment({
-          elements,
-          confirmParams: {
-            redirect: "if_required",
-            return_url: location,
-          },
-        });
-        if (sResult) {
-          console.log(sResult);
-          nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
-        }
-        if (!!sResult?.error) {
-          toast.error(sResult.error.message, { position: "top-center" });
-          return;
-        }
-      });
-    };
-    useEffect(() => {
-      stripePublish && getStripe();
-    }, [stripePublish]);
     const stripe = () => {
-      getConfig().then((res) => {
-        setStripePublish(res.data.publishableKey);
-        setType("stripe");
-      });
-      // createPaymentIntent({ cart, user })
-      //   .then((res) => {
-      //     window.location.href = res.data.url;
-      //   })
-      //   .then((res) => {
-      //     alert(res.data.url);
-      //     window.location.href = res.data.url;
-      //   });
-    };
-    const manual = () => {
-      setType("manual");
+      if (checkOut) {
+        createPaymentIntent({ cart, user }).then((res) => {
+          window.location.href = res.data.url;
+        });
+      } else {
+        <Notification
+          icon={<IconX style={{ width: "20rem", height: "20rem" }} />}
+          color="red"
+          title="Error!"
+        >
+          Must logged in first
+        </Notification>;
+      }
     };
     const handleSubmit = (values) => {
       nav("/checkoutsuccess", { state: { values } });
@@ -170,7 +123,7 @@ const Cart = () => {
       <Container>
         <Center h={"100%"}>
           <Grid>
-            <GridCol span={{ base: 12, lg: 8 }} me={"sm"}>
+            <GridCol span={{ base: 12, lg: 8 }}>
               <Stack w={"100%"} justify="center" align="center">
                 <Title order={1}>Item List</Title>
                 <Button
@@ -250,7 +203,7 @@ const Cart = () => {
                 </Group>
               </Stack>
             </GridCol>
-            <GridCol span={{ base: 12, lg: 3 }}>
+            <GridCol span={{ base: 12, lg: 3 }} ps={"sm"}>
               <Card pos={"sticky"} top={40}>
                 <Title order={3} ta={"center"}>
                   Order Summary
@@ -276,66 +229,64 @@ const Cart = () => {
                   </Title>
                   <FormatPrice price={cart.total} />
 
-                  {type === "" && (
-                    <Group justify={"space-evenly"}>
-                      <Button onClick={() => stripe()} variant="default">
+                  {payment === "" && (
+                    <Group justify="flex-start">
+                      <Button
+                        onClick={() => setPayment("stripe")}
+                        variant="default"
+                      >
                         Pay with Card
                       </Button>
-                      <Button onClick={() => manual()} variant="default">
+                      <Button
+                        onClick={() => setPayment("manual")}
+                        variant="default"
+                      >
                         Cash Payment
                       </Button>
                     </Group>
                   )}
+                  {payment === "manual" && (
+                    <Card>
+                      <CardSection>
+                        <Button
+                          onClick={() => setPayment("")}
+                          variant="default"
+                        >
+                          <IconArrowLeft />
+                        </Button>
+                      </CardSection>
+                      <CardSection>
+                        <form
+                          onSubmit={form.onSubmit((values) =>
+                            handleSubmit(values)
+                          )}
+                        >
+                          <TextInput
+                            label="Name (*)"
+                            placeholder="Name"
+                            {...form.getInputProps("name")}
+                          />
+                          <TextInput
+                            label="Address (*)"
+                            placeholder="Address"
+                            {...form.getInputProps("address")}
+                          />
+                          <TextInput
+                            label="Phone Number (*)"
+                            placeholder="Phone Number"
+                            {...form.getInputProps("phonenumber")}
+                          />
+                          <TextInput
+                            label="Email (*)"
+                            placeholder="Email"
+                            {...form.getInputProps("email")}
+                          />
+                          <Button type="submit">Order</Button>
+                        </form>
+                      </CardSection>
+                    </Card>
+                  )}
                 </CardSection>
-                {type === "manual" && (
-                  <CardSection>
-                    <Button onClick={() => setType("")} variant="default">
-                      <IconArrowLeft />
-                    </Button>
-                    <form
-                      onSubmit={form.onSubmit((values) => handleSubmit(values))}
-                    >
-                      <TextInput
-                        label="Name (*)"
-                        placeholder="Name"
-                        {...form.getInputProps("name")}
-                      />
-                      <TextInput
-                        label="Address (*)"
-                        placeholder="Address"
-                        {...form.getInputProps("address")}
-                      />
-                      <TextInput
-                        label="Phone Number (*)"
-                        placeholder="Phone Number"
-                        {...form.getInputProps("phonenumber")}
-                      />
-                      <TextInput
-                        label="Email (*)"
-                        placeholder="Email"
-                        {...form.getInputProps("email")}
-                      />
-                      <Button type="submit">Order</Button>
-                    </form>
-                  </CardSection>
-                )}
-                {type === "stripe" && (
-                  <CardSection>
-                    <Button
-                      onClick={() => {
-                        setType("");
-                        setStripePublish();
-                      }}
-                      variant="default"
-                    >
-                      <IconArrowLeft />
-                    </Button>
-                    <div id="payment"></div>
-                    <div>
-                      <button id="submit">Pay Now</button>
-                    </div>
-                  </CardSection>
-                )}
               </Card>
             </GridCol>
           </Grid>
