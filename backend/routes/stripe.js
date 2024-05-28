@@ -17,6 +17,7 @@ router.get("/retrieve/:id", async (req, res) => {
 router.post("/create-payment-intent", async (req, res) => {
   const { amount } = req.body;
   try {
+    console.log("enter payment-intent");
     const p = await stripe.paymentIntents.create({
       amount: amount,
       currency: "VND",
@@ -24,10 +25,10 @@ router.post("/create-payment-intent", async (req, res) => {
         enabled: true,
       },
     });
-
+    console.log(p);
     res.status(200).json({ clientSecret: p?.client_secret });
   } catch (e) {
-    res.status(500).send({});
+    res.status(500).send(e);
   }
   // const { user, cart, payment } = req.body;
   // const line_items = cart.cartItems.map((item) => {

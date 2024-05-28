@@ -115,7 +115,6 @@ const Cart = () => {
             toast.error(err, { position: "top-right" });
             console.log(err);
           });
-        console.log(res, data, ";-=------");
         elements = stripe12?.elements({
           clientSecret: data,
           loader: "auto",
