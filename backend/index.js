@@ -36,7 +36,8 @@ const socketIO = require("socket.io")(
     cors: {
       origin: [
           "http://localhost:8080",
-          "https://admin.socket.io"
+          "https://admin.socket.io",
+          "https://e-commerce-frontend4139.netlify.app",
       ],
       // credentials: true
     }
