@@ -137,6 +137,7 @@ const Cart = () => {
           },
         });
         if (sResult) {
+          console.log(sResult);
           nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
         }
         if (!!sResult?.error) {
