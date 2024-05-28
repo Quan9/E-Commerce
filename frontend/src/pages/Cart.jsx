@@ -105,7 +105,8 @@ const Cart = () => {
         }
         stripe12 = await loadStripe(stripePublish);
         let data;
-        await createPaymentIntent({ amount: cart.total })
+        const a = { amount: cart.total };
+        await createPaymentIntent(a)
           .then((res) => {
             console.log(res);
             data = res.data.clientSecret;
