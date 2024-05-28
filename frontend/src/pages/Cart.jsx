@@ -116,7 +116,6 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          paymentMethodOrder: "card",
           fields: {
             billingDetails: {
               name: "",
