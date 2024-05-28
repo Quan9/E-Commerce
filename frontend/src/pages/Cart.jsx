@@ -104,24 +104,27 @@ const Cart = () => {
           return;
         }
         stripe12 = await loadStripe(stripePublish);
-
-        const { res } = await createPaymentIntent({
-          amount: cart.total,
-        });
-        const data = res.data.clientSecret;
+        let data;
+        await createPaymentIntent({ amount: cart.total })
+          .then((res) => {
+            console.log(res);
+            data = res.data.clientSecret;
+          })
+          .catch((err) => {
+            toast.error(err, { position: "top-right" });
+            console.log(err);
+          });
         console.log(res, data, ";-=------");
         elements = stripe12?.elements({
           clientSecret: data,
           loader: "auto",
         });
-
-        let payEl = elements?.create("address", { mode: "shipping" });
-
         payEl = elements?.create("payment", {
           layout: "tabs",
         });
         payEl?.mount(el);
       }
+      load();
       btn?.addEventListener("click", async () => {
         const sResult = await stripe12?.confirmPayment({
           elements,
@@ -139,8 +142,6 @@ const Cart = () => {
           return;
         }
       });
-
-      load();
     };
     useEffect(() => {
       stripePublish && getStripe();
