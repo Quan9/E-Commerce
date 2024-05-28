@@ -23,7 +23,6 @@ router.post("/create-payment-intent", async (req, res) => {
       automatic_payment_methods: {
         enabled: true,
       },
-      shipping,
     });
 
     res.send({
