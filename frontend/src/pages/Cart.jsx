@@ -95,7 +95,6 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.querySelector("#payment");
       const btn = document.querySelector("#submit");
-      console.log(el, btn, "----");
       let stripe12;
       let elements;
       async function load() {
@@ -103,12 +102,15 @@ const Cart = () => {
           return;
         }
         stripe12 = await loadStripe(stripePublish);
+        console.log(el, btn, "----", stripe12);
 
-        const rprom = createPaymentIntent({ amount: cart.total });
-        const res = await rprom;
-        const data = await res.json();
+        const clientSecret = await createPaymentIntent({
+          amount: cart.total,
+        }).then((res) => {
+          return res.data.clientSecret;
+        });
         elements = stripe12?.elements({
-          clientSecret: data.clientSecret,
+          clientSecret: clientSecret,
           loader: "auto",
         });
 
