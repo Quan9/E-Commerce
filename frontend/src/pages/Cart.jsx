@@ -92,7 +92,7 @@ const Cart = () => {
     useEffect(() => {
       dispatch(getTotals());
     }, [cart, dispatch, user]);
-    const getStripe = () => {
+    const getStripe = async () => {
       const el = document.querySelector("#payment");
       const btn = document.querySelector("#submit");
       const location = window.location.href;
@@ -125,7 +125,7 @@ const Cart = () => {
         });
         payEl?.mount(el);
       }
-      load();
+      await load();
       btn?.addEventListener("click", async () => {
         const sResult = await stripe12?.confirmPayment({
           elements,
