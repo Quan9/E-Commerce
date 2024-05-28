@@ -93,8 +93,8 @@ const Cart = () => {
       dispatch(getTotals());
     }, [cart, dispatch, user]);
     const getStripe = () => {
-      const el = document.getElementById("payment");
-      const btn = document.getElementById("submit");
+      const el = document.querySelector("#payment");
+      const btn = document.querySelector("#submit");
       console.log(el, btn, "----");
       let stripe12;
       let elements;
