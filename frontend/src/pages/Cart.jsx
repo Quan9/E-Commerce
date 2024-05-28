@@ -116,17 +116,10 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          fields: {
-            billingDetails: {
-              name: "auto",
-              email: "auto",
-              address: {
-                city: "auto",
-                country: "auto",
-                line1: "auto",
-              },
-              phone: "auto",
-            },
+        });
+        payEl.update({
+          address: {
+            mode: "shipping",
           },
         });
 
@@ -135,6 +128,7 @@ const Cart = () => {
       btn?.addEventListener("click", async () => {
         const sResult = await stripe12?.confirmPayment({
           elements,
+          if_,
         });
         if (sResult) {
           nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
