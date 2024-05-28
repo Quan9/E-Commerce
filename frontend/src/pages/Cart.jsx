@@ -130,10 +130,9 @@ const Cart = () => {
       btn?.addEventListener("click", async () => {
         const sResult = await stripe12?.confirmPayment({
           elements,
-          // confirmParams:{
-          //   redirect:'if_required',
-          //   return_url: 
-          // },
+          confirmParams: {
+            redirect: "if_required",
+          },
         });
         if (sResult) {
           nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
