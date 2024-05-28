@@ -96,8 +96,7 @@ const Cart = () => {
     const stripe = () => {
       if (checkOut) {
         createPaymentIntent({ cart, user }).then((res) => {
-          console.log(res.data.url);
-          window.location.href = res.data.url;
+          nav(res.data.url);
         });
       } else {
         <Notification
