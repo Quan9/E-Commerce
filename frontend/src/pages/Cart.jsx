@@ -1,7 +1,7 @@
 /* eslint-disable no-extra-boolean-cast */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import {
   addItem,
   removeItem,
@@ -116,19 +116,24 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-        });
-        payEl.update({
-          address: {
-            mode: "shipping",
+          fields: {
+            billingDetails: {
+              name: "auto",
+              email: "auto",
+              phone: "auto",
+              address: { city: "auto", country: "auto", line1: "auto" },
+            },
           },
         });
-
         payEl?.mount(el);
       }
       btn?.addEventListener("click", async () => {
         const sResult = await stripe12?.confirmPayment({
           elements,
-          if_,
+          // confirmParams:{
+          //   redirect:'if_required',
+          //   return_url: 
+          // },
         });
         if (sResult) {
           nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
