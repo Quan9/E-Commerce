@@ -45,7 +45,7 @@ const Cart = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
   const nav = useNavigate();
-  const location = useLocation().pathname;
+  const location = useLocation();
   const EmptyCart = () => {
     return (
       <Center w={"100%"} h={"100%"}>
