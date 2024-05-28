@@ -105,13 +105,13 @@ const Cart = () => {
         }
         stripe12 = await loadStripe(stripePublish);
 
-        const fetchData = createPaymentIntent({
+        const { res } = await createPaymentIntent({
           amount: cart.total,
         });
-        const res = await fetchData;
-        const data = await res.json();
+        const data = res.data.clientSecret;
+        console.log(res, data, ";-=------");
         elements = stripe12?.elements({
-          clientSecret: data.clientSecret,
+          clientSecret: data,
           loader: "auto",
         });
 
