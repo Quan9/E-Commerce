@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-boolean-cast */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +10,8 @@ import {
   clearCart,
 } from "../slices/CartSlice";
 import FormatPrice from "../components/misc/FormatPrice";
-import { createPaymentIntent } from "../services/payment";
+import { Stripe, StripeElements, loadStripe } from "@stripe/stripe-js";
+import { createPaymentIntent, getConfig } from "../services/payment";
 import {
   Box,
   Button,
@@ -23,7 +25,6 @@ import {
   Image,
   List,
   NavLink,
-  Notification,
   Space,
   Stack,
   Text,
@@ -35,9 +36,9 @@ import {
   IconMinus,
   IconPlus,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
 import { isNotEmpty, useForm } from "@mantine/form";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
@@ -61,8 +62,8 @@ const Cart = () => {
   };
 
   const ShowCart = () => {
-    const [checkOut, setCheckOut] = useState(false);
-    const [payment, setPayment] = useState(false);
+    const [stripePublish, setStripePublish] = useState();
+    const [type, setType] = useState("");
     const form = useForm({
       initialValues: { name: "", email: "", phonenumber: "", address: "" },
 
@@ -90,31 +91,78 @@ const Cart = () => {
     };
     useEffect(() => {
       dispatch(getTotals());
-      if (user) setCheckOut(true);
     }, [cart, dispatch, user]);
+    const getStripe = () => {
+      const el = document.getElementById("payment");
+      const btn = document.getElementById("submit");
+      let stripe12;
+      let elements;
+      async function load() {
+        if (!el) {
+          return;
+        }
+        stripe12 = await loadStripe(stripePublish);
 
-    const stripe = () => {
-      if (checkOut) {
-        createPaymentIntent({ cart, user })
-          .then((res) => {
-            window.location.href = res.data.url;
-          })
-          .then((res) => {
-            alert(res.data.url);
-            window.location.href = res.data.url;
-          });
-      } else {
-        <Notification
-          icon={<IconX style={{ width: "20rem", height: "20rem" }} />}
-          color="red"
-          title="Error!"
-        >
-          Must logged in first
-        </Notification>;
+        const rprom = createPaymentIntent({ amount: cart.total });
+        const res = await rprom;
+        const data = await res.json();
+        elements = stripe12?.elements({
+          clientSecret: data.clientSecret,
+          loader: "auto",
+        });
+
+        const payEl = elements?.create("payment", {
+          layout: "tabs",
+          fields: {
+            billingDetails: {
+              address: "auto",
+              email: "auto",
+              name: "auto",
+              phone: "auto",
+            },
+          },
+          // defaultValues: {
+          //     billingDetails: {
+          //         name: '',
+          //         email: '',
+          //     },
+          // },
+        });
+
+        payEl?.mount(el);
       }
+      btn?.addEventListener("click", async () => {
+        const sResult = await stripe12?.confirmPayment({
+          elements,
+        });
+        if (sResult) {
+          nav(`/checkoutsuccess?session_id=${sResult.paymentIntent.id}`);
+        }
+        if (!!sResult?.error) {
+          toast.error(sResult.error.message, { position: "top-center" });
+          return;
+        }
+      });
+
+      load();
+    };
+    const stripe = () => {
+      getConfig().then((res) => {
+        setStripePublish(res.data.publishableKey);
+        setType("card");
+        getStripe();
+      });
+      // createPaymentIntent({ cart, user })
+      //   .then((res) => {
+      //     window.location.href = res.data.url;
+      //   })
+      //   .then((res) => {
+      //     alert(res.data.url);
+      //     window.location.href = res.data.url;
+      //   });
     };
     const manual = () => {
-      setPayment(true);
+      setType("manual");
     };
     const handleSubmit = (values) => {
       nav("/checkoutsuccess", { state: { values } });
@@ -229,7 +277,7 @@ const Cart = () => {
                   </Title>
                   <FormatPrice price={cart.total} />
 
-                  {!payment ? (
+                  {type === "" && (
                     <Group justify={"space-evenly"}>
                       <Button onClick={() => stripe()} variant="default">
                         Pay with Card
@@ -238,48 +286,57 @@ const Cart = () => {
                         Cash Payment
                       </Button>
                     </Group>
-                  ) : (
-                    <Card>
-                      <CardSection>
-                        <Button
-                          onClick={() => setPayment(false)}
-                          variant="default"
-                        >
-                          <IconArrowLeft />
-                        </Button>
-                      </CardSection>
-                      <CardSection>
-                        <form
-                          onSubmit={form.onSubmit((values) =>
-                            handleSubmit(values)
-                          )}
-                        >
-                          <TextInput
-                            label="Name (*)"
-                            placeholder="Name"
-                            {...form.getInputProps("name")}
-                          />
-                          <TextInput
-                            label="Address (*)"
-                            placeholder="Address"
-                            {...form.getInputProps("address")}
-                          />
-                          <TextInput
-                            label="Phone Number (*)"
-                            placeholder="Phone Number"
-                            {...form.getInputProps("phonenumber")}
-                          />
-                          <TextInput
-                            label="Email (*)"
-                            placeholder="Email"
-                            {...form.getInputProps("email")}
-                          />
-                          <Button type="submit">Order</Button>
-                        </form>
-                      </CardSection>
-                    </Card>
                   )}
                 </CardSection>
+                {type === "manual" && (
+                  <CardSection>
+                    <Button onClick={() => setType("")} variant="default">
+                      <IconArrowLeft />
+                    </Button>
+                    <form
+                      onSubmit={form.onSubmit((values) => handleSubmit(values))}
+                    >
+                      <TextInput
+                        label="Name (*)"
+                        placeholder="Name"
+                        {...form.getInputProps("name")}
+                      />
+                      <TextInput
+                        label="Address (*)"
+                        placeholder="Address"
+                        {...form.getInputProps("address")}
+                      />
+                      <TextInput
+                        label="Phone Number (*)"
+                        placeholder="Phone Number"
+                        {...form.getInputProps("phonenumber")}
+                      />
+                      <TextInput
+                        label="Email (*)"
+                        placeholder="Email"
+                        {...form.getInputProps("email")}
+                      />
+                      <Button type="submit">Order</Button>
+                    </form>
+                  </CardSection>
+                )}
+                {type === "stripe" && (
+                  <CardSection>
+                    <Button
+                      onClick={() => {
+                        setType("");
+                        setStripePublish();
+                      }}
+                      variant="default"
+                    >
+                      <IconArrowLeft />
+                    </Button>
+                    <div id="payment"></div>
+                    <div>
+                      <button id="submit">Pay Now</button>
+                    </div>
+                  </CardSection>
+                )}
               </Card>
             </GridCol>
           </Grid>

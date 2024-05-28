@@ -1,4 +1,4 @@
-import {publicRequest, userRequest } from "./commonMethods";
+import {publicRequest } from "./commonMethods";
 
 const API_URL = "/stripe";
 

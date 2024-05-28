@@ -15,41 +15,57 @@ router.get("/retrieve/:id", async (req, res) => {
   }
 });
 router.post("/create-payment-intent", async (req, res) => {
-  const { user, cart, payment } = req.body;
-  const line_items = cart.cartItems.map((item) => {
-    return {
-      price_data: {
-        currency: "VND",
-        product_data: {
-          name: item.name + item.color,
-          images: [item.thumbnail],
-          metadata: {
-            id: item._id,
-          },
-        },
-        unit_amount: item.discount ? item.discount : item.price,
-      },
-      quantity: item.cartQuantity,
-    };
-  });
+  const {amount} = req.body;
   try {
-    const session = await stripe.checkout.sessions.create({
-      line_items,
-      payment_method_types: ["card"],
-      mode: "payment",
-      shipping_address_collection: {
-        allowed_countries: ["VN"],
-      },
-      phone_number_collection: {
-        enabled: true,
-      },
-      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cart`,
+    const p = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'VND',
+        automatic_payment_methods: {
+            enabled: true,
+        },
     });
-    res.status(200).send({ url: session.url });
-  } catch (e) {
-    return res.status(400).send(e);
-  }
+
+    res.send({
+        clientSecret: p?.client_secret,
+    });
+} catch(e) {
+    res.status(500).send({});
+}
+  // const { user, cart, payment } = req.body;
+  // const line_items = cart.cartItems.map((item) => {
+  //   return {
+  //     price_data: {
+  //       currency: "VND",
+  //       product_data: {
+  //         name: item.name + item.color,
+  //         images: [item.thumbnail],
+  //         metadata: {
+  //           id: item._id,
+  //         },
+  //       },
+  //       unit_amount: item.discount ? item.discount : item.price,
+  //     },
+  //     quantity: item.cartQuantity,
+  //   };
+  // });
+  // try {
+  //   const session = await stripe.checkout.sessions.create({
+  //     line_items,
+  //     payment_method_types: ["card"],
+  //     mode: "payment",
+  //     shipping_address_collection: {
+  //       allowed_countries: ["VN"],
+  //     },
+  //     phone_number_collection: {
+  //       enabled: true,
+  //     },
+  //     success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+  //     cancel_url: `${process.env.CLIENT_URL}/cart`,
+  //   });
+  //   res.status(200).send({ url: session.url });
+  // } catch (e) {
+  //   return res.status(400).send(e);
+  // }
 });
 
 module.exports = router;
