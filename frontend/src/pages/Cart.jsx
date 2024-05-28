@@ -95,9 +95,14 @@ const Cart = () => {
 
     const stripe = () => {
       if (checkOut) {
-        createPaymentIntent({ cart, user }).then((res) => {
-          nav(res.data.url);
-        });
+        createPaymentIntent({ cart, user })
+          .then((res) => {
+            window.location.href = res.data.url;
+          })
+          .then((res) => {
+            alert(res.data.url);
+            window.location.href = res.data.url;
+          });
       } else {
         <Notification
           icon={<IconX style={{ width: "20rem", height: "20rem" }} />}
