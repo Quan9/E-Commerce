@@ -45,7 +45,6 @@ const Cart = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
   const nav = useNavigate();
-  const location = useLocation();
   const EmptyCart = () => {
     return (
       <Center w={"100%"} h={"100%"}>
@@ -96,6 +95,7 @@ const Cart = () => {
     const getStripe = () => {
       const el = document.querySelector("#payment");
       const btn = document.querySelector("#submit");
+      const location = window.location.href;
       console.log(location);
       let stripe12;
       let elements;
