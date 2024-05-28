@@ -225,19 +225,11 @@ const Cart = () => {
                   <FormatPrice price={cart.total} />
 
                   {!payment ? (
-                    <Group justify={{ base: "center", lg: "space-evenly" }}>
-                      <Button
-                        onClick={() => stripe()}
-                        variant="default"
-                        size="14"
-                      >
+                    <Group justify={"space-evenly"}>
+                      <Button onClick={() => stripe()} variant="default">
                         Pay with Card
                       </Button>
-                      <Button
-                        onClick={() => manual()}
-                        variant="default"
-                        size="14"
-                      >
+                      <Button onClick={() => manual()} variant="default">
                         Cash Payment
                       </Button>
                     </Group>
