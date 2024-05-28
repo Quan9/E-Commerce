@@ -85,7 +85,9 @@ const CheckOut = ({ socket }) => {
               <Title order={3} c={"blue"}>
                 Order has been created successfully. Your order number is{" "}
               </Title>
-              <Text fw={750}>{orderId}</Text>
+              <Text fw={750} ta="center">
+                {orderId}
+              </Text>
               <Button
                 onClick={() => nav("/")}
                 leftSection={<IconArrowLeft size={26} />}
