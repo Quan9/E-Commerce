@@ -116,20 +116,15 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          fields: {
+          paymentMethodTypes: "card",
+          defaultValues: {
             billingDetails: {
-              address: "auto",
-              email: "auto",
-              name: "auto",
-              phone: "auto",
+              name: "",
+              email: "",
+              address: { city: "", country: "", line1: "" },
+              phone: "",
             },
           },
-          // defaultValues: {
-          //     billingDetails: {
-          //         name: '',
-          //         email: '',
-          //     },
-          // },
         });
 
         payEl?.mount(el);
