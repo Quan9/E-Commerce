@@ -116,8 +116,8 @@ const Cart = () => {
 
         const payEl = elements?.create("payment", {
           layout: "tabs",
-          paymentMethodTypes: "card",
-          defaultValues: {
+          paymentMethodOrder: "card",
+          fields: {
             billingDetails: {
               name: "",
               email: "",
