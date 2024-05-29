@@ -204,9 +204,18 @@ const ChatAgent = ({ socket }) => {
 
   useEffect(() => {
     const logChats = () => {
-      const a = chats.sort(
-        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-      );
+      const a = chats.sort((a, b) => {
+        const bDate = new Date(b.updatedAt);
+        const aDate = new Date(a.updatedAt);
+        console.log(bDate, aDate, "date");
+        if (bDate > aDate) return bDate - aDate;
+        if (bDate === aDate) {
+          const bTime = bDate.getTime();
+          const aTime = aDate.getTime();
+          console.log(aTime, bTime, "time");
+          return bTime - aTime;
+        }
+      });
       console.log(a, "useeffect logchats", new Date(a[0].updatedAt));
     };
     chats && logChats();
