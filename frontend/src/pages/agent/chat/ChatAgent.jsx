@@ -46,7 +46,7 @@ const ChatAgent = ({ socket }) => {
   useEffect(() => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
-      if (searchParams.get("room")) {
+      if (searchParams.get("room") !== null) {
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
