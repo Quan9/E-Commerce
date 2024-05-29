@@ -56,7 +56,7 @@ const ChatAgent = ({ socket }) => {
       }
       console.log("outside if");
 
-      setChats(JSON.parse(data));
+      setChats(data);
     };
     fecthChat();
   }, []);
@@ -101,6 +101,7 @@ const ChatAgent = ({ socket }) => {
       setMessages([...messages, values]);
     }
   };
+  console.log(chats[0], "chats[0]");
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
