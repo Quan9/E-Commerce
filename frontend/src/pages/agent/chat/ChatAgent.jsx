@@ -51,10 +51,9 @@ const ChatAgent = ({ socket }) => {
           (chat) => chat._id === searchParams.get("room")
         );
         await chatRead(data[index], data);
-        await params(a._id);
       } else {
         setChats(data);
-        setNewMessage();
+        setNewMessage("");
       }
     };
     fecthChat();
@@ -91,13 +90,14 @@ const ChatAgent = ({ socket }) => {
       const index = data1.findIndex((chat) => chat._id === data._id);
       data1[index] = data;
       setChats(data1);
-      setSelectedChat(data1[index]);
+      setSelectedChat(data);
     } else {
       const index = chats.findIndex((chat) => chat._id === data._id);
       setChats((prev) => ({
         ...prev,
         [index]: data,
       }));
+      setSelectedChat(data);
     }
     // let updateChats = data1 || chats;
     // let index = updateChats.findIndex((chat) => chat._id === data._id);
