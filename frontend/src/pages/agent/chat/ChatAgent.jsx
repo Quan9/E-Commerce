@@ -222,7 +222,10 @@ const ChatAgent = ({ socket }) => {
     console.log(a, "useeffect logchats", new Date(a[0].updatedAt));
   };
   const SortChats = () => {
-    const sortChat = chats;
+    const [sortChat, setSortChat] = useState(chats);
+    useEffect(() => {
+      setSortChat(chats);
+    }, [chats]);
     sortChat.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     console.log(sortChat, "sortchat");
     return (
