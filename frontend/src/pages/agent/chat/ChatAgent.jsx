@@ -59,7 +59,16 @@ const ChatAgent = ({ socket }) => {
   }, []);
   useEffect(() => {
     socket.on("message recieved", (newMessageRecieved) => {
-      messageReceived(newMessageRecieved);
+      // messageReceived(newMessageRecieved);
+      if (
+        selectedChat === undefined ||
+        selectedChat._id !== newMessageRecieved.chat._id
+      ) {
+        // setNewReceived(data);
+        getChats(newMessageRecieved);
+      } else {
+        setMessages([...messages, newMessageRecieved]);
+      }
     });
   }, [socket]);
   useEffect(() => {
@@ -156,19 +165,22 @@ const ChatAgent = ({ socket }) => {
   const messageReceived = (data) => {
     if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
       // setNewReceived(data);
-      getChat(data.chat._id).then((res) => {
-        const chat1 = res.data;
-        console.log(res.data, "--------", chats);
-        const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
-        console.log("first", index);
-        setChats((prev) => ({
-          ...prev,
-          [index]: chat1,
-        }));
-      });
+      getChats(data);
     } else {
       setMessages([...messages, data]);
     }
+  };
+  const getChats = async (data) => {
+    await getChat(data.chat._id).then((res) => {
+      const chat1 = res.data;
+      console.log(res.data, "--------", chats);
+      const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
+      console.log("first", index);
+      setChats((prev) => ({
+        ...prev,
+        [index]: chat1,
+      }));
+    });
   };
   useEffect(() => {
     const logChats = () => {
