@@ -43,7 +43,7 @@ const ChatAgent = ({ socket }) => {
   const ref = useRef();
   const [searchParams, setSearchParams] = useSearchParams();
   const [newReceived, setNewReceived] = useState();
-  useEffect(async () => {
+  useEffect(() => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
       if (searchParams.get("room") !== null) {
@@ -58,8 +58,7 @@ const ChatAgent = ({ socket }) => {
 
       setChats(data);
     };
-    await fecthChat();
-    socket.on("message recieved", getChats);
+    fecthChat();
   }, []);
   // useEffect(() => {
   //   socket.on("message recieved", (newMessageRecieved) => {
@@ -76,6 +75,12 @@ const ChatAgent = ({ socket }) => {
   //     }
   //   });
   // }, [socket]);
+  useEffect(() => {
+    socket.on("message recieved", getChats);
+    return () => {
+      socket.off("message recieved");
+    };
+  }, [chats]);
   const getChats = async (values) => {
     console.log(values, "first getchats", chats);
     if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
