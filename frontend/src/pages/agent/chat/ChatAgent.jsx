@@ -101,7 +101,7 @@ const ChatAgent = ({ socket }) => {
       setMessages([...messages, values]);
     }
   };
-  console.log(chats[0], "chats[0]");
+  console.log(chats, "chats[0]");
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
