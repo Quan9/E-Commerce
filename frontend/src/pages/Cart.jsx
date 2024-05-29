@@ -164,7 +164,7 @@ const Cart = () => {
                                 <IconPlus />
                               </Button>
                             </Group>
-                            <Group justify="end" align="end">
+                            <Group justify="start" align="start">
                               {item.cartQuantity === item.inStock && (
                                 <Text size="lg">No more items in stock</Text>
                               )}
