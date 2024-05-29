@@ -2,6 +2,7 @@ import {
   Card,
   CardSection,
   Indicator,
+  Loader,
   Paper,
   Stack,
   Text,
@@ -21,7 +22,7 @@ const Chats = (props) => {
   };
   return (
     <Paper h={"90vh"} style={{ overflowY: "scroll" }}>
-      {chats && (
+      {chats ? (
         <>
           <Title order={3} ta={"center"}>
             Chats
@@ -75,7 +76,9 @@ const Chats = (props) => {
               ))}
           </Stack>
         </>
-      )}
+      )
+    :<Loader size={100}/>
+    }
     </Paper>
   );
 };
