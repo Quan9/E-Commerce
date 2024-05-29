@@ -76,29 +76,29 @@ const ChatAgent = ({ socket }) => {
   //   });
   // }, [socket]);
   useEffect(() => {
-    const getChats = async (values) => {
-      console.log("first getchats", values);
-      if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
-        await getChat(values.chat._id).then((res) => {
-          const data = res.data;
-          console.log(data, "getchats ", chats);
-          const index = chats.findIndex((chat) => chat._id === data.chat._id);
-          console.log("first", index);
-          setChats((prev) => ({
-            ...prev,
-            [index]: data,
-          }));
-        });
-      } else {
-        console.log("else getchats");
-        setMessages([...messages, values]);
-      }
-    };
     socket.on("message recieved", getChats);
     return () => {
       socket.off("message recieved", getChats);
     };
-  });
+  }, [socket]);
+  const getChats = async (values) => {
+    console.log("first getchats", values);
+    if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
+      await getChat(values.chat._id).then((res) => {
+        const data = res.data;
+        console.log(data, "getchats ", chats);
+        const index = chats.findIndex((chat) => chat._id === data.chat._id);
+        console.log("first", index);
+        setChats((prev) => ({
+          ...prev,
+          [index]: data,
+        }));
+      });
+    } else {
+      console.log("else getchats");
+      setMessages([...messages, values]);
+    }
+  };
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
