@@ -30,9 +30,7 @@ import {
   isSameSenderMargin,
   isSameUser,
 } from "../../../components/config/ChatLogics";
-import { chatReadBy, getAllChats } from "../../../services/chat";
-import Chats from "../../../components/agent/Chats";
-import ChatWindow from "../../../components/agent/ChatWindow";
+import { chatReadBy, getAllChats, getChat } from "../../../services/chat";
 const ChatAgent = ({ socket }) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const [chats, setChats] = useState();
@@ -45,178 +43,180 @@ const ChatAgent = ({ socket }) => {
   const ref = useRef();
   const [searchParams, setSearchParams] = useSearchParams();
   const [newReceived, setNewReceived] = useState();
+  useEffect(() => {
+    const fecthChat = async () => {
+      const { data } = await getAllChats();
+      if (searchParams.get("room")) {
+        const index = data.findIndex(
+          (chat) => chat._id === searchParams.get("room")
+        );
+        const selectChat = data[index];
+        setSelectedChat(selectChat);
+      }
+      setChats(data);
+    };
+    fecthChat();
+  }, []);
+  useEffect(() => {
+    socket.on("message recieved", (newMessageRecieved) => {
+      messageReceived(newMessageRecieved);
+    });
+  }, [socket]);
+  useEffect(() => {
+    selectedChat &&
+      selectedChat._id === searchParams.get("room") &&
+      fetchMessages();
+  }, [selectedChat, searchParams]);
+  useEffect(() => {
+    if (messages.length !== 0) {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  }, [messages]);
+  const chatRead = async (chat, data1) => {
+    // if (selectedChat === chat) {
+    //   return;
+    // } else {
+    const { data } = await chatReadBy(chat._id, user);
+    // let updateChats = data1 || chats;
+    let index = chats.findIndex((chat) => chat._id === data._id);
+    // updateChats[index] = data;
+    setChats((prev) => ({
+      ...prev,
+      [index]: data,
+    }));
+    // const a = updateChats[index];
+    setSelectedChat(data);
+    // }
+  };
+  const params = async (data) => {
+    if (data === undefined) {
+      setSearchParams((params) => {
+        params.delete("room");
+        return params;
+      });
+    } else if (searchParams.get("room") === data) {
+      await fetchMessages();
+    } else {
+      setSearchParams({ ["room"]: data });
+    }
+  };
+  const checkUnread = (latestMessage) => {
+    if (latestMessage?.readBy.find((userInGroup) => userInGroup === user._id)) {
+      return true;
+    }
+    return false;
+  };
+  const fetchMessages = async () => {
+    const room = searchParams.get("room");
+    setLoading(true);
+    try {
+      agentMessage(room).then((res) => {
+        const data = res.data;
+        if (data.length !== 0 && data[0].sender !== undefined) {
+          setMessages(data);
+        } else {
+          setMessages([]);
+        }
 
-
-  // useEffect(() => {
-  //   const check = async () => {
-  //     if (selectedChat && searchParams.get("room") === selectedChat._id) {
-  //       await fetchMessages();
-  //     }
-  //   };
-  //   searchParams && check();
-  // }, [searchParams, selectedChat]);
-  // useEffect(() => {
-  //   socket.on("message recieved", (newMessageRecieved) => {
-  //     messageReceived(newMessageRecieved);
-  //   });
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   if (messages.length !== 0) {
-  //     ref.current?.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "end",
-  //     });
-  //   }
-  // }, [messages]);
-  // const chatRead = async (chat, data1) => {
-  //   // if (selectedChat === chat) {
-  //   //   return;
-  //   // } else {
-  //   const { data } = await chatReadBy(chat._id, user);
-  //   if (data1) {
-  //     const index = data1.findIndex((chat) => chat._id === data._id);
-  //     data1[index] = data;
-  //     setChats(data1);
-  //     setSelectedChat(data);
-  //   } else {
-  //     const index = chats.findIndex((chat) => chat._id === data._id);
-  //     setChats((prev) => ({
-  //       ...prev,
-  //       [index]: data,
-  //     }));
-  //     setSelectedChat(data);
-  //   }
-  //   // let updateChats = data1 || chats;
-  //   // let index = updateChats.findIndex((chat) => chat._id === data._id);
-  //   // updateChats[index] = data;
-  //   // setChats(updateChats);
-  //   // const a = updateChats[index];
-  //   // setSelectedChat(a);
-  //   // }
-  // };
-  // const params = async (data) => {
-  //   if (data === undefined) {
-  //     setSearchParams((params) => {
-  //       params.delete("room");
-  //       return params;
-  //     });
-  //   } else if (searchParams.get("room") === data) {
-  //     await fetchMessages();
-  //   } else {
-  //     setSearchParams({ ["room"]: data });
-  //   }
-  // };
-  // const checkUnread = (latestMessage) => {
-  //   if (latestMessage?.readBy.find((userInGroup) => userInGroup === user._id)) {
-  //     return true;
-  //   }
-  //   return false;
-  // };
-  // const fetchMessages = async () => {
-  //   const room = searchParams.get("room");
-  //   setLoading(true);
-  //   try {
-  //     agentMessage(room).then((res) => {
-  //       const data = res.data;
-  //       if (data.length !== 0 && data[0].sender !== undefined) {
-  //         setMessages(data);
-  //       } else {
-  //         setMessages([]);
-  //       }
-
-  //       socket.emit("join", room);
-  //     });
-  //     setNewReceived();
-  //     setLoading(false);
-  //   } catch (error) {
-  //     toast.error("error", { position: "top-right", data: error });
-  //   }
-  // };
-  // const handleSubmit = async () => {
-  //   setTyping(false);
-  //   if (newMessage) {
-  //     try {
-  //       const { data } = await sendMessage({
-  //         chatId: selectedChat._id,
-  //         content: newMessage,
-  //         user: user.username,
-  //       });
-  //       socket.emit("userMessage", data);
-  //       setMessages([...messages, data]);
-  //       setNewMessage("");
-  //       setTyping(true);
-  //     } catch (error) {
-  //       toast.error("error", { position: "top-right", data: error });
-  //     }
-  //   } else {
-  //     setTyping(true);
-  //     toast.info("cannot have empty input!", { position: "top-center" });
-  //   }
-  // };
-  // console.log(selectedChat, chats);
-  // const messageReceived = (data) => {
-  //   if (!selectedChat || selectedChat._id !== data.chat._id) {
-  //     setNewReceived(data);
-  //     setFetchAgain((fetch) => {
-  //       return !fetch;
-  //     });
-  //   } else {
-  //     setMessages([...messages, data]);
-  //     setNewReceived();
-  //   }
-  // };
+        socket.emit("join", room);
+      });
+      setNewReceived();
+      setLoading(false);
+    } catch (error) {
+      toast.error("error", { position: "top-right", data: error });
+    }
+  };
+  const handleSubmit = async () => {
+    setTyping(false);
+    if (newMessage) {
+      try {
+        const { data } = await sendMessage({
+          chatId: selectedChat._id,
+          content: newMessage,
+          user: user.username,
+        });
+        socket.emit("userMessage", data);
+        setMessages([...messages, data]);
+        setNewMessage("");
+        setTyping(true);
+      } catch (error) {
+        toast.error("error", { position: "top-right", data: error });
+      }
+    } else {
+      setTyping(true);
+      alert("empty input");
+    }
+  };
+  const leaveChat = () => {
+    setSelectedChat();
+  };
+  const messageReceived = async (data) => {
+    if (!selectedChat || selectedChat._id !== data.chat._id) {
+      // setNewReceived(data);
+      const { data } = await getChat(data.chat._id);
+      const index = chats.findIndex((chat) => chat._id === data.chat._id);
+      setChats((prev) => ({
+        ...prev,
+        [index]: data,
+      }));
+    } else {
+      setMessages([...messages, data]);
+    }
+  };
   return (
-    <Flex direction="row" rowGap={'sm'}>
-      <Chats setChats={setChats} chats={chats} selectedChat={selectedChat}setSelectedChat={setSelectedChat}/>
-      <ChatWindow/>
-      {/* {chats ? (
+    <Grid>
+      {chats ? (
         <>
           <GridCol span={3} h={"90vh"} style={{ overflowY: "scroll" }}>
             <Title ta={"center"}>Group Chats </Title>
             <Stack gap={"lg"}>
-              {chats.map((chat) => (
-                <Indicator
-                  size={17}
-                  disabled={checkUnread(chat.latestMessage)}
-                  label="New"
-                  key={chat._id}
-                  position="top-left"
-                >
-                  <Paper
-                    onClick={async () => {
-                      setSelectedChat(chat);
-                      await chatRead(chat);
-                      params(chat._id);
-                    }}
-                    bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                    color={selectedChat === chat ? "white" : "black"}
-                    onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
+              {Object.entries(chats)
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                .map((chat) => (
+                  <Indicator
+                    size={17}
+                    disabled={checkUnread(chat.latestMessage)}
+                    label="New"
+                    key={chat._id}
+                    position="top-left"
                   >
-                    <Text size="xl" ta={"center"}>
-                      {chat.chatName.startsWith(`user-/[a-zA-Z0-9]\/`)
-                        ? `AnoUser-${chat.chatName.substr(-5)}`
-                        : `${chat.chatName}`}
-                    </Text>
-                    <Text
-                      span
-                      size="md"
-                      c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                    <Paper
+                      onClick={() => {
+                        setSelectedChat(chat);
+                        chatRead(chat);
+                        params(chat._id);
+                      }}
+                      bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                      color={selectedChat === chat ? "white" : "black"}
+                      onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                     >
-                      {chat?.latestMessage?.sender?.username ===
-                        chat.chatName && chat.isUser === false ? (
-                        <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
-                      ) : (
-                        <b>{chat?.latestMessage?.sender?.username}</b>
-                      )}
-                      <b> : </b>
-                      {chat.latestMessage.content.length > 50
-                        ? chat.latestMessage.content.substring(0, 35) + "..."
-                        : chat.latestMessage.content}
-                    </Text>
-                  </Paper>
-                </Indicator>
-              ))}
+                      <Text size="xl" ta={"center"}>
+                        {chat.chatName.startsWith("user-")
+                          ? `AnoUser-${chat.chatName.substr(-5)}`
+                          : `${chat.chatName}`}
+                      </Text>
+                      <Text
+                        span
+                        size="md"
+                        c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                      >
+                        {chat?.latestMessage?.sender?.username ===
+                          chat.chatName && chat.isUser === false ? (
+                          <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
+                        ) : (
+                          <b>{chat?.latestMessage?.sender?.username}</b>
+                        )}
+                        <b> : </b>
+                        {chat.latestMessage.content.length > 50
+                          ? chat.latestMessage.content.substring(0, 35) + "..."
+                          : chat.latestMessage.content}
+                      </Text>
+                    </Paper>
+                  </Indicator>
+                ))}
             </Stack>
           </GridCol>
           <GridCol span={"auto"} h={"90vh"}>
@@ -227,7 +227,7 @@ const ChatAgent = ({ socket }) => {
                     <IconArrowBack
                       d={{ base: "flex", md: "none" }}
                       onClick={() => {
-                        setSelectedChat();
+                        leaveChat();
                         params();
                       }}
                       // onMouseEnter={}
@@ -340,8 +340,8 @@ const ChatAgent = ({ socket }) => {
         <Center h={"90vh"} w={"100%"}>
           <Loader size={100} />
         </Center>
-      )} */}
-    </Flex>
+      )}
+    </Grid>
   );
 };
 

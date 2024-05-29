@@ -33,7 +33,27 @@ const fetchChats = asyncHandler(async (req, res) => {
     throw new Error(error.message);
   }
 });
-
+const getChat = async(req,res) =>{
+  const {chatId} = req.params;
+  try {
+    Chat.findById(chatId)
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+    .populate({
+      path: "latestMessage",
+    })
+    // .sort({ updatedAt: -1 })
+    .then(async (result) => {
+      result = await User.populate(result, {
+        path: "latestMessage.sender",
+        select: "username img email",
+      });
+      res.status(200).send(result);
+    });
+  } catch (error) {
+    res.status(400).json(err)
+  }
+}
 const findUserGroupChat = asyncHandler(async (req, res) => {
   const { chatName, loggedIn } = req.params;
   const existUser = await User.findOne({ username: chatName }, { _id: 1 });
@@ -112,4 +132,5 @@ module.exports = {
   fetchChats,
   findUserGroupChat,
   updateChat,
+  getChat
 };

@@ -1,9 +1,5 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-
-// import SupportWindow from "./ChatSupport/SupportWindow";
-
-// import Avatar from "./ChatSupport/Avatar";
 import { useClickOutside } from "@mantine/hooks";
 import { useLocation } from "react-router-dom";
 import {

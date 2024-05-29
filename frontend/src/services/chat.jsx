@@ -9,3 +9,6 @@ export const clientChat = (id, query) => {
 export const chatReadBy = (id, query) => {
   return userRequest.get(API_URL + `/agent/${id}`, query);
 };
+export const getChat = (id) =>{
+  return userRequest.get(API_URL+`/agent/get/${id}`)
+}
