@@ -60,21 +60,24 @@ const ChatAgent = ({ socket }) => {
     };
     fecthChat();
   }, []);
+  // useEffect(() => {
+  //   socket.on("message recieved", (newMessageRecieved) => {
+  //     // messageReceived(newMessageRecieved);
+  //     if (
+  //       selectedChat === undefined ||
+  //       selectedChat._id !== newMessageRecieved.chat._id
+  //     ) {
+  //       // setNewReceived(data);
+  //       console.log(chats, "socket");
+  //       getChats(newMessageRecieved);
+  //     } else {
+  //       setMessages([...messages, newMessageRecieved]);
+  //     }
+  //   });
+  // }, [socket]);
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
-      // messageReceived(newMessageRecieved);
-      if (
-        selectedChat === undefined ||
-        selectedChat._id !== newMessageRecieved.chat._id
-      ) {
-        // setNewReceived(data);
-        console.log(chats, "socket");
-        getChats(newMessageRecieved);
-      } else {
-        setMessages([...messages, newMessageRecieved]);
-      }
-    });
-  }, [socket]);
+    socket.on("message received", getChats);
+  });
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
@@ -175,14 +178,18 @@ const ChatAgent = ({ socket }) => {
     }
   };
   const getChats = async (values) => {
-    const { data } = await getChat(values.chat._id);
-    console.log(data, "getchats ", chats);
-    const index = chats.findIndex((chat) => chat._id === data.chat._id);
-    console.log("first", index);
-    setChats((prev) => ({
-      ...prev,
-      [index]: data,
-    }));
+    if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
+      const { data } = await getChat(values.chat._id);
+      console.log(data, "getchats ", chats);
+      const index = chats.findIndex((chat) => chat._id === data.chat._id);
+      console.log("first", index);
+      setChats((prev) => ({
+        ...prev,
+        [index]: data,
+      }));
+    } else {
+      setMessages([...messages, values]);
+    }
   };
   useEffect(() => {
     const logChats = () => {
