@@ -45,21 +45,7 @@ const ChatAgent = ({ socket }) => {
   const ref = useRef();
   const [searchParams, setSearchParams] = useSearchParams();
   const [newReceived, setNewReceived] = useState();
-  useEffect(() => {
-    const fecthChats = async () => {
-      const { data } = await getAllChats();
-      // if (searchParams.get("room")) {
-      //   const index = data.findIndex(
-      //     (chat) => chat._id === searchParams.get("room")
-      //   );
-      //   await chatRead(data[index], data);
-      // } else {
-      setChats(data);
-      // setNewMessage("");
-      // }
-    };
-    fecthChats();
-  }, []);
+
 
   // useEffect(() => {
   //   const check = async () => {

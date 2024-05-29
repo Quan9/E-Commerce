@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Card,
   CardSection,
@@ -8,12 +9,20 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { getAllChats } from "../../services/chat";
 
 const Chats = (props) => {
   const { setChats, chats, selectedChat, setSelectedChat } = props;
   const { user } = useSelector((state) => state.user);
+  useEffect(() => {
+    const fecthChats = async () => {
+      const { data } = await getAllChats();
+      setChats(data);
+    };
+    fecthChats();
+  }, []);
   const checkUnread = (values) => {
     if (values?.readBy.find((userInGroup) => userInGroup === user._id)) {
       return true;
