@@ -84,16 +84,18 @@ const ChatAgent = ({ socket }) => {
   const getChats = async (values) => {
     console.log(values, "first getchats", chats);
     if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
-      await getChat(values.chat._id).then((res) => {
-        const data = res.data;
-        console.log(data, "getchats ", chats);
-        const index = chats.findIndex((chat) => chat._id === data._id);
-        console.log("first", index);
+      const { data } = getChat(values.chat._id);
+      console.log(data, "getchats ", chats);
+      const index = chats.findIndex((chat) => chat._id === data._id);
+      if (index < 0) {
+        setChats([...chats, data]);
+      } else {
         setChats((prev) => ({
           ...prev,
           [index]: data,
         }));
-      });
+      }
+      console.log("first", index);
     } else {
       console.log("else getchats");
       setMessages([...messages, values]);
