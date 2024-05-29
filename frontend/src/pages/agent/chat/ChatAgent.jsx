@@ -207,7 +207,7 @@ const ChatAgent = ({ socket }) => {
       const a = chats.sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      console.log(a, "useeffect logchats", chats);
+      console.log(a, "useeffect logchats", new Date(a[0].updatedAt));
     };
     chats && logChats();
   }, [chats]);
