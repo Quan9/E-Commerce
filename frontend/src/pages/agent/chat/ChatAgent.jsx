@@ -224,7 +224,7 @@ const ChatAgent = ({ socket }) => {
   const sortChats = () => {
     const sortChat = chats;
     sortChat.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    console.log(sortChat,'sortchat');
+    console.log(sortChat, "sortchat");
     return (
       <>
         {sortChat.map((chat) => {
@@ -326,7 +326,7 @@ const ChatAgent = ({ socket }) => {
                     </Paper>
                   </Indicator>
                 ))} */}
-              {sortChats}
+              {sortChats()}
             </Stack>
           </GridCol>
           <GridCol span={"auto"} h={"90vh"}>
