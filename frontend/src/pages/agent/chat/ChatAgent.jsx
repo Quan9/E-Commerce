@@ -222,9 +222,8 @@ const ChatAgent = ({ socket }) => {
     console.log(a, "useeffect logchats", new Date(a[0].updatedAt));
   };
   const sortChats = () => {
-    const sortChat = chats.sort(
-      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-    );
+    const sortChat = chats;
+    sortChat.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     return (
       <>
         {sortChat.map((chat) => {
