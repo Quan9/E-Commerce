@@ -112,7 +112,8 @@ const Cart = () => {
                   leftSection={<IconTrash size={24} />}
                   variant="transparent"
                   bg={"red"}
-                  // ms={"auto"}
+                  size="md"
+                  c={'black'}
                 >
                   Clear Cart
                 </Button>
@@ -172,10 +173,11 @@ const Cart = () => {
                                 onClick={() => {
                                   deletes(item);
                                 }}
-                                c={"red"}
-                                size="md"
+                                // c={"red"}
+                                bg={'red'}
+                                size="sm"
                               >
-                                <IconTrash />
+                                <IconTrash color="black"/>
                               </Button>
                             </Group>
                           </GridCol>
