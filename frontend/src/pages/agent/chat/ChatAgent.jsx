@@ -68,6 +68,7 @@ const ChatAgent = ({ socket }) => {
         selectedChat._id !== newMessageRecieved.chat._id
       ) {
         // setNewReceived(data);
+        console.log(chats, "socket");
         getChats(newMessageRecieved);
       } else {
         setMessages([...messages, newMessageRecieved]);
