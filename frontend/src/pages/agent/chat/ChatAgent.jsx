@@ -218,7 +218,7 @@ const ChatAgent = ({ socket }) => {
           <GridCol span={3} h={"90vh"} style={{ overflowY: "scroll" }}>
             <Title ta={"center"}>Group Chats </Title>
             <Stack gap={"lg"}>
-              {Object.entries(chats)
+              {chats
                 .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
                 .map((chat) => (
                   // <Indicator
