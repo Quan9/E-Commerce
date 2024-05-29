@@ -153,12 +153,12 @@ const ChatAgent = ({ socket }) => {
   const leaveChat = () => {
     setSelectedChat();
   };
-  const messageReceived = async (data) => {
+  const messageReceived = (data) => {
     if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
       // setNewReceived(data);
-      await getChat(data.chat._id).then((res) => {
+      getChat(data.chat._id).then((res) => {
         const chat1 = res.data;
-        console.log(res.data, "--------", chat1);
+        console.log(res.data, "--------", chats);
         const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
         console.log("first", index);
         setChats((prev) => ({
