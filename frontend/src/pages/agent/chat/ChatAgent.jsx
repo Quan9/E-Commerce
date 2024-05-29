@@ -167,10 +167,13 @@ const ChatAgent = ({ socket }) => {
     }
   };
   useEffect(() => {
-    const a = chats.sort(
-      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-    );
-    console.log(a, "------");
+    const logChats = () => {
+      const a = chats.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      console.log(a, "------");
+    };
+    chats && logChats();
   }, [chats]);
   return (
     <Grid>
