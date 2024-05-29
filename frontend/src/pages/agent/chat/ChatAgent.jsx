@@ -157,11 +157,11 @@ const ChatAgent = ({ socket }) => {
     if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
       // setNewReceived(data);
       await getChat(data.chat._id).then((res) => {
-        const chat = res.data;
-        const index = chats.findIndex((chat) => chat._id === chat.chat._id);
+        const chat1 = res.data;
+        const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
         setChats((prev) => ({
           ...prev,
-          [index]: data,
+          [index]: chat1,
         }));
       });
     } else {
