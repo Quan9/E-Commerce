@@ -175,7 +175,7 @@ const ChatAgent = ({ socket }) => {
   };
   const getChats = async (values) => {
     const { data } = await getChat(values.chat._id);
-    console.log(data, "--------", chats);
+    console.log(data, "getchats ", chats);
     const index = chats.findIndex((chat) => chat._id === data.chat._id);
     console.log("first", index);
     setChats((prev) => ({
@@ -188,7 +188,7 @@ const ChatAgent = ({ socket }) => {
       const a = chats.sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      console.log(a, "------", chats);
+      console.log(a, "useeffect logchats", chats);
     };
     chats && logChats();
   }, [chats]);
