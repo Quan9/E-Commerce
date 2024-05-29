@@ -50,11 +50,11 @@ const ChatAgent = ({ socket }) => {
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
-        const a = data[index];
-        await chatRead(a, data);
+        await chatRead(data[index], data);
         await params(a._id);
       } else {
         setChats(data);
+        setNewMessage();
       }
     };
     fecthChat();
@@ -91,6 +91,7 @@ const ChatAgent = ({ socket }) => {
       const index = data1.findIndex((chat) => chat._id === data._id);
       data1[index] = data;
       setChats(data1);
+      setSelectedChat(data1[index]);
     } else {
       const index = chats.findIndex((chat) => chat._id === data._id);
       setChats((prev) => ({
@@ -165,8 +166,9 @@ const ChatAgent = ({ socket }) => {
       toast.info("cannot have empty input!", { position: "top-center" });
     }
   };
+  console.log(selectedChat)
   const messageReceived = (data) => {
-    if (selectedChat === undefined || selectedChat._id === data.chat._id) {
+    if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
       setNewReceived(data);
       setFetchAgain((fetch) => {
         return !fetch;
