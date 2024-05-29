@@ -30,7 +30,7 @@ import {
   isSameSenderMargin,
   isSameUser,
 } from "../../../components/config/ChatLogics";
-import { chatReadBy, getAllChats, getChat } from "../../../services/chat";
+import { chatReadBy, getAllChats } from "../../../services/chat";
 const ChatAgent = ({ socket }) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const [chats, setChats] = useState();
@@ -50,56 +50,30 @@ const ChatAgent = ({ socket }) => {
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
-        const selectChat = data[index];
-        setSelectedChat(selectChat);
+        const a = data[index];
+        await chatRead(a, data);
+        await params(a._id);
+      } else {
+        setChats(data);
       }
-
-      setChats(data);
     };
     fecthChat();
-  }, []);
-  // useEffect(() => {
-  //   socket.on("message recieved", (newMessageRecieved) => {
-  //     // messageReceived(newMessageRecieved);
-  //     if (
-  //       selectedChat === undefined ||
-  //       selectedChat._id !== newMessageRecieved.chat._id
-  //     ) {
-  //       // setNewReceived(data);
-  //       console.log(chats, "socket");
-  //       getChats(newMessageRecieved);
-  //     } else {
-  //       setMessages([...messages, newMessageRecieved]);
-  //     }
-  //   });
-  // }, [socket]);
+  }, [fetchAgain]);
+
   useEffect(() => {
-    socket.on("message recieved", getChats);
-    return () => {
-      socket.off("message recieved");
-    };
-  }, [chats]);
-  const getChats = async (values) => {
-    if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
-      const { data } = await getChat(values.chat._id);
-      const index = chats.findIndex((chat) => chat._id === data._id);
-      if (index < 0) {
-        setChats([...chats, data]);
-      } else {
-        setChats((prev) => ({
-          ...prev,
-          [index]: data,
-        }));
+    const check = async () => {
+      if (selectedChat && searchParams.get("room") === selectedChat._id) {
+        await fetchMessages();
       }
-    } else {
-      setMessages([...messages, values]);
-    }
-  };
+    };
+    searchParams && check();
+  }, [searchParams, selectedChat]);
   useEffect(() => {
-    selectedChat &&
-      selectedChat._id === searchParams.get("room") &&
-      fetchMessages();
-  }, [selectedChat, searchParams]);
+    socket.on("message recieved", (newMessageRecieved) => {
+      messageReceived(newMessageRecieved);
+    });
+  }, [socket]);
+
   useEffect(() => {
     if (messages.length !== 0) {
       ref.current?.scrollIntoView({
@@ -109,20 +83,17 @@ const ChatAgent = ({ socket }) => {
     }
   }, [messages]);
   const chatRead = async (chat, data1) => {
-    // if (selectedChat === chat) {
-    //   return;
-    // } else {
-    const { data } = await chatReadBy(chat._id, user);
-    // let updateChats = data1 || chats;
-    let index = chats.findIndex((chat) => chat._id === data._id);
-    // updateChats[index] = data;
-    setChats((prev) => ({
-      ...prev,
-      [index]: data,
-    }));
-    // const a = updateChats[index];
-    setSelectedChat(data);
-    // }
+    if (selectedChat === chat) {
+      return;
+    } else {
+      const { data } = await chatReadBy(chat._id, user);
+      setSelectedChat(data);
+      let updateChats = data1 || chats;
+      let index = updateChats.findIndex((chat) => chat._id === data._id);
+      updateChats[index] = data;
+      setChats(updateChats);
+      const a = updateChats[index];
+    }
   };
   const params = async (data) => {
     if (data === undefined) {
@@ -187,72 +158,15 @@ const ChatAgent = ({ socket }) => {
     setSelectedChat();
   };
   const messageReceived = (data) => {
-    if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
-      // setNewReceived(data);
-      getChats(data);
+    if (selectedChat === undefined || selectedChat._id === data.chat._id) {
+      setNewReceived(data);
+      setFetchAgain((fetch) => {
+        return !fetch;
+      });
     } else {
       setMessages([...messages, data]);
+      setNewReceived();
     }
-  };
-  const SortChats = () => {
-    const [sortChat, setSortChat] = useState(chats);
-    useEffect(() => {
-      setSortChat(
-        chats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-      );
-    }, [chats]);
-    useEffect(() => {
-      console.log(sortChat, "sortchat");
-    }, [sortChat]);
-    return (
-      <>
-        {sortChat.map((chat) => {
-          return (
-            <Indicator
-              size={17}
-              disabled={checkUnread(chat.latestMessage)}
-              label="New"
-              key={chat._id}
-              position="top-left"
-            >
-              <Paper
-                onClick={() => {
-                  setSelectedChat(chat);
-                  chatRead(chat);
-                  params(chat._id);
-                }}
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
-                onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
-              >
-                <Text size="xl" ta={"center"}>
-                  {/* {chat.chatName.startsWith("user-") */}
-                  {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
-                  {/* : `${chat.chatName}`} */}
-                  {chat.chatName}
-                </Text>
-                <Text
-                  span
-                  size="md"
-                  c={checkUnread(chat.latestMessage) ? "gray" : "red"}
-                >
-                  {chat?.latestMessage?.sender?.username === chat.chatName &&
-                  chat.isUser === false ? (
-                    <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
-                  ) : (
-                    <b>{chat?.latestMessage?.sender?.username}</b>
-                  )}
-                  <b> : </b>
-                  {chat.latestMessage.content.length > 50
-                    ? chat.latestMessage.content.substring(0, 35) + "..."
-                    : chat.latestMessage.content}
-                </Text>
-              </Paper>
-            </Indicator>
-          );
-        })}
-      </>
-    );
   };
   return (
     <Grid>
@@ -261,8 +175,47 @@ const ChatAgent = ({ socket }) => {
           <GridCol span={3} h={"90vh"} style={{ overflowY: "scroll" }}>
             <Title ta={"center"}>Group Chats </Title>
             <Stack gap={"lg"}>
-              <SortChats />
-              {/* {sortChats()} */}
+              {chats.map((chat) => (
+                <Indicator
+                  size={17}
+                  disabled={checkUnread(chat.latestMessage)}
+                  label="New"
+                  key={chat._id}
+                  position="top-left"
+                >
+                  <Paper
+                    onClick={async () => {
+                      await chatRead(chat);
+                      params(chat._id);
+                    }}
+                    bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                    color={selectedChat === chat ? "white" : "black"}
+                    onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
+                  >
+                    <Text size="xl" ta={"center"}>
+                      {chat.chatName.startsWith("user-")
+                        ? `AnoUser-${chat.chatName.substr(-5)}`
+                        : `${chat.chatName}`}
+                    </Text>
+                    <Text
+                      span
+                      size="md"
+                      c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                    >
+                      {chat?.latestMessage?.sender?.username ===
+                        chat.chatName && chat.isUser === false ? (
+                        <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
+                      ) : (
+                        <b>{chat?.latestMessage?.sender?.username}</b>
+                      )}
+                      <b> : </b>
+                      {chat.latestMessage.content.length > 50
+                        ? chat.latestMessage.content.substring(0, 35) + "..."
+                        : chat.latestMessage.content}
+                    </Text>
+                  </Paper>
+                </Indicator>
+              ))}
             </Stack>
           </GridCol>
           <GridCol span={"auto"} h={"90vh"}>
