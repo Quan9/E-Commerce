@@ -226,55 +226,56 @@ const ChatAgent = ({ socket }) => {
     useEffect(() => {
       setSortChat(chats);
     }, [chats]);
-    sortChat.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     console.log(sortChat, "sortchat");
     return (
       <>
-        {sortChat.map((chat) => {
-          return (
-            <Indicator
-              size={17}
-              disabled={checkUnread(chat.latestMessage)}
-              label="New"
-              key={chat._id}
-              position="top-left"
-            >
-              <Paper
-                onClick={() => {
-                  setSelectedChat(chat);
-                  chatRead(chat);
-                  params(chat._id);
-                }}
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
-                onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
+        {sortChat
+          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+          .map((chat) => {
+            return (
+              <Indicator
+                size={17}
+                disabled={checkUnread(chat.latestMessage)}
+                label="New"
+                key={chat._id}
+                position="top-left"
               >
-                <Text size="xl" ta={"center"}>
-                  {/* {chat.chatName.startsWith("user-") */}
-                  {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
-                  {/* : `${chat.chatName}`} */}
-                  {chat.chatName}
-                </Text>
-                <Text
-                  span
-                  size="md"
-                  c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                <Paper
+                  onClick={() => {
+                    setSelectedChat(chat);
+                    chatRead(chat);
+                    params(chat._id);
+                  }}
+                  bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                  color={selectedChat === chat ? "white" : "black"}
+                  onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                 >
-                  {chat?.latestMessage?.sender?.username === chat.chatName &&
-                  chat.isUser === false ? (
-                    <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
-                  ) : (
-                    <b>{chat?.latestMessage?.sender?.username}</b>
-                  )}
-                  <b> : </b>
-                  {chat.latestMessage.content.length > 50
-                    ? chat.latestMessage.content.substring(0, 35) + "..."
-                    : chat.latestMessage.content}
-                </Text>
-              </Paper>
-            </Indicator>
-          );
-        })}
+                  <Text size="xl" ta={"center"}>
+                    {/* {chat.chatName.startsWith("user-") */}
+                    {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
+                    {/* : `${chat.chatName}`} */}
+                    {chat.chatName}
+                  </Text>
+                  <Text
+                    span
+                    size="md"
+                    c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                  >
+                    {chat?.latestMessage?.sender?.username === chat.chatName &&
+                    chat.isUser === false ? (
+                      <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
+                    ) : (
+                      <b>{chat?.latestMessage?.sender?.username}</b>
+                    )}
+                    <b> : </b>
+                    {chat.latestMessage.content.length > 50
+                      ? chat.latestMessage.content.substring(0, 35) + "..."
+                      : chat.latestMessage.content}
+                  </Text>
+                </Paper>
+              </Indicator>
+            );
+          })}
       </>
     );
   };
