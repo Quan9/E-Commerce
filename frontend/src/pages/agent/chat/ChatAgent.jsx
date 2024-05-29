@@ -77,12 +77,9 @@ const ChatAgent = ({ socket }) => {
   // }, [socket]);
   useEffect(() => {
     socket.on("message recieved", getChats);
-    return () => {
-      socket.off("message recieved", getChats);
-    };
-  }, [socket]);
+  }, []);
   const getChats = async (values) => {
-    console.log("first getchats", values);
+    console.log(values, "first getchats", chats);
     if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
       await getChat(values.chat._id).then((res) => {
         const data = res.data;
