@@ -110,8 +110,9 @@ const Cart = () => {
                 <Button
                   onClick={() => clear()}
                   leftSection={<IconTrash size={24} />}
-                  variant="light"
-                  ms={"auto"}
+                  variant="transparent"
+                  bg={"red"}
+                  // ms={"auto"}
                 >
                   Clear Cart
                 </Button>
@@ -171,7 +172,8 @@ const Cart = () => {
                                 onClick={() => {
                                   deletes(item);
                                 }}
-                                size="xs"
+                                c={"red"}
+                                size="md"
                               >
                                 <IconTrash />
                               </Button>
