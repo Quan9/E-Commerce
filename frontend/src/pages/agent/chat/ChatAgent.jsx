@@ -56,7 +56,7 @@ const ChatAgent = ({ socket }) => {
       }
       console.log("outside if");
 
-      setChats(data);
+      setChats(JSON.parse(data));
     };
     fecthChat();
   }, []);
