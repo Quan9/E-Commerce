@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import {
   Card,
   CardSection,
@@ -9,7 +8,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getAllChats } from "../../services/chat";
 
@@ -59,9 +58,7 @@ const Chats = (props) => {
                   >
                     <CardSection>
                       <Text size="xl" ta={"center"}>
-                        {chat.chatName.startsWith(`user-`)
-                          ? `AnoUser-${chat.chatName.substr(-5)}`
-                          : `${chat.chatName}`}
+                        {chat.chatName}
                       </Text>
                       <Text
                         span
@@ -85,9 +82,9 @@ const Chats = (props) => {
               ))}
           </Stack>
         </>
-      )
-    :<Loader size={100}/>
-    }
+      ) : (
+        <Loader size={100} />
+      )}
     </Paper>
   );
 };
