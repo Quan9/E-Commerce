@@ -87,7 +87,7 @@ const ChatAgent = ({ socket }) => {
       await getChat(values.chat._id).then((res) => {
         const data = res.data;
         console.log(data, "getchats ", chats);
-        const index = chats.findIndex((chat) => chat._id === data.chat._id);
+        const index = chats.findIndex((chat) => chat._id === data._id);
         console.log("first", index);
         setChats((prev) => ({
           ...prev,
