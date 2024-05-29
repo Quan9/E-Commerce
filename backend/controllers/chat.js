@@ -99,7 +99,7 @@ const updateChat = async (req, res) => {
     .populate({
       path: "latestMessage",
     })
-    .sort({ updatedAt: -1 })
+    // .sort({ updatedAt: -1 })
     .then(async (results) => {
       results = await User.populate(results, {
         path: "latestMessage.sender",

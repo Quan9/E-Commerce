@@ -31,6 +31,8 @@ import {
   isSameUser,
 } from "../../../components/config/ChatLogics";
 import { chatReadBy, getAllChats } from "../../../services/chat";
+import Chats from "../../../components/agent/Chats";
+import ChatWindow from "../../../components/agent/ChatWindow";
 const ChatAgent = ({ socket }) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const [chats, setChats] = useState();
@@ -44,143 +46,145 @@ const ChatAgent = ({ socket }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [newReceived, setNewReceived] = useState();
   useEffect(() => {
-    const fecthChat = async () => {
+    const fecthChats = async () => {
       const { data } = await getAllChats();
-      if (searchParams.get("room")) {
-        const index = data.findIndex(
-          (chat) => chat._id === searchParams.get("room")
-        );
-        await chatRead(data[index], data);
-      } else {
-        setChats(data);
-        setNewMessage("");
-      }
+      // if (searchParams.get("room")) {
+      //   const index = data.findIndex(
+      //     (chat) => chat._id === searchParams.get("room")
+      //   );
+      //   await chatRead(data[index], data);
+      // } else {
+      setChats(data);
+      // setNewMessage("");
+      // }
     };
-    fecthChat();
-  }, [fetchAgain]);
+    fecthChats();
+  }, []);
 
-  useEffect(() => {
-    const check = async () => {
-      if (selectedChat && searchParams.get("room") === selectedChat._id) {
-        await fetchMessages();
-      }
-    };
-    searchParams && check();
-  }, [searchParams, selectedChat]);
-  useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
-      messageReceived(newMessageRecieved);
-    });
-  }, [socket]);
+  // useEffect(() => {
+  //   const check = async () => {
+  //     if (selectedChat && searchParams.get("room") === selectedChat._id) {
+  //       await fetchMessages();
+  //     }
+  //   };
+  //   searchParams && check();
+  // }, [searchParams, selectedChat]);
+  // useEffect(() => {
+  //   socket.on("message recieved", (newMessageRecieved) => {
+  //     messageReceived(newMessageRecieved);
+  //   });
+  // }, [socket]);
 
-  useEffect(() => {
-    if (messages.length !== 0) {
-      ref.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }
-  }, [messages]);
-  const chatRead = async (chat, data1) => {
-    // if (selectedChat === chat) {
-    //   return;
-    // } else {
-    const { data } = await chatReadBy(chat._id, user);
-    if (data1) {
-      const index = data1.findIndex((chat) => chat._id === data._id);
-      data1[index] = data;
-      setChats(data1);
-      setSelectedChat(data);
-    } else {
-      const index = chats.findIndex((chat) => chat._id === data._id);
-      setChats((prev) => ({
-        ...prev,
-        [index]: data,
-      }));
-      setSelectedChat(data);
-    }
-    // let updateChats = data1 || chats;
-    // let index = updateChats.findIndex((chat) => chat._id === data._id);
-    // updateChats[index] = data;
-    // setChats(updateChats);
-    // const a = updateChats[index];
-    // setSelectedChat(a);
-    // }
-  };
-  const params = async (data) => {
-    if (data === undefined) {
-      setSearchParams((params) => {
-        params.delete("room");
-        return params;
-      });
-    } else if (searchParams.get("room") === data) {
-      await fetchMessages();
-    } else {
-      setSearchParams({ ["room"]: data });
-    }
-  };
-  const checkUnread = (latestMessage) => {
-    if (latestMessage?.readBy.find((userInGroup) => userInGroup === user._id)) {
-      return true;
-    }
-    return false;
-  };
-  const fetchMessages = async () => {
-    const room = searchParams.get("room");
-    setLoading(true);
-    try {
-      agentMessage(room).then((res) => {
-        const data = res.data;
-        if (data.length !== 0 && data[0].sender !== undefined) {
-          setMessages(data);
-        } else {
-          setMessages([]);
-        }
+  // useEffect(() => {
+  //   if (messages.length !== 0) {
+  //     ref.current?.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "end",
+  //     });
+  //   }
+  // }, [messages]);
+  // const chatRead = async (chat, data1) => {
+  //   // if (selectedChat === chat) {
+  //   //   return;
+  //   // } else {
+  //   const { data } = await chatReadBy(chat._id, user);
+  //   if (data1) {
+  //     const index = data1.findIndex((chat) => chat._id === data._id);
+  //     data1[index] = data;
+  //     setChats(data1);
+  //     setSelectedChat(data);
+  //   } else {
+  //     const index = chats.findIndex((chat) => chat._id === data._id);
+  //     setChats((prev) => ({
+  //       ...prev,
+  //       [index]: data,
+  //     }));
+  //     setSelectedChat(data);
+  //   }
+  //   // let updateChats = data1 || chats;
+  //   // let index = updateChats.findIndex((chat) => chat._id === data._id);
+  //   // updateChats[index] = data;
+  //   // setChats(updateChats);
+  //   // const a = updateChats[index];
+  //   // setSelectedChat(a);
+  //   // }
+  // };
+  // const params = async (data) => {
+  //   if (data === undefined) {
+  //     setSearchParams((params) => {
+  //       params.delete("room");
+  //       return params;
+  //     });
+  //   } else if (searchParams.get("room") === data) {
+  //     await fetchMessages();
+  //   } else {
+  //     setSearchParams({ ["room"]: data });
+  //   }
+  // };
+  // const checkUnread = (latestMessage) => {
+  //   if (latestMessage?.readBy.find((userInGroup) => userInGroup === user._id)) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+  // const fetchMessages = async () => {
+  //   const room = searchParams.get("room");
+  //   setLoading(true);
+  //   try {
+  //     agentMessage(room).then((res) => {
+  //       const data = res.data;
+  //       if (data.length !== 0 && data[0].sender !== undefined) {
+  //         setMessages(data);
+  //       } else {
+  //         setMessages([]);
+  //       }
 
-        socket.emit("join", room);
-      });
-      setNewReceived();
-      setLoading(false);
-    } catch (error) {
-      toast.error("error", { position: "top-right", data: error });
-    }
-  };
-  const handleSubmit = async () => {
-    setTyping(false);
-    if (newMessage) {
-      try {
-        const { data } = await sendMessage({
-          chatId: selectedChat._id,
-          content: newMessage,
-          user: user.username,
-        });
-        socket.emit("userMessage", data);
-        setMessages([...messages, data]);
-        setNewMessage("");
-        setTyping(true);
-      } catch (error) {
-        toast.error("error", { position: "top-right", data: error });
-      }
-    } else {
-      setTyping(true);
-      toast.info("cannot have empty input!", { position: "top-center" });
-    }
-  };
-  console.log(selectedChat, chats);
-  const messageReceived = (data) => {
-    if (!selectedChat || selectedChat._id !== data.chat._id) {
-      setNewReceived(data);
-      setFetchAgain((fetch) => {
-        return !fetch;
-      });
-    } else {
-      setMessages([...messages, data]);
-      setNewReceived();
-    }
-  };
+  //       socket.emit("join", room);
+  //     });
+  //     setNewReceived();
+  //     setLoading(false);
+  //   } catch (error) {
+  //     toast.error("error", { position: "top-right", data: error });
+  //   }
+  // };
+  // const handleSubmit = async () => {
+  //   setTyping(false);
+  //   if (newMessage) {
+  //     try {
+  //       const { data } = await sendMessage({
+  //         chatId: selectedChat._id,
+  //         content: newMessage,
+  //         user: user.username,
+  //       });
+  //       socket.emit("userMessage", data);
+  //       setMessages([...messages, data]);
+  //       setNewMessage("");
+  //       setTyping(true);
+  //     } catch (error) {
+  //       toast.error("error", { position: "top-right", data: error });
+  //     }
+  //   } else {
+  //     setTyping(true);
+  //     toast.info("cannot have empty input!", { position: "top-center" });
+  //   }
+  // };
+  // console.log(selectedChat, chats);
+  // const messageReceived = (data) => {
+  //   if (!selectedChat || selectedChat._id !== data.chat._id) {
+  //     setNewReceived(data);
+  //     setFetchAgain((fetch) => {
+  //       return !fetch;
+  //     });
+  //   } else {
+  //     setMessages([...messages, data]);
+  //     setNewReceived();
+  //   }
+  // };
   return (
-    <Grid>
-      {chats ? (
+    <Flex direction="row" rowGap={'sm'}>
+      <Chats setChats={setChats} chats={chats} selectedChat={selectedChat}setSelectedChat={setSelectedChat}/>
+      <ChatWindow/>
+      {/* {chats ? (
         <>
           <GridCol span={3} h={"90vh"} style={{ overflowY: "scroll" }}>
             <Title ta={"center"}>Group Chats </Title>
@@ -350,8 +354,8 @@ const ChatAgent = ({ socket }) => {
         <Center h={"90vh"} w={"100%"}>
           <Loader size={100} />
         </Center>
-      )}
-    </Grid>
+      )} */}
+    </Flex>
   );
 };
 

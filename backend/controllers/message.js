@@ -20,7 +20,7 @@ const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId, user } = req.body;
   if (!content || !chatId) {
     console.log("Invalid data passed into request");
-    return res.sendStatus(400);
+    return res.sendStatus(400).json("Invalid data passed into request");
   }
   const findUser = await User.findOne({ username: user });
   var newMessage = {
@@ -48,7 +48,6 @@ const sendMessage = asyncHandler(async (req, res) => {
           { role: { $nin: ["user", "guess"] }, "noti.name": "message" },
           { $inc: { "noti.$.number": 1 } }
         );
-        console.log("if",data);
       }
       // Document not exists then add document
       else {
@@ -56,7 +55,6 @@ const sendMessage = asyncHandler(async (req, res) => {
           { role: { $nin: ["user", "guess"] } },
           { $addToSet: { noti: { name: "message", number: 1 } } }
         );
-        console.log("else", data);
       }
     }
     await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
