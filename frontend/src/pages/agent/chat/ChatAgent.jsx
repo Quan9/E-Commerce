@@ -94,9 +94,9 @@ const ChatAgent = ({ socket }) => {
         setMessages([...messages, values]);
       }
     };
-    socket.on("message received", getChats);
+    socket.on("message recieved", getChats);
     return () => {
-      socket.off("message received", getChats);
+      socket.off("message recieved", getChats);
     };
   });
   useEffect(() => {
