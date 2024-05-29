@@ -185,6 +185,7 @@ const ChatAgent = ({ socket }) => {
                 >
                   <Paper
                     onClick={async () => {
+                      setSelectedChat(chat);
                       await chatRead(chat);
                       params(chat._id);
                     }}
