@@ -59,7 +59,7 @@ const ChatAgent = ({ socket }) => {
     };
     fecthChat();
   }, [fetchAgain]);
-
+  console.log(chats);
   useEffect(() => {
     const check = async () => {
       if (selectedChat && searchParams.get("room") === selectedChat._id) {
@@ -193,7 +193,7 @@ const ChatAgent = ({ socket }) => {
                     onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                   >
                     <Text size="xl" ta={"center"}>
-                      {chat.chatName.startsWith(`user-/^[A-Za-z0-9]\\/`)
+                      {chat.chatName.startsWith("user-")
                         ? `AnoUser-${chat.chatName.substr(-5)}`
                         : `${chat.chatName}`}
                     </Text>
