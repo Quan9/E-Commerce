@@ -224,6 +224,7 @@ const ChatAgent = ({ socket }) => {
   const sortChats = () => {
     const sortChat = chats;
     sortChat.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    console.log(sortChat,'sortchat');
     return (
       <>
         {sortChat.map((chat) => {
