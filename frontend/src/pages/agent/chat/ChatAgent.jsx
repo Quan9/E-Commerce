@@ -158,7 +158,9 @@ const ChatAgent = ({ socket }) => {
       // setNewReceived(data);
       await getChat(data.chat._id).then((res) => {
         const chat1 = res.data;
+        console.log(res.data, "--------", chat1);
         const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
+        console.log("first", index);
         setChats((prev) => ({
           ...prev,
           [index]: chat1,
