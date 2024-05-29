@@ -227,7 +227,7 @@ const ChatAgent = ({ socket }) => {
     );
     return (
       <>
-        {sortChat.map((chat) => (
+        {sortChat.map((chat) => {
           <Indicator
             size={17}
             disabled={checkUnread(chat.latestMessage)}
@@ -268,8 +268,8 @@ const ChatAgent = ({ socket }) => {
                   : chat.latestMessage.content}
               </Text>
             </Paper>
-          </Indicator>
-        ))}
+          </Indicator>;
+        })}
       </>
     );
   };
