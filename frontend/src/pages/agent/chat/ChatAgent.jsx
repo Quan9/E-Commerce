@@ -201,6 +201,9 @@ const ChatAgent = ({ socket }) => {
         chats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       );
     }, [chats]);
+    useEffect(() => {
+      console.log(sortChat, "sortchat");
+    }, [sortChat]);
     return (
       <>
         {sortChat.map((chat) => {
