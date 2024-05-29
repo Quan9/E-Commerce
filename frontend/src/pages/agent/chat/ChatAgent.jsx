@@ -83,17 +83,28 @@ const ChatAgent = ({ socket }) => {
     }
   }, [messages]);
   const chatRead = async (chat, data1) => {
-    if (selectedChat === chat) {
-      return;
+    // if (selectedChat === chat) {
+    //   return;
+    // } else {
+    const { data } = await chatReadBy(chat._id, user);
+    if (data1) {
+      const index = data1.findIndex((chat) => chat._id === data._id);
+      data1[index] = data;
+      setChats(data1);
     } else {
-      const { data } = await chatReadBy(chat._id, user);
-      let updateChats = data1 || chats;
-      let index = updateChats.findIndex((chat) => chat._id === data._id);
-      updateChats[index] = data;
-      setChats(updateChats);
-      const a = updateChats[index];
-      setSelectedChat(a);
+      const index = chats.findIndex((chat) => chat._id === data._id);
+      setChats((prev) => ({
+        ...prev,
+        [index]: data,
+      }));
     }
+    // let updateChats = data1 || chats;
+    // let index = updateChats.findIndex((chat) => chat._id === data._id);
+    // updateChats[index] = data;
+    // setChats(updateChats);
+    // const a = updateChats[index];
+    // setSelectedChat(a);
+    // }
   };
   const params = async (data) => {
     if (data === undefined) {
@@ -151,11 +162,8 @@ const ChatAgent = ({ socket }) => {
       }
     } else {
       setTyping(true);
-      alert("empty input");
+      toast.info("cannot have empty input!", { position: "top-center" });
     }
-  };
-  const leaveChat = () => {
-    setSelectedChat();
   };
   const messageReceived = (data) => {
     if (selectedChat === undefined || selectedChat._id === data.chat._id) {
@@ -227,7 +235,7 @@ const ChatAgent = ({ socket }) => {
                     <IconArrowBack
                       d={{ base: "flex", md: "none" }}
                       onClick={() => {
-                        leaveChat();
+                        setSelectedChat();
                         params();
                       }}
                       // onMouseEnter={}
