@@ -194,9 +194,10 @@ const ChatAgent = ({ socket }) => {
                       onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                     >
                       <Text size="xl" ta={"center"}>
-                        {chat.chatName.startsWith("user-")
-                          ? `AnoUser-${chat.chatName.substr(-5)}`
-                          : `${chat.chatName}`}
+                        {/* {chat.chatName.startsWith("user-") */}
+                        {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
+                        {/* : `${chat.chatName}`} */}
+                        {chat.chatName}
                       </Text>
                       <Text
                         span
