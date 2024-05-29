@@ -23,7 +23,6 @@ import {
   Image,
   List,
   NavLink,
-  Notification,
   Space,
   Stack,
   Text,
@@ -35,7 +34,6 @@ import {
   IconMinus,
   IconPlus,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
 import { isNotEmpty, useForm } from "@mantine/form";
 
@@ -61,7 +59,6 @@ const Cart = () => {
   };
 
   const ShowCart = () => {
-    const [checkOut, setCheckOut] = useState(false);
     const [payment, setPayment] = useState("");
     const form = useForm({
       initialValues: { name: "", email: "", phonenumber: "", address: "" },
@@ -78,7 +75,6 @@ const Cart = () => {
     });
     useEffect(() => {
       dispatch(getTotals());
-      if (user) setCheckOut(true);
     }, [cart, dispatch, user]);
 
     useEffect(() => {
@@ -100,21 +96,6 @@ const Cart = () => {
     };
     const clear = () => {
       dispatch(clearCart());
-    };
-    const stripe = () => {
-      if (checkOut) {
-        createPaymentIntent({ cart, user }).then((res) => {
-          window.location.href = res.data.url;
-        });
-      } else {
-        <Notification
-          icon={<IconX style={{ width: "20rem", height: "20rem" }} />}
-          color="red"
-          title="Error!"
-        >
-          Must logged in first
-        </Notification>;
-      }
     };
     const handleSubmit = (values) => {
       nav("/checkoutsuccess", { state: { values } });
@@ -230,7 +211,7 @@ const Cart = () => {
                   <FormatPrice price={cart.total} />
 
                   {payment === "" && (
-                    <Group justify="flex-start">
+                    <Group justify="center">
                       <Button
                         onClick={() => setPayment("stripe")}
                         variant="default"
