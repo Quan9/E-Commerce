@@ -94,7 +94,7 @@ const ChatAgent = ({ socket }) => {
     return () =>{
       socket.off('message received',getChats)
     }
-  },[socket]);
+  });
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
