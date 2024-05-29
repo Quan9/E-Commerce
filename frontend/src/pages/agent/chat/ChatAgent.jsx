@@ -47,14 +47,12 @@ const ChatAgent = ({ socket }) => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
       if (searchParams.get("room") !== null) {
-        console.log("searchParams");
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
         const selectChat = data[index];
         setSelectedChat(selectChat);
       }
-      console.log("outside if");
 
       setChats(data);
     };
@@ -82,10 +80,8 @@ const ChatAgent = ({ socket }) => {
     };
   }, [chats]);
   const getChats = async (values) => {
-    console.log(values, "first getchats", chats);
     if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
       const { data } = await getChat(values.chat._id);
-      console.log(data, "getchats ", chats);
       const index = chats.findIndex((chat) => chat._id === data._id);
       if (index < 0) {
         setChats([...chats, data]);
@@ -94,15 +90,11 @@ const ChatAgent = ({ socket }) => {
           ...prev,
           [index]: data,
         }));
-        logChats();
       }
-      console.log("first", index);
     } else {
-      console.log("else getchats");
       setMessages([...messages, values]);
     }
   };
-  console.log(chats, "chats[0]");
   useEffect(() => {
     selectedChat &&
       selectedChat._id === searchParams.get("room") &&
@@ -202,80 +194,60 @@ const ChatAgent = ({ socket }) => {
       setMessages([...messages, data]);
     }
   };
-
-  useEffect(() => {
-    chats && logChats();
-  }, [chats]);
-  const logChats = () => {
-    const a = chats.sort((a, b) => {
-      const bDate = new Date(b.updatedAt);
-      const aDate = new Date(a.updatedAt);
-      console.log(bDate, aDate, "date");
-      if (bDate > aDate) return bDate - aDate;
-      if (bDate === aDate) {
-        const bTime = bDate.getTime();
-        const aTime = aDate.getTime();
-        console.log(aTime, bTime, "time");
-        return bTime - aTime;
-      }
-    });
-    console.log(a, "useeffect logchats", new Date(a[0].updatedAt));
-  };
   const SortChats = () => {
     const [sortChat, setSortChat] = useState(chats);
     useEffect(() => {
-      setSortChat(chats);
+      setSortChat(
+        chats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      );
     }, [chats]);
-    console.log(sortChat, "sortchat");
     return (
       <>
-        {sortChat
-          .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-          .map((chat) => {
-            return (
-              <Indicator
-                size={17}
-                disabled={checkUnread(chat.latestMessage)}
-                label="New"
-                key={chat._id}
-                position="top-left"
+        {sortChat.map((chat) => {
+          return (
+            <Indicator
+              size={17}
+              disabled={checkUnread(chat.latestMessage)}
+              label="New"
+              key={chat._id}
+              position="top-left"
+            >
+              <Paper
+                onClick={() => {
+                  setSelectedChat(chat);
+                  chatRead(chat);
+                  params(chat._id);
+                }}
+                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                color={selectedChat === chat ? "white" : "black"}
+                onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
               >
-                <Paper
-                  onClick={() => {
-                    setSelectedChat(chat);
-                    chatRead(chat);
-                    params(chat._id);
-                  }}
-                  bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                  color={selectedChat === chat ? "white" : "black"}
-                  onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
+                <Text size="xl" ta={"center"}>
+                  {/* {chat.chatName.startsWith("user-") */}
+                  {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
+                  {/* : `${chat.chatName}`} */}
+                  {chat.chatName}
+                </Text>
+                <Text
+                  span
+                  size="md"
+                  c={checkUnread(chat.latestMessage) ? "gray" : "red"}
                 >
-                  <Text size="xl" ta={"center"}>
-                    {/* {chat.chatName.startsWith("user-") */}
-                    {/* ? `AnoUser-${chat.chatName.substr(-5)}` */}
-                    {/* : `${chat.chatName}`} */}
-                    {chat.chatName}
-                  </Text>
-                  <Text
-                    span
-                    size="md"
-                    c={checkUnread(chat.latestMessage) ? "gray" : "red"}
-                  >
-                    {chat?.latestMessage?.sender?.username === chat.chatName &&
-                    chat.isUser === false ? (
-                      <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
-                    ) : (
-                      <b>{chat?.latestMessage?.sender?.username}</b>
-                    )}
-                    <b> : </b>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 35) + "..."
-                      : chat.latestMessage.content}
-                  </Text>
-                </Paper>
-              </Indicator>
-            );
-          })}
+                  {chat?.latestMessage?.sender?.username === chat.chatName &&
+                  chat.isUser === false ? (
+                    <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
+                  ) : (
+                    <b>{chat?.latestMessage?.sender?.username}</b>
+                  )}
+                  <b> : </b>
+                  {chat.latestMessage.content.length > 50
+                    ? chat.latestMessage.content.substring(0, 35) + "..."
+                    : chat.latestMessage.content}
+                </Text>
+              </Paper>
+            </Indicator>
+          );
+        })}
       </>
     );
   };
