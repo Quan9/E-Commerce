@@ -46,7 +46,7 @@ const ChatAgent = ({ socket }) => {
   useEffect(() => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
-      if (searchParams.get("room") !== null) {
+      if (searchParams.get("room")) {
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
@@ -166,9 +166,9 @@ const ChatAgent = ({ socket }) => {
       toast.info("cannot have empty input!", { position: "top-center" });
     }
   };
-  console.log(selectedChat)
+  console.log(selectedChat, chats);
   const messageReceived = (data) => {
-    if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
+    if (!selectedChat || selectedChat._id !== data.chat._id) {
       setNewReceived(data);
       setFetchAgain((fetch) => {
         return !fetch;
