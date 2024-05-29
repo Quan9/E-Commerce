@@ -84,7 +84,7 @@ const ChatAgent = ({ socket }) => {
   const getChats = async (values) => {
     console.log(values, "first getchats", chats);
     if (selectedChat === undefined || selectedChat._id !== values.chat._id) {
-      const { data } = getChat(values.chat._id);
+      const { data } = await getChat(values.chat._id);
       console.log(data, "getchats ", chats);
       const index = chats.findIndex((chat) => chat._id === data._id);
       if (index < 0) {
