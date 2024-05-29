@@ -47,12 +47,15 @@ const ChatAgent = ({ socket }) => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
       if (searchParams.get("room") !== null) {
+        console.log("searchParams");
         const index = data.findIndex(
           (chat) => chat._id === searchParams.get("room")
         );
         const selectChat = data[index];
         setSelectedChat(selectChat);
       }
+      console.log("outside if");
+
       setChats(data);
     };
     fecthChat();
@@ -185,7 +188,7 @@ const ChatAgent = ({ socket }) => {
       const a = chats.sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-      console.log(a, "------");
+      console.log(a, "------", chats);
     };
     chats && logChats();
   }, [chats]);
