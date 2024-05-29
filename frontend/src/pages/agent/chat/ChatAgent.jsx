@@ -170,17 +170,15 @@ const ChatAgent = ({ socket }) => {
       setMessages([...messages, data]);
     }
   };
-  const getChats = async (data) => {
-    await getChat(data.chat._id).then((res) => {
-      const chat1 = res.data;
-      console.log(res.data, "--------", chats);
-      const index = chats.findIndex((chat) => chat._id === chat1.chat._id);
-      console.log("first", index);
-      setChats((prev) => ({
-        ...prev,
-        [index]: chat1,
-      }));
-    });
+  const getChats = async (values) => {
+    const { data } = await getChat(values.chat._id);
+    console.log(data, "--------", chats);
+    const index = chats.findIndex((chat) => chat._id === data.chat._id);
+    console.log("first", index);
+    setChats((prev) => ({
+      ...prev,
+      [index]: data,
+    }));
   };
   useEffect(() => {
     const logChats = () => {
