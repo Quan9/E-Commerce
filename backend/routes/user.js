@@ -21,5 +21,5 @@ router.get("/find/:id", verifyTokenAndAuthorization, getSingleUser); //GET USER
 router.get("/ano", getAnoUser); //GET USER
 router.get("/", verifyTokenAndAdmin, getAllUser); //GET ALL USER
 router.get("/stats", verifyTokenAndAdmin, getUserStats); //GET USER STATS
-router.put("/noti/:id", verifyTokenAndAdmin, updateNoti);
+router.put("/noti/:id", verifyTokenAndAuthorization, updateNoti);
 module.exports = router;
