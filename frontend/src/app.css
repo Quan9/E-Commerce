@@ -4,8 +4,9 @@
 
 #root>div {
   background: rgba(198, 198, 198, 1);
-  ~div{
-  background: rgba(198, 198, 198, 0.5);
+
+  ~div {
+    background: rgba(198, 198, 198, 0.5);
 
   }
 }
@@ -85,9 +86,20 @@
   }
 }
 
-.chat-client img {
-  height: 50px;
-  width: 50px;
+.chat-client {
+
+  img {
+
+    height: 50px;
+    width: 50px;
+  }
+
+  iframe {
+    height: 100px;
+    width: 100px;
+
+  }
+
 }
 
 

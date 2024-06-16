@@ -139,7 +139,11 @@ const Chat = (props) => {
             <Box
               justify="flex-end"
               bg={"rgba(198, 198, 198, 1)"}
-              style={{ overflowY: "scroll", overflowX: "hidden" }}
+              style={{
+                overflow: "auto",
+                overflowY: "scroll",
+                overflowX: "hidden",
+              }}
               h={"80%"}
               pb={"sm"}
               w={"100%"}
@@ -174,6 +178,7 @@ const Chat = (props) => {
                           </Tooltip>
                         )}
                         <Text
+                          span
                           key={m._id}
                           style={{
                             backgroundColor: `${

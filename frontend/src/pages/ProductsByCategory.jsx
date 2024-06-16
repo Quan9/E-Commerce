@@ -143,54 +143,63 @@ const ProductsByCategory = () => {
   };
   return (
     <Grid m={"lg"} p={"lg"}>
-      <GridCol span={"2"}>
+      <GridCol
+        span={"2"}
+        style={{ borderStyle: "hidden outset hidden hidden " }}
+      >
         <Stack>
           <Title order={4} ta={"center"}>
             Price
           </Title>
-          <Group justify="space-between">
+          <Grid>
             {dataFilterPrice.map((item, index) => (
-              <Checkbox
-                key={item + index}
-                name="price"
-                onChange={(e) => {
-                  handlePrice(e);
-                }}
-                value={item.value}
-                checked={checkFilter.price === item.value}
-                label={item.label}
-              />
+              <GridCol span={{ base: 12, lg: 6 }}>
+                <Checkbox
+                  key={item + index}
+                  name="price"
+                  onChange={(e) => {
+                    handlePrice(e);
+                  }}
+                  value={item.value}
+                  checked={checkFilter.price === item.value}
+                  label={item.label}
+                />
+              </GridCol>
             ))}
-          </Group>
+          </Grid>
           <Title order={4} ta={"center"}>
             Brand
           </Title>
-          <Group justify="space-between">
+          <Grid>
             {dataFilterBrandPhone.map((item, index) => {
               if (item.value === "") {
                 return (
+                  <GridCol span={{ base: 12, lg: 6 }}>
+                    <Checkbox
+                      key={index}
+                      name="brand"
+                      value={item.value}
+                      onChange={(e) => handleBrand(e)}
+                      label={item.label}
+                      checked={checkFilter.brand.length === 0}
+                    />
+                  </GridCol>
+                );
+              }
+              return (
+                <GridCol span={{ base: 12, lg: 6 }}>
                   <Checkbox
                     key={index}
                     name="brand"
                     value={item.value}
                     onChange={(e) => handleBrand(e)}
                     label={item.label}
-                    checked={checkFilter.brand.length === 0}
+                    checked={checkFilter.brand.includes(item.value)}
                   />
-                );
-              }
-              return (
-                <Checkbox
-                  key={index}
-                  name="brand"
-                  value={item.value}
-                  onChange={(e) => handleBrand(e)}
-                  label={item.label}
-                  checked={checkFilter.brand.includes(item.value)}
-                />
+                </GridCol>
               );
             })}
-          </Group>
+          </Grid>
         </Stack>
       </GridCol>
       <GridCol span={"10"}>
