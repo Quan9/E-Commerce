@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { useClickOutside } from "@mantine/hooks";
 import { useLocation } from "react-router-dom";
+import parse from "html-react-parser";
 import {
   Avatar,
   Box,
@@ -11,20 +13,20 @@ import {
   Loader,
   Paper,
   Text,
-  TextInput,
+  Title,
   Tooltip,
 } from "@mantine/core";
 import { clientChat } from "../../services/chat";
 import { getAnoUser } from "../../services/user";
 import { getAllMessages, sendMessage } from "../../services/message";
 import { toast } from "react-toastify";
-import { IconMessageForward } from "@tabler/icons-react";
 import {
   isLastMessage,
   isSameSender,
   isSameSenderMargin,
   isSameUser,
 } from "../config/ChatLogics";
+import QuillChat from "../misc/QuillChat";
 
 const Chat = (props) => {
   const { user, loggedIn, socket } = props;
@@ -43,6 +45,8 @@ const Chat = (props) => {
   const [typing, setTyping] = useState(true);
   const [loading, setLoading] = useState(false);
   const [user1, setUser1] = useState(user);
+  const quillRef = useRef();
+  const [doubleKey, setDoubleKey] = useState(false);
   useEffect(() => {
     if (messages.length) {
       scrollRef.current?.scrollIntoView({
@@ -50,7 +54,7 @@ const Chat = (props) => {
         block: "end",
       });
     }
-  }, [messages.length]);
+  }, [messages]);
   useEffect(() => {
     const enterChat = async () => {
       setLoading(true);
@@ -91,73 +95,67 @@ const Chat = (props) => {
     }
   };
   const handleSubmit = async () => {
-    setTyping(false);
-    if (newMessage) {
+    let newMessage1 = newMessage.replaceAll("<p><br></p>", "");
+
+    if (newMessage1) {
       try {
         const { data } = await sendMessage({
           chatId: room,
-          content: newMessage,
+          content: newMessage1,
           user: user.username,
         });
 
         socket.emit("userMessage", data);
         setMessages([...messages, data]);
-        setTyping(true);
         setNewMessage("");
+        const quill = document.getElementsByClassName("ql-editor");
+        quill[0].innerHTML = "";
       } catch (error) {
         toast.error("error", { position: "top-right", data: error });
       }
     } else {
-      setTyping(true);
-      alert("empty input");
+      toast.info("Empty input", { position: "top-center" });
     }
+    setTyping(true);
+    setDoubleKey(false);
   };
+  useEffect(() => {
+    const handle = () => {
+      setTyping(false);
+      handleSubmit();
+    };
+    doubleKey && handle();
+  }, [doubleKey]);
   return (
     <>
       {paths.includes(pathname) ? (
         <></>
       ) : (
         <div ref={ref}>
-          <Paper
-            className="transition-5"
-            pos={"fixed"}
-            bottom={"120px"}
-            right={0}
-            w={275}
-            h={325}
-            maw={"calc(100% - 48px)"}
-            mah={"calc(100%-48px"}
-            radius={12}
-            withBorder
-            shadow="md"
-            display={!visible && "none"}
-          >
-            <Center bg={"blue"} w={"100%"} h={"10%"}>
-              <Text size="md">Customer Support</Text>
-            </Center>
+          <Box className="transition-1" display={!visible && "none"}>
+            <Title bg={"blue"} order={4} ta={"center"}>
+              Customer Support
+            </Title>
             <Box
-              bg={"rgba(0, 0, 0, 0.12)"}
               justify="flex-end"
-              style={{ overflowY: "scroll" }}
-              h={"85%"}
+              bg={"rgba(198, 198, 198, 1)"}
+              style={{ overflowY: "scroll", overflowX: "hidden" }}
+              h={"80%"}
               pb={"sm"}
               w={"100%"}
             >
               {loading ? (
-                <Center pos={"absolute"} h={"90%"} w={"100%"}>
-                  <Loader color="blue" />
-                </Center>
+                <Loader color="blue" />
               ) : (
                 <Flex
                   direction="column"
-                  h={messages.length < 5 && "100%"}
                   justify={"flex-end"}
                   w={"100%"}
                   style={{ overflowWrap: "break-word" }}
                 >
                   {messages?.map((m, i) => {
                     return (
-                      <Flex key={m._id}>
+                      <Flex key={m._id} className="chat-client">
                         {(isSameSender(messages, m, i, user1._id) ||
                           isLastMessage(messages, i, user1._id)) && (
                           <Tooltip
@@ -194,10 +192,10 @@ const Chat = (props) => {
                               : 10,
                             borderRadius: "10px",
                             padding: "5px 0px",
-                            maxWidth: "100%",
+                            maxWidth: "70%",
                           }}
                         >
-                          {m.content}
+                          {parse(`${m.content}`) || m.content}
                         </Text>
                       </Flex>
                     );
@@ -206,21 +204,14 @@ const Chat = (props) => {
                 </Flex>
               )}
             </Box>
-            <TextInput
-              placeholder="enter message..."
-              // mt={"sm"}
-              pt={"xs"}
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSubmit();
-                }
-              }}
-              disabled={typing === false}
-              rightSection={<IconMessageForward onClick={handleSubmit} />}
+            <QuillChat
+              ref={quillRef}
+              setNewMessage={setNewMessage}
+              defaultValue={newMessage}
+              setDoubleKey={setDoubleKey}
+              typing={typing}
             />
-          </Paper>
+          </Box>
           <Indicator
             style={{ position: "fixed", bottom: "24px", right: "24px" }}
             position="top-center"
@@ -244,10 +235,9 @@ const Chat = (props) => {
                   setHovered(true);
                 }}
                 onMouseLeave={() => setHovered(false)}
-                src={null}
                 color="blue"
-                // color='red'
                 size={60}
+                // display={visible && "none"}
               >
                 <Text size="sm" c={"green"}>
                   Support

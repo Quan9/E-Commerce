@@ -14,7 +14,7 @@ const createProduct = async (req, res) => {
         data: fileData,
         description: req.body.description,
       });
-    }
+    } 
     const newProduct = new Product(req.body, { model: model });
     await newProduct.save();
     res.status(200).json("Product Created Successfully!");

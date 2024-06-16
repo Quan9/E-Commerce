@@ -44,6 +44,7 @@ const TotalUsers = () => {
   const [debouncedQuery] = useDebouncedValue(query, 200);
   const totalRole = ["guess", "user", "admin"];
   const [opened, { open, close }] = useDisclosure(false);
+
   useEffect(() => {
     getAllUsers().then((res) => {
       setData(res.data);
@@ -124,6 +125,7 @@ const TotalUsers = () => {
                 onClick={() => {
                   setRecords(data);
                   setSelectedRoles([]);
+                  setQuery("");
                 }}
               />
             </Indicator>

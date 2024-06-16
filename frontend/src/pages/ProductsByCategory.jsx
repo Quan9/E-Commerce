@@ -1,8 +1,6 @@
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getProductByCategory } from "../services/product";
-import _ from "lodash";
 import {
   Button,
   Card,
@@ -10,13 +8,19 @@ import {
   Checkbox,
   Grid,
   GridCol,
+  Group,
   Image,
   Loader,
-  Paper,
   Stack,
   Title,
 } from "@mantine/core";
-import FormatPrice from "../components/misc/FormatPrice";
+import { motion } from "framer-motion";
+import {
+  FormatPrice,
+  dataFilterBrandPhone,
+  dataFilterPrice,
+} from "../components";
+
 const ProductsByCategory = () => {
   const category = useLocation().pathname.split("/")[1];
   const [data, setData] = useState();
@@ -30,7 +34,6 @@ const ProductsByCategory = () => {
     brand: [],
     function: "",
   });
-  const ref1 = useRef(checkFilter);
 
   useEffect(() => {
     getProductByCategory(category).then((res) => {
@@ -49,12 +52,10 @@ const ProductsByCategory = () => {
     });
   }, []);
   useEffect(() => {
-    if (_.isEqual(checkFilter, ref1.current)) {
-      return setFilter(data);
-    } else {
+    const handleFilter = () => {
       let temp = [...data];
       const { price, brand } = checkFilter;
-      if (price === "highToLow") {
+      if (price === "lowToHigh") {
         temp.sort((a, b) => {
           if (a.discount && b.discount) return a.discount - b.discount;
           else if (a.discount && !b.discount) return a.discount - b.price;
@@ -63,7 +64,7 @@ const ProductsByCategory = () => {
             return a.price - b.price;
           }
         });
-      } else if (price === "lowToHigh")
+      } else if (price === "highToLow")
         temp.sort((a, b) => {
           if (a.discount && b.discount) return b.discount - a.discount;
           else if (a.discount && !b.discount) return b.price - a.discount;
@@ -80,7 +81,9 @@ const ProductsByCategory = () => {
       }
       setFilter([...temp]);
       setOpen(8);
-    }
+    };
+
+    data && handleFilter();
   }, [checkFilter]);
   const handlePrice = (e) => {
     if (e.target.checked) {
@@ -92,7 +95,7 @@ const ProductsByCategory = () => {
         return setCheckFilter((prev) => ({ ...prev, [e.target.name]: "" }));
       }
       setSearchParams((params) => {
-        params.append("price", e.target.value);
+        params.set("price", e.target.value);
         return params;
       });
       setCheckFilter((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -139,98 +142,73 @@ const ProductsByCategory = () => {
     }
   };
   return (
-    <Paper ms={"lg"} me={"lg"} shadow="lg">
-      <Grid>
-        <GridCol span={{ base: 2, lg: 1 }}>
-          <Stack gap={"xs"} style={{ position: "sticky", top: "5%" }}>
-            <Title order={4} ta={"center"}>
-              Price
-            </Title>
-            <Checkbox
-              onChange={(e) => {
-                handlePrice(e);
-              }}
-              size="sm"
-              name="price"
-              value={""}
-              label="Default"
-              checked={checkFilter.price === ""}
-            />
-            <Checkbox
-              onChange={(e) => {
-                handlePrice(e);
-              }}
-              name="price"
-              size="sm"
-              value={"lowToHigh"}
-              label="high to low"
-              checked={checkFilter.price === "lowToHigh"}
-            />
-            <Checkbox
-              onChange={(e) => {
-                handlePrice(e);
-              }}
-              size="sm"
-              name="price"
-              value={"highToLow"}
-              label="low to high"
-              checked={checkFilter.price === "highToLow"}
-            />
-            <Title order={4} ta={"center"}>
-              Brand
-            </Title>
-            <Checkbox
-              name="brand"
-              value={""}
-              onChange={(e) => handleBrand(e)}
-              label="All"
-              checked={checkFilter.brand.length === 0}
-            />
-            <Checkbox
-              name="brand"
-              value={"Samsung"}
-              onChange={(e) => handleBrand(e)}
-              label="Samsung"
-              checked={checkFilter.brand.includes("Samsung")}
-            />
-            <Checkbox
-              name="brand"
-              value={"Oppo"}
-              onChange={(e) => handleBrand(e)}
-              label="Oppo"
-              checked={checkFilter.brand.includes("Oppo")}
-            />
-            <Checkbox
-              name="brand"
-              value={"Xiaomi"}
-              onChange={(e) => handleBrand(e)}
-              label="Xiaomi"
-              checked={checkFilter.brand.includes("Xiaomi")}
-            />
-            <Checkbox
-              name="brand"
-              value={"Apple"}
-              onChange={(e) => handleBrand(e)}
-              label="iPhone (Apple)"
-              checked={checkFilter.brand.includes("Apple")}
-            />
-            <Checkbox
-              name="brand"
-              value={"Lenovo"}
-              onChange={(e) => handleBrand(e)}
-              label="Lenovo"
-              checked={checkFilter.brand.includes("Lenovo")}
-            />
-          </Stack>
-        </GridCol>
+    <Grid m={"lg"} p={"lg"}>
+      <GridCol span={"2"}>
+        <Stack>
+          <Title order={4} ta={"center"}>
+            Price
+          </Title>
+          <Group justify="space-between">
+            {dataFilterPrice.map((item, index) => (
+              <Checkbox
+                key={item + index}
+                name="price"
+                onChange={(e) => {
+                  handlePrice(e);
+                }}
+                value={item.value}
+                checked={checkFilter.price === item.value}
+                label={item.label}
+              />
+            ))}
+          </Group>
+          <Title order={4} ta={"center"}>
+            Brand
+          </Title>
+          <Group justify="space-between">
+            {dataFilterBrandPhone.map((item, index) => {
+              if (item.value === "") {
+                return (
+                  <Checkbox
+                    key={index}
+                    name="brand"
+                    value={item.value}
+                    onChange={(e) => handleBrand(e)}
+                    label={item.label}
+                    checked={checkFilter.brand.length === 0}
+                  />
+                );
+              }
+              return (
+                <Checkbox
+                  key={index}
+                  name="brand"
+                  value={item.value}
+                  onChange={(e) => handleBrand(e)}
+                  label={item.label}
+                  checked={checkFilter.brand.includes(item.value)}
+                />
+              );
+            })}
+          </Group>
+        </Stack>
+      </GridCol>
+      <GridCol span={"10"}>
         {filter ? (
-          <GridCol span={{ base: 10, lg: 11 }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              ease: "circInOut",
+              duration: 1,
+            }}
+          >
             {filter.length === 0 ? (
               <Center h={"90vh"}>
                 <Title order={4}>No items match requirements</Title>
               </Center>
             ) : (
-              <Grid w={"100%"}>
+              <Grid>
                 {filter.map((product, index) => {
                   return (
                     <GridCol
@@ -288,14 +266,14 @@ const ProductsByCategory = () => {
                 </Center>
               </Grid>
             )}
-          </GridCol>
+          </motion.div>
         ) : (
           <Center h={"90vh"} w={"100%"}>
             <Loader size={"100"} />
           </Center>
         )}
-      </Grid>
-    </Paper>
+      </GridCol>
+    </Grid>
   );
 };
 

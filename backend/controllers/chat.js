@@ -30,19 +30,17 @@ const fetchChats = asyncHandler(async (req, res) => {
       });
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
   }
 });
 const getChat = async(req,res) =>{
-  const {chatId} = req.params;
+  const {id} = req.params;
   try {
-    Chat.findById(chatId)
+    Chat.findById(id)
     .populate("users", "-password")
     .populate("groupAdmin", "-password")
     .populate({
       path: "latestMessage",
     })
-    // .sort({ updatedAt: -1 })
     .then(async (result) => {
       result = await User.populate(result, {
         path: "latestMessage.sender",

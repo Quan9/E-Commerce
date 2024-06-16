@@ -14,22 +14,22 @@ import {
   NumberInput,
   Paper,
   Select,
-  Space,
   Stack,
   Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTab,
   Text,
   TextInput,
   Title,
   Tooltip,
+  Transition,
 } from "@mantine/core";
 import { createProduct } from "../../../services/product";
-import { category, status } from "../../../components/misc/ProductData";
 import { IconFileImport } from "@tabler/icons-react";
-import ProductInfo from "../../../components/agent/ProductInfo";
-import QuillEditor from "../../../components/misc/QuillEditor";
+import {
+  category,
+  status,
+  ProductInfo,
+  QuillEditor,
+} from "../../../components";
 
 const NewProduct = () => {
   const [data, setData] = useState();
@@ -50,7 +50,8 @@ const NewProduct = () => {
   const [autoplay, setAutoplay] = useState(true);
   const [error, setError] = useState();
   const quillRef = useRef();
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState("1");
+  const [previousTab, setPreviousTab] = useState();
   const AddNewColor = () => {
     if (color.color === "") {
       setColorError("Color field cannot be empty");
@@ -226,253 +227,299 @@ const NewProduct = () => {
       [name]: value,
     }));
   };
+  const handleTabChange = (data) => {
+    const previous = activeTab;
+    const temp = Number(data) - Number(previous);
+    setPreviousTab(temp.toString());
+    setActiveTab(data);
+  };
   return (
     <Paper>
       <Title order={3} ta={"center"}>
         Add Product
       </Title>
       {loading && (
-        <Title order={3} className="text-info" ta={'center'}>
+        <Title order={3} className="text-info" ta={"center"}>
           Processing...
         </Title>
       )}
       {error !== null && (
-        <Title order={3} className="text-danger" ta={'center'}>
+        <Title order={3} className="text-danger" ta={"center"}>
           {error}
         </Title>
       )}
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <TabsList justify="space-between">
-          <TabsTab value="general">General Info</TabsTab>
-          <TabsTab value="description">Description</TabsTab>
+      <Tabs value={activeTab} onChange={(e) => handleTabChange(e)}>
+        <Tabs.List justify="space-between">
+          <Tabs.Tab value={"1"}>General Info</Tabs.Tab>
+          <Tabs.Tab value={"2"}>Description</Tabs.Tab>
           <Tooltip
             disabled={data?.categories ? true : false}
             label="Select category 1st"
             withArrow
           >
-            <TabsTab
-              value="systeminfo"
-              disabled={data?.categories ? false : true}
-            >
+            <Tabs.Tab value={"3"} disabled={data?.categories ? false : true}>
               System Info
-            </TabsTab>
+            </Tabs.Tab>
           </Tooltip>
-          <TabsTab value="images">Images</TabsTab>
+          <Tabs.Tab value={"4"}>Images</Tabs.Tab>
           <Button onClick={handleRegister} size="md" disabled={loading}>
             Add
           </Button>
-        </TabsList>
-        <TabsPanel value="general" mt={"md"}>
-          <Stack>
-            <Title order={4} ta={"center"}>
-              General Info
-            </Title>
-            <Group justify="center" align="center">
-              <TextInput
-                label="Product Name"
-                name="name"
-                onChange={(e) =>
-                  handleChange(e.currentTarget.value, e.currentTarget.name)
-                }
-              />
-              <NumberInput
-                label="Price"
-                onChange={(e) => handleChange(e, "price")}
-              />
-              <NumberInput
-                label="Discount Price"
-                onChange={(e) => handleChange(e, "discount")}
-              />
-              <Select
-                label="Category"
-                data={category}
-                defaultValue={""}
-                onChange={(e) => handleChange(e, "categories")}
-              />
-              <Select
-                label="Status"
-                data={status}
-                defaultValue={""}
-                onChange={(e) => handleChange(e, "isActive")}
-              />
-            </Group>
-            <Space h={"md"} />
-            <Title order={4} ta={"center"}>
-              Colors
-            </Title>
-            {colorError ? (
+        </Tabs.List>
+        <Transition
+          mounted={activeTab === "1"}
+          transition={"slide-right"}
+          duration={300}
+          timingFunction="ease"
+        >
+          {(transitionStyle) => (
+            <Tabs.Panel value={"1"} mt={"md"} style={{ ...transitionStyle }}>
               <Stack>
-                <Title order={2} c={"red"} ta={"center"}>
-                  {colorError}
+                <Title order={4} ta={"center"}>
+                  General Info
                 </Title>
-              </Stack>
-            ) : null}
-            <Grid>
-              <GridCol span={colors.length !== 0 ? 6 : 12}>
-                <Group justify={"flex-start"} align="flex-end">
+                <Group align="center">
                   <TextInput
-                    label="Color"
-                    placeholder="Input"
-                    value={color.color}
-                    name="color"
+                    label="Product Name"
+                    name="name"
                     onChange={(e) =>
-                      handleNewColor(e.target.value, e.target.name)
+                      handleChange(e.currentTarget.value, e.currentTarget.name)
                     }
                   />
-                  <FileInput
-                    accept="image/png,image/jpeg"
-                    label="Image"
-                    placeholder="upload Image"
-                    w={100}
-                    style={{ overflow: "hidden" }}
-                    onChange={(e) => handleNewColor(e, "image")}
-                    leftSection={<IconFileImport size={"24"} />}
-                    leftSectionPointerEvents="none"
+                  <NumberInput
+                    label="Price"
+                    onChange={(e) => handleChange(e, "price")}
                   />
                   <NumberInput
-                    label="In Stock"
-                    value={color.inStock}
-                    placeholder="Input"
-                    allowNegative={false}
-                    onChange={(e) => handleNewColor(e, "inStock")}
+                    label="Discount Price"
+                    onChange={(e) => handleChange(e, "discount")}
                   />
-                  <Button onClick={AddNewColor}>Add Color</Button>
+                  <Select
+                    label="Category"
+                    data={category}
+                    defaultValue={""}
+                    onChange={(e) => handleChange(e, "categories")}
+                  />
+                  <Select
+                    label="Status"
+                    data={status}
+                    defaultValue={""}
+                    onChange={(e) => handleChange(e, "isActive")}
+                  />
                 </Group>
-              </GridCol>
-
-              {colors.length !== 0 && (
-                <GridCol span={6}>
-                  <Title order={4} c={"indigo"}>
-                    Current Color
-                  </Title>
-                  {colors.map((item, index) => {
-                    return (
-                      <Grid key={item + index} justify="center" align="center">
-                        <GridCol span={3} className="text-center">
-                          <Text>Color</Text>
-                          <Text>{item.color}</Text>
-                        </GridCol>
-                        <GridCol span={3}>
-                          <label>Image</label>
-                          <Image
-                            name={`a+${index}`}
-                            src={
-                              typeof item.image === "string"
-                                ? item.image
-                                : URL.createObjectURL(item.image)
-                            }
-                            // className="img-fluid"
-                            width={"100%"}
-                          />
-                        </GridCol>
-                        <GridCol span={3}>
-                          <NumberInput
-                            label="In Stock"
-                            value={item.inStock}
-                            onChange={(e) => handleChangeColors(item, index, e)}
-                            onWheel={(e) => {
-                              e.target.blur();
-                            }}
-                          />
-                        </GridCol>
-                        <GridCol span={3}>
-                          <Button
-                            bg={"red"}
-                            onClick={() => deleteColors(item, index)}
-                          >
-                            Delete
-                          </Button>
-                        </GridCol>
-                      </Grid>
-                    );
-                  })}
-                </GridCol>
-              )}
-            </Grid>
-          </Stack>
-        </TabsPanel>
-        <TabsPanel value="systeminfo" mt={"md"}>
-          {data?.categories && (
-            <ProductInfo data={data} setData={setData} newData={true} />
-          )}
-        </TabsPanel>
-        <TabsPanel value="description" mt={"md"}>
-          <QuillEditor
-            ref={quillRef}
-            defaultValue={data?.desc}
-            setData={setData}
-          />
-        </TabsPanel>
-        <TabsPanel value="images" mt={"md"}>
-          <Grid mt={"md"}>
-            <GridCol span={6} bg={"rgba(0, 0, 0, 0.10)"}>
-              <Flex align={"center"} justify={"space-between"}>
-                <Title order={4}>Add New Images</Title>
-                <FileInput
-                  multiple
-                  placeholder="New images"
-                  accept="image/png,image/jpeg"
-                  clearable
-                  onChange={onSelectFile}
-                  w={150}
-                  style={{ overflowX: "hidden" }}
-                />
-              </Flex>
-              {preview.length !== 0 && (
-                <Carousel slideSize={"100%"} withIndicators loop draggable>
-                  {preview.map((img, index) => (
-                    <CarouselSlide key={index} w={"100%"}>
-                      {index + 1}/{preview.length}
-                      <Image
-                        src={img}
-                        id={index}
-                        alt="pic1"
-                        fit="contain"
-                        h={200}
+                <Title order={4} ta={"center"}>
+                  Colors
+                </Title>
+                {colorError ? (
+                  <Stack>
+                    <Title order={2} c={"red"} ta={"center"}>
+                      {colorError}
+                    </Title>
+                  </Stack>
+                ) : null}
+                <Grid>
+                  <GridCol span={colors.length !== 0 ? 6 : 12}>
+                    <Group>
+                      <TextInput
+                        label="Color"
+                        placeholder="Input"
+                        value={color.color}
+                        name="color"
+                        onChange={(e) =>
+                          handleNewColor(e.target.value, e.target.name)
+                        }
                       />
-                    </CarouselSlide>
-                  ))}
-                </Carousel>
+                      <FileInput
+                        accept="image/png,image/jpeg"
+                        label="Image"
+                        placeholder="upload Image"
+                        // w={200}
+                        value={"hidden"}
+                        style={{ overflow: "hidden" }}
+                        onChange={(e) => handleNewColor(e, "image")}
+                        leftSection={<IconFileImport size={"24"} />}
+                        leftSectionPointerEvents="none"
+                      />
+                      <NumberInput
+                        label="In Stock"
+                        value={color.inStock}
+                        placeholder="Input"
+                        allowNegative={false}
+                        onChange={(e) => handleNewColor(e, "inStock")}
+                      />
+                      <Button onClick={AddNewColor}>Add Color</Button>
+                    </Group>
+                  </GridCol>
+
+                  {colors.length !== 0 && (
+                    <GridCol span={6}>
+                      <Title order={4} c={"indigo"}>
+                        Current Color
+                      </Title>
+                      {colors.map((item, index) => {
+                        return (
+                          <Grid
+                            key={item + index}
+                            justify="center"
+                            align="center"
+                          >
+                            <GridCol span={3} className="text-center">
+                              <Text>Color</Text>
+                              <Text>{item.color}</Text>
+                            </GridCol>
+                            <GridCol span={3}>
+                              <label>Image</label>
+                              <Image
+                                name={`a+${index}`}
+                                src={
+                                  typeof item.image === "string"
+                                    ? item.image
+                                    : URL.createObjectURL(item.image)
+                                }
+                                // className="img-fluid"
+                                width={"100%"}
+                              />
+                            </GridCol>
+                            <GridCol span={3}>
+                              <NumberInput
+                                label="In Stock"
+                                value={item.inStock}
+                                onChange={(e) =>
+                                  handleChangeColors(item, index, e)
+                                }
+                                onWheel={(e) => {
+                                  e.target.blur();
+                                }}
+                              />
+                            </GridCol>
+                            <GridCol span={3}>
+                              <Button
+                                bg={"red"}
+                                onClick={() => deleteColors(item, index)}
+                              >
+                                Delete
+                              </Button>
+                            </GridCol>
+                          </Grid>
+                        );
+                      })}
+                    </GridCol>
+                  )}
+                </Grid>
+              </Stack>
+            </Tabs.Panel>
+          )}
+        </Transition>
+        <Transition
+          mounted={activeTab === "3"}
+          transition={previousTab > 0 ? "slide-left" : "slide-right"}
+          duration={300}
+          timingFunction="ease"
+        >
+          {(transitionStyle) => (
+            <Tabs.Panel value="3" mt={"md"} style={{ ...transitionStyle }}>
+              {data?.categories && (
+                <ProductInfo data={data} setData={setData} newData={true} />
               )}
-            </GridCol>
-            <GridCol span={6}>
-              <Flex align={"center"} justify={"space-between"}>
-                <Title order={3}>360&deg;</Title>
-                <FileInput
-                  multiple
-                  placeholder="New images"
-                  accept="image/png,image/jpeg"
-                  clearable
-                  onChange={onSelect360}
-                  w={150}
-                  style={{ overflowX: "hidden" }}
+            </Tabs.Panel>
+          )}
+        </Transition>
+
+        <Transition
+          mounted={activeTab === "2"}
+          transition={previousTab > 0 ? "slide-left" : "slide-right"}
+          duration={300}
+          timingFunction="ease"
+        >
+          {(transitionStyle) => (
+            <Tabs.Panel value="2" mt={"md"} style={{ ...transitionStyle }}>
+                <QuillEditor
+                  ref={quillRef}
+                  defaultValue={data?.desc}
+                  setData={setData}
                 />
-              </Flex>
-              {error360 && (
-                <Text fw={600} c={"red"}>
-                  {error360}
-                </Text>
-              )}
-              {preview360.length !== 0 && (
-                <>
-                  <Title order={5}>360&deg; Preview</Title>
-                  <ReactImageTurntable
-                    className="image360"
-                    images={preview360}
-                  />
-                  <Text>Autoplay</Text>
-                  <Button
-                    onClick={() => {
-                      setAutoplay(!autoplay);
-                    }}
-                  >
-                    {!autoplay ? "start" : "stop"}
-                  </Button>
-                </>
-              )}
-            </GridCol>
-          </Grid>
-        </TabsPanel>
+            </Tabs.Panel>
+          )}
+        </Transition>
+        <Transition
+          mounted={activeTab === "4"}
+          transition={previousTab > 0 ? "slide-left" : "slide-right"}
+          duration={300}
+          timingFunction="ease"
+        >
+          {(transitionStyle) => (
+            <Tabs.Panel value="4" mt={"md"} style={{ ...transitionStyle }}>
+              <Grid mt={"md"}>
+                <GridCol span={6} bg={"rgba(0, 0, 0, 0.10)"}>
+                  <Flex align={"center"} justify={"space-between"}>
+                    <Title order={4}>Add New Images</Title>
+                    <FileInput
+                      multiple
+                      placeholder="New images"
+                      accept="image/png,image/jpeg"
+                      clearable
+                      onChange={onSelectFile}
+                      w={150}
+                      style={{ overflowX: "hidden" }}
+                    />
+                  </Flex>
+                  {preview.length !== 0 && (
+                    <Carousel slideSize={"100%"} withIndicators loop draggable>
+                      {preview.map((img, index) => (
+                        <CarouselSlide key={index} w={"100%"}>
+                          {index + 1}/{preview.length}
+                          <Image
+                            src={img}
+                            id={index}
+                            alt="pic1"
+                            fit="contain"
+                            h={200}
+                          />
+                        </CarouselSlide>
+                      ))}
+                    </Carousel>
+                  )}
+                </GridCol>
+                <GridCol span={6}>
+                  <Flex align={"center"} justify={"space-between"}>
+                    <Title order={3}>360&deg;</Title>
+                    <FileInput
+                      multiple
+                      placeholder="New images"
+                      accept="image/png,image/jpeg"
+                      clearable
+                      onChange={onSelect360}
+                      w={150}
+                      style={{ overflowX: "hidden" }}
+                    />
+                  </Flex>
+                  {error360 && (
+                    <Text fw={600} c={"red"}>
+                      {error360}
+                    </Text>
+                  )}
+                  {preview360.length !== 0 && (
+                    <>
+                      <Title order={5}>360&deg; Preview</Title>
+                      <ReactImageTurntable
+                        className="image360"
+                        images={preview360}
+                      />
+                      <Text>Autoplay</Text>
+                      <Button
+                        onClick={() => {
+                          setAutoplay(!autoplay);
+                        }}
+                      >
+                        {!autoplay ? "start" : "stop"}
+                      </Button>
+                    </>
+                  )}
+                </GridCol>
+              </Grid>
+            </Tabs.Panel>
+          )}
+        </Transition>
       </Tabs>
     </Paper>
   );

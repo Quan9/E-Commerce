@@ -7,6 +7,7 @@ import EditProductInfo from "./EditProductInfo";
 
 const ProductInfo = (props) => {
   const { data, setData, newData } = props;
+  console.log(data);
   return (
     <Paper>
       <Title order={2} ta={"center"} c={"teal"}>

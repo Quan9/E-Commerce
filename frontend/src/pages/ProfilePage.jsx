@@ -13,7 +13,7 @@ import {
   Title,
 } from "@mantine/core";
 import { LineChart } from "@mantine/charts";
-import FormatPrice from "../components/misc/FormatPrice";
+import { FormatPrice } from "../components";
 import { useNavigate } from "react-router-dom";
 const ProfilePage = () => {
   const [total, setTotal] = useState(0);

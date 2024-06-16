@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 // import Products from "../components/Products";
 import { getAllPublicProducts } from "../services/product";
-import Categories from "../components/client/Categories";
-import Products from "../components/client/Products";
+import { Categories, Products } from "../components";
 import { Container } from "@mantine/core";
 import { toast } from "react-toastify";
 const Home = () => {

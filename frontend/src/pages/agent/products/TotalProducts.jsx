@@ -28,18 +28,15 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import FormatPrice from "../../../components/misc/FormatPrice";
+import { FormatPrice, CheckInfo } from "../../../components";
 import { DataTable } from "mantine-datatable";
 import {
-  IconChevronUp,
   IconEdit,
   IconRestore,
   IconSearch,
-  IconSelector,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import CheckInfo from "../../../components/misc/CheckInfo";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { toast } from "react-toastify";
 
@@ -48,6 +45,8 @@ const TotalProducts = () => {
   const [page, setPage] = useState(1);
   const PAGE_SIZES = [2, 5, 10, 15];
   const [pageSize, setPageSize] = useState(PAGE_SIZES[1]);
+  const [dataFilter, setDataFilter] = useState();
+
   const [records, setRecords] = useState();
   const [selectedRecords, setSelectedRecords] = useState();
   const nav = useNavigate();
@@ -81,7 +80,9 @@ const TotalProducts = () => {
         }
         return true;
       });
+      setDataFilter(filterData);
       setRecords(filterData.slice(0, pageSize));
+      setPage(1);
     }
   }, [debouncedQuery, sortStatus]);
   const displayModal = () => {
@@ -108,6 +109,7 @@ const TotalProducts = () => {
       setData(res.data);
       const a = res.data;
       setRecords(a.slice(0, pageSize));
+      setDataFilter(res.data);
     });
   };
   const handleStatus = (id, status) => {
@@ -138,7 +140,13 @@ const TotalProducts = () => {
           <Title ta={"center"}>Products</Title>
           <Flex>
             <Indicator title="Reset" disabled>
-              <IconRestore onClick={() => setRecords(data)} />
+              <IconRestore
+                onClick={() => {
+                  setRecords(data);
+                  setQuery("");
+                  setSortStatus(false);
+                }}
+              />
             </Indicator>
             <Button mb={"sm"} onClick={() => nav("new")} ms="auto">
               Add New Product
@@ -148,6 +156,7 @@ const TotalProducts = () => {
             <DataTable
               highlightOnHover
               withColumnBorders
+              withTableBorder
               style={{ wordBreak: "break-all" }}
               columns={[
                 {
@@ -318,7 +327,7 @@ const TotalProducts = () => {
                 ),
               }}
               records={records}
-              totalRecords={data.length}
+              totalRecords={dataFilter.length}
               paginationActiveBackgroundColor="grape"
               recordsPerPage={pageSize}
               page={page}
@@ -327,13 +336,6 @@ const TotalProducts = () => {
               onRecordsPerPageChange={setPageSize}
               sortStatus={sortStatus}
               onSortStatusChange={setSortStatus}
-              sortIcons={{
-                sorted: <IconChevronUp size={14} />,
-                unsorted: <IconSelector size={14} />,
-              }}
-              // selectedRecords={selectedRecords}
-              // onSelectedRecordsChange={setSelectedRecords}
-              // selectionTrigger="cell"
               idAccessor="_id"
             />
           </Paper>

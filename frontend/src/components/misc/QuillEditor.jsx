@@ -2,6 +2,7 @@
 import { forwardRef, useCallback, useEffect, useRef } from "react";
 import Quill from "quill";
 import axios from "axios";
+
 // Editor is an uncontrolled React component
 const QuillEditor = forwardRef(({ defaultValue, setData }, ref) => {
   const containerRef = useRef(null);
@@ -11,6 +12,7 @@ const QuillEditor = forwardRef(({ defaultValue, setData }, ref) => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
+    input.setAttribute("multiple", "true");
     input.click();
     input.onchange = async () => {
       if (input !== null && input.files !== null) {
@@ -37,7 +39,7 @@ const QuillEditor = forwardRef(({ defaultValue, setData }, ref) => {
     container: [
       ["bold", "italic", "underline", "strike"], // toggled buttons
       ["blockquote", "code-block"],
-      ["image", "formula"],
+      ["image", "formula", "link"],
 
       [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
       [{ script: "sub" }, { script: "super" }], // superscript/subscript
@@ -64,6 +66,7 @@ const QuillEditor = forwardRef(({ defaultValue, setData }, ref) => {
       modules: {
         toolbar: toolbarOptions,
       },
+      placeholder: "Enter text...",
     });
 
     ref.current = quill;
@@ -83,7 +86,7 @@ const QuillEditor = forwardRef(({ defaultValue, setData }, ref) => {
     };
   }, [ref]);
 
-  return <div ref={containerRef}></div>;
+  return <div ref={containerRef} className="quill"></div>;
 });
 
 QuillEditor.displayName = "Editor";

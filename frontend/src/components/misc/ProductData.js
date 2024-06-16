@@ -46,6 +46,52 @@ export const dataBrand = [
   { value: "Asus", label: "Asus" },
   { value: "Masstel", label: "Masstel" },
   { value: "Nokia", label: "Nokia" },
+  { value: "Lenovo", label: "Lenovo" },
+];
+export const dataBrandIPad = [
+  {
+    value: "",
+    label: "Select an option",
+    disabled: true,
+  },
+  { value: "Apple", label: "Apple" },
+  { value: "Samsung", label: "Samsung" },
+  { value: "Oppo", label: "Oppo" },
+  { value: "Xiaomi", label: "Xiaomi" },
+  { value: "Masstel", label: "Masstel" },
+  { value: "Lenovo", label: "Lenovo" },
+  { value: "Nexta", label: "Nexta" },
+  { value: "Coolpad", label: "Coolpad" },
+];
+export const dataBrandLaptop = [
+  {
+    value: "",
+    label: "Select an option",
+    disabled: true,
+  },
+  { value: "Apple", label: "Apple" },
+  { value: "Asus", label: "Asus" },
+  { value: "HP", label: "HP" },
+  { value: "Lenovo", label: "Lenovo" },
+  { value: "Acer", label: "Acer" },
+  { value: "MSI", label: "MSI" },
+  { value: "Dell", label: "Dell" },
+  { value: "Gigabyte", label: "Gigabyte" },
+  { value: "Huawei", label: "Huawei" },
+  { value: "LG", label: "LG" },
+  { value: "Masstel", label: "Masstel" },
+  { value: "Vaio", label: "Vaio" },
+];
+export const dataFilterPrice = [
+  { value: "", label: "Default" },
+  {
+    value: "lowToHigh",
+    label: "ascending",
+  },
+  {
+    value: "highToLow",
+    label: "descending",
+  },
 ];
 export const data2 = [
   {
@@ -112,6 +158,22 @@ export const dataOthers = [
   },
   { label: "Cooling", value: "Cooling" },
   { label: "LED notifications", value: "LED notifications" },
+];
+export const dataFilterBrandPhone = [
+  {
+    value: "",
+    label: "All",
+  },
+  { value: "Apple", label: "Apple" },
+  { value: "Samsung", label: "Samsung" },
+  { value: "Oppo", label: "Oppo" },
+  { value: "Xiaomi", label: "Xiaomi" },
+  { value: "Realme", label: "Realme" },
+  { value: "Vivo", label: "Vivo" },
+  { value: "Asus", label: "Asus" },
+  { value: "Masstel", label: "Masstel" },
+  { value: "Nokia", label: "Nokia" },
+  { value: "Lenovo", label: "Lenovo" },
 ];
 export const dataCameraRes = [
   {

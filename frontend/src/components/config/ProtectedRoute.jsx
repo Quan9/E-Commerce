@@ -17,15 +17,10 @@ const ProtectedRoute = () => {
   const { user } = useSelector((state) => state.user);
   const nav = useNavigate();
   return (
-    <Container m={0} maw={"98vw"}>
+    <Container m={0} maw={"100%"}>
       {user ? (
-        <Grid gutter={{ md: "md" }}>
-          <GridCol
-            visibleFrom="md"
-            span={"content"}
-            style={{ border: "1px solid blue", borderRadius: 15 }}
-            h={250}
-          >
+        <Grid>
+          <GridCol visibleFrom="md" span={1}>
             <Title
               order={3}
               onClick={() => nav("/user")}
@@ -83,9 +78,17 @@ const ProtectedRoute = () => {
               </Button>
             </Stack>
           </GridCol>
-          <GridCol span={"auto"}>
+          <GridCol span={{ base: 12, md: 11 }}>
             <Paper hiddenFrom="md" mb={"lg"}>
-              <Group gap={"sm"} justify="center">
+              <Title
+                order={3}
+                onClick={() => nav("/user")}
+                onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
+                align="center"
+              >
+                Dashboard
+              </Title>
+              <Group justify="center">
                 {user.role !== "user" ? (
                   <>
                     <Button

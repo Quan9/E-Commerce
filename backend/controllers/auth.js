@@ -46,7 +46,7 @@ const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SEC,
-      { expiresIn: "3d" }
+      // { expiresIn: "3d" }
     );
 
     const { password, ...others } = user._doc;

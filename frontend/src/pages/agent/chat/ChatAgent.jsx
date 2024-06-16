@@ -2,10 +2,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
+import { _ } from "lodash";
 import { useSelector } from "react-redux";
 import {
   Avatar,
   Box,
+  Button,
   Center,
   Flex,
   Grid,
@@ -15,34 +17,35 @@ import {
   Paper,
   Stack,
   Text,
-  TextInput,
   Title,
   Tooltip,
 } from "@mantine/core";
 import { IconArrowBack, IconMessageForward } from "@tabler/icons-react";
-
+import parse from "html-react-parser";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { agentMessage, sendMessage } from "../../../services/message";
 import {
+  QuillChat,
   isLastMessage,
   isSameSender,
   isSameSenderMargin,
   isSameUser,
-} from "../../../components/config/ChatLogics";
-import { chatReadBy, getAllChats } from "../../../services/chat";
+} from "../../../components";
+import { chatReadBy, getAllChats, getChat } from "../../../services/chat";
 const ChatAgent = ({ socket }) => {
-  const [fetchAgain, setFetchAgain] = useState(false);
+  const [fetchAgain, setFetchAgain] = useState();
   const [chats, setChats] = useState();
   const [selectedChat, setSelectedChat] = useState();
   const { user } = useSelector((state) => state.user);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
-  const [typing, setTyping] = useState(true);
+  const [doubleKey, setDoubleKey] = useState(false);
   const ref = useRef();
+  const quillRef = useRef();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [newReceived, setNewReceived] = useState();
+  const [typing, setTyping] = useState(true);
   useEffect(() => {
     const fecthChat = async () => {
       const { data } = await getAllChats();
@@ -51,29 +54,52 @@ const ChatAgent = ({ socket }) => {
           (chat) => chat._id === searchParams.get("room")
         );
         const a = data[index];
-        await chatRead(a, data);
-        await params(a._id);
+        if (
+          a.latestMessage.readBy.find((userInGroup) => userInGroup === user._id)
+        ) {
+          setSelectedChat(a);
+          setChats(data);
+        } else {
+          await chatRead(a, data);
+        }
       } else {
         setChats(data);
       }
     };
     fecthChat();
-  }, [fetchAgain]);
-  console.log(chats);
+  }, []);
   useEffect(() => {
-    const check = async () => {
-      if (selectedChat && searchParams.get("room") === selectedChat._id) {
-        await fetchMessages();
-      }
+    const fetchChatAgain = () => {
+      getChat(fetchAgain).then((res) => {
+        const temp = [...chats];
+        const index = temp.findIndex((chat) => chat._id === res.data._id);
+        if (index < 0) {
+          setChats([res.data, ...chats]);
+        } else {
+          if (selectedChat._id === fetchAgain) {
+            const selectedChatIndex = temp.find(
+              (chat) => chat._id === selectedChat._id
+            );
+            chatRead(selectedChatIndex, temp);
+          } else {
+            temp[index] = res.data;
+            temp.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            setChats(temp);
+          }
+        }
+        setFetchAgain();
+      });
     };
-    searchParams && check();
-  }, [searchParams, selectedChat]);
+    fetchAgain && fetchChatAgain();
+  }, [fetchAgain]);
   useEffect(() => {
     socket.on("message recieved", (newMessageRecieved) => {
       messageReceived(newMessageRecieved);
     });
-  }, [socket]);
-
+    return () => {
+      socket.off();
+    };
+  }, [chats, messages]);
   useEffect(() => {
     if (messages.length !== 0) {
       ref.current?.scrollIntoView({
@@ -82,42 +108,56 @@ const ChatAgent = ({ socket }) => {
       });
     }
   }, [messages]);
-  const chatRead = async (chat, data1) => {
-    if (selectedChat === chat) {
-      return;
-    } else {
-      const { data } = await chatReadBy(chat._id, user);
-      setSelectedChat(data);
-      let updateChats = data1 || chats;
-      let index = updateChats.findIndex((chat) => chat._id === data._id);
-      updateChats[index] = data;
-      setChats(updateChats);
-      const a = updateChats[index];
+  useEffect(() => {
+    searchParams.get("room") === selectedChat?._id &&
+      messages.length === 0 &&
+      fetchMessages();
+  }, [selectedChat, searchParams]);
+  useEffect(() => {
+    const handle = () => {
+      setTyping(false);
+      handleSubmit();
+    };
+    doubleKey && handle();
+  }, [doubleKey]);
+
+  const chatRead = async (chat, data1, param) => {
+    if (data1 === null && chat._id == searchParams.get("room")) return;
+    const { data } = await chatReadBy(chat._id, user);
+    const updateChats = data1;
+    const index = updateChats.findIndex((chat) => chat._id === data._id);
+    updateChats[index] = data;
+    updateChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    setChats(updateChats);
+    setSelectedChat(data);
+    if (param) {
+      params(chat._id);
     }
   };
+
   const params = async (data) => {
     if (data === undefined) {
       setSearchParams((params) => {
         params.delete("room");
         return params;
       });
-    } else if (searchParams.get("room") === data) {
-      await fetchMessages();
     } else {
       setSearchParams({ ["room"]: data });
     }
   };
+
   const checkUnread = (latestMessage) => {
     if (latestMessage?.readBy.find((userInGroup) => userInGroup === user._id)) {
       return true;
     }
     return false;
   };
+
   const fetchMessages = async () => {
     const room = searchParams.get("room");
     setLoading(true);
     try {
-      agentMessage(room).then((res) => {
+      await agentMessage(room).then((res) => {
         const data = res.data;
         if (data.length !== 0 && data[0].sender !== undefined) {
           setMessages(data);
@@ -127,52 +167,51 @@ const ChatAgent = ({ socket }) => {
 
         socket.emit("join", room);
       });
-      setNewReceived();
       setLoading(false);
     } catch (error) {
       toast.error("error", { position: "top-right", data: error });
     }
   };
+
   const handleSubmit = async () => {
-    setTyping(false);
-    if (newMessage) {
+    let newMessage1 = newMessage.replaceAll("<p><br></p>", "");
+    if (newMessage1) {
       try {
         const { data } = await sendMessage({
           chatId: selectedChat._id,
-          content: newMessage,
+          content: newMessage1,
           user: user.username,
         });
         socket.emit("userMessage", data);
         setMessages([...messages, data]);
-        setNewMessage("");
-        setTyping(true);
+        setNewMessage();
+        const quill = document.getElementsByClassName("ql-editor");
+        quill[0].innerHTML = "";
+        setFetchAgain(data.chat._id);
       } catch (error) {
         toast.error("error", { position: "top-right", data: error });
       }
     } else {
-      setTyping(true);
-      alert("empty input");
+      toast.info("Empty input", { position: "top-center" });
     }
+    setTyping(true);
+    setDoubleKey(false);
   };
-  const leaveChat = () => {
-    setSelectedChat();
-  };
-  const messageReceived = (data) => {
-    if (selectedChat === undefined || selectedChat._id === data.chat._id) {
-      setNewReceived(data);
-      setFetchAgain((fetch) => {
-        return !fetch;
-      });
+
+  const messageReceived = async (data) => {
+    if (selectedChat === undefined || selectedChat._id !== data.chat._id) {
+      setFetchAgain(data.chat._id);
     } else {
       setMessages([...messages, data]);
-      setNewReceived();
+      await chatRead(selectedChat, chats);
     }
   };
+
   return (
     <Grid>
       {chats ? (
         <>
-          <GridCol span={3} h={"90vh"} style={{ overflowY: "scroll" }}>
+          <GridCol span={{lg:"content",base:3}} h={"90vh"} style={{ overflowY: "scroll" }}>
             <Title ta={"center"}>Group Chats </Title>
             <Stack gap={"lg"}>
               {chats.map((chat) => (
@@ -185,34 +224,50 @@ const ChatAgent = ({ socket }) => {
                 >
                   <Paper
                     onClick={async () => {
-                      await chatRead(chat);
-                      params(chat._id);
+                      setSelectedChat(chat);
+                      setMessages([]);
+                      await chatRead(chat, chats, true);
                     }}
                     bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
                     color={selectedChat === chat ? "white" : "black"}
                     onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                   >
-                    <Text size="xl" ta={"center"}>
+                    <Text size="xl" ta={"center"} aria-readonly={true}>
                       {chat.chatName.startsWith("user-")
-                        ? `AnoUser-${chat.chatName.substr(-5)}`
+                        ? `Guess-${chat.chatName.substr(-5)}`
                         : `${chat.chatName}`}
                     </Text>
-                    <Text
-                      span
+                    <Flex
                       size="md"
                       c={checkUnread(chat.latestMessage) ? "gray" : "red"}
+                      aria-readonly={true}
+                      style={{ wordBreak: "break-all" }}
+                      align={"baseline"}
                     >
                       {chat?.latestMessage?.sender?.username ===
                         chat.chatName && chat.isUser === false ? (
-                        <b>{`AnoUser-${chat.chatName.substr(-5)}`}</b>
+                        <b>{`Guess-${chat.chatName.substr(-5)}`} :</b>
                       ) : (
-                        <b>{chat?.latestMessage?.sender?.username}</b>
+                        <Text>
+                          <b>
+                            {chat?.latestMessage?.sender?.username ===
+                            user.username
+                              ? "You :"
+                              : `${chat?.latestMessage?.sender?.username} :`}
+                          </b>
+                        </Text>
                       )}
-                      <b> : </b>
-                      {chat.latestMessage.content.length > 50
-                        ? chat.latestMessage.content.substring(0, 35) + "..."
-                        : chat.latestMessage.content}
-                    </Text>
+                      <Text>
+                        {parse(`${chat.latestMessage.content}`, {
+                          replace: (domNode) => {
+                            if (domNode.name === "br") {
+                              return;
+                            }
+                          },
+                          trim: true,
+                        })}
+                      </Text>
+                    </Flex>
                   </Paper>
                 </Indicator>
               ))}
@@ -221,13 +276,14 @@ const ChatAgent = ({ socket }) => {
           <GridCol span={"auto"} h={"90vh"}>
             {selectedChat ? (
               <>
-                <Flex w="100%" h={"40px"} bg={"gray"} align={"center"}>
+                <Flex w="100%" h={"5%"} bg={"gray"} align={"center"}>
                   <Tooltip label="exit chat">
                     <IconArrowBack
                       d={{ base: "flex", md: "none" }}
                       onClick={() => {
-                        leaveChat();
+                        setSelectedChat();
                         params();
+                        setMessages([]);
                       }}
                       // onMouseEnter={}
                       cursor={"pointer"}
@@ -242,10 +298,10 @@ const ChatAgent = ({ socket }) => {
                 </Flex>
 
                 <Box
-                  bg={"rgba(0, 0, 0, 0.12)"}
+                  bg={"rgba(198, 198, 198, 1)"}
                   justify="flex-end"
                   style={{ overflowY: "scroll" }}
-                  h={"85%"}
+                  h={"80%"}
                   pb={"sm"}
                 >
                   {loading ? (
@@ -255,8 +311,9 @@ const ChatAgent = ({ socket }) => {
                   ) : (
                     <Flex
                       direction={"column"}
-                      h={messages.length < 5 && "100%"}
                       justify={"flex-end"}
+                      w={"100%"}
+                      style={{ wordBreak: "break-all" }}
                     >
                       {messages.length !== 0 ? (
                         messages.map((m, i) => (
@@ -278,7 +335,7 @@ const ChatAgent = ({ socket }) => {
                                 />
                               </Tooltip>
                             )}
-                            <Text
+                            <Paper
                               style={{
                                 backgroundColor: `${
                                   m.sender._id === user._id
@@ -291,16 +348,23 @@ const ChatAgent = ({ socket }) => {
                                   i,
                                   user._id
                                 ),
-                                marginTop: isSameUser(messages, m, i, user._id)
-                                  ? 3
-                                  : 10,
+                                marginTop: isSameUser(messages, m, i) ? 3 : 10,
                                 borderRadius: "10px",
                                 padding: "5px 0px",
-                                maxWidth: "100%",
+                                maxWidth: "70%",
                               }}
                             >
-                              {m.content}
-                            </Text>
+                              {parse(`${m.content}`, {
+                                replace: (domNode, index) => {
+                                  if (
+                                    domNode.name === "p" &&
+                                    domNode.children[0].name === "br"
+                                  ) {
+                                    return <></>;
+                                  }
+                                },
+                              })}
+                            </Paper>
                           </Flex>
                         ))
                       ) : (
@@ -312,20 +376,12 @@ const ChatAgent = ({ socket }) => {
                     </Flex>
                   )}
                 </Box>
-                <TextInput
-                  h={"10%"}
-                  disabled={typing == false}
-                  placeholder="enter message..."
-                  // mt={"sm"}
-                  pt={"xs"}
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSubmit();
-                    }
-                  }}
-                  rightSection={<IconMessageForward onClick={handleSubmit} />}
+                <QuillChat
+                  ref={quillRef}
+                  setNewMessage={setNewMessage}
+                  defaultValue={newMessage}
+                  setDoubleKey={setDoubleKey}
+                  typing={typing}
                 />
               </>
             ) : (

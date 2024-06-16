@@ -1,9 +1,20 @@
 /* eslint-disable react/prop-types */
-import {  Box, Button, Grid, GridCol, Modal, Text, Title } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Grid,
+  GridCol,
+  List,
+  ListItem,
+  Modal,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 
-const CheckInfo = ({ info,withModal }) => {
+const CheckInfo = ({ info, withModal }) => {
   const [data, setData] = useState([]);
   const recursive = (value) => {
     const items = Object.entries(value).flatMap(([key, values]) => ({
@@ -31,23 +42,39 @@ const CheckInfo = ({ info,withModal }) => {
   const displayData = (dData, place) => {
     return (
       <Grid>
-        {dData.map((item, index) => {
-          return (
-            <GridCol span={item.name.match(/[0-9]/) ? 'content' : place} key={index}>
-              {!item.name.match(/[0-9]/) && (
-                <Text fw={place === 12 ? "500" : "600"} span>
-                  {capitalize(item.name)}
-                  {place === 6 && ":"}{" "}
-                </Text>
-              )}
-              {typeof item.value !== "string" ? (
-                <>{displayData(item.value, 12)}</>
-              ) : (
-                <Text span>{item.value}</Text>
-              )}
-            </GridCol>
-          );
-        })}
+        {dData.map((item, index) => (
+          <GridCol
+            span={
+              item.name.match(/[0-9]/)
+                ? "content"
+                : index === dData.length - 1 && index % 2 === 0
+                ? 12
+                : 6
+            }
+            key={index}
+          >
+            <List>
+              <ListItem>
+                {!item.name.match(/[0-9]/) && (
+                  <Text color={"#99a2aa"} span>
+                    {capitalize(item.name)}
+                    {place === 6 && ":"}{" "}
+                  </Text>
+                )}
+                {typeof item.value !== "string" ? (
+                  <>{displayData(item.value, 12)}</>
+                ) : item.name === "releaseDate" ? (
+                  <>
+                    {new Date(item.value).getMonth()}/
+                    {new Date(item.value).getFullYear()}
+                  </>
+                ) : (
+                  <>{item.value}</>
+                )}
+              </ListItem>
+            </List>
+          </GridCol>
+        ))}
       </Grid>
     );
   };
@@ -57,53 +84,75 @@ const CheckInfo = ({ info,withModal }) => {
     return a.join(" ");
   };
   return (
-    <Box>
+    <>
       {data && (
         <>
           <Box
             style={{
-              height: 400,
+              height: 350,
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
+            // pt={"sm"}
           >
             {data.map((items, index) => {
               return (
-                <Grid key={items.name + index}>
-                  <GridCol span={12} order={items.name == "backCamera" ? 1 : 2}>
-                    <Title order={2} w={"100%"} align="center">
-                      {capitalize(items.name)}
-                    </Title>
-                    {displayData(items.value, 6)}
-                  </GridCol>
-                </Grid>
+                <Stack key={items.name + index}>
+                  <Title
+                    order={5}
+                    w={"100%"}
+                    align="center"
+                    bg={"rgba(195, 195, 195, 0.3)"}
+                    mt={index !== 0 && "sm"}
+                  >
+                    {capitalize(items.name)}
+                  </Title>
+                  {displayData(items.value, 6)}
+                </Stack>
               );
             })}
           </Box>
-          {withModal && 
-        <>
-          <Modal opened={opened} onClose={close} withCloseButton={true}>
-            {data.map((items, index) => {
-              return (
-                <Grid key={items.name + index}>
-                  <GridCol span={12} order={items.name == "backCamera" ? 1 : 2}>
-                    <Title order={2} w={"100%"} align="center">
-                      {capitalize(items.name)}
-                    </Title>
-                    {displayData(items.value, 6)}
-                  </GridCol>
-                </Grid>
-              );
-            })}
-          </Modal>
-          <Button fullWidth variant="default" onClick={open}>
-            Details
-          </Button>
-        </>  
-        }
+          {withModal && (
+            <>
+              <Modal
+                size={"xl"}
+                opened={opened}
+                onClose={close}
+                withCloseButton={true}
+                transitionProps={{ transition: "fade-up" }}
+                overlayProps={{
+                  bg: "black",
+                }}
+              >
+                {data.map((items, index) => {
+                  return (
+                    <Stack
+                      key={items.name + index}
+                      bg={"rgba(195, 195, 195, 0.1)"}
+                    >
+                      <Title
+                        order={4}
+                        w={"100%"}
+                        bg={"rgba(195, 195, 195, 0.3)"}
+                        ta="center"
+                        mt={"sm"}
+                      >
+                        {capitalize(items.name)}
+                      </Title>
+
+                      {displayData(items.value, 6)}
+                    </Stack>
+                  );
+                })}
+              </Modal>
+              <Button fullWidth variant="default" onClick={open}>
+                Details
+              </Button>
+            </>
+          )}
         </>
       )}
-    </Box>
+    </>
   );
 };
 

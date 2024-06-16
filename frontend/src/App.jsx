@@ -10,39 +10,37 @@ import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
-import NavBar from "./components/navbar/NavBar";
-import Chat from "./components/client/Chat";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Register from "./pages/Register";
-import ProtectedRoute from "./components/config/ProtectedRoute";
-import ProfilePage from "./pages/ProfilePage";
-import CheckOut from "./pages/CheckOut";
-import ChatAgent from "./pages/agent/chat/ChatAgent";
-import Cart from "./pages/Cart";
 import "./app.css";
-import Error404 from "./pages/Error404";
-import ProductsByCategory from "./pages/ProductsByCategory";
-import ProductDetail from "./pages/ProductDetail";
-import TotalOrders from "./pages/agent/orders/TotalOrders";
-import Example from "./pages/agent/orders/Example";
-import TotalProducts from "./pages/agent/products/TotalProducts";
-import EditProduct from "./pages/agent/products/EditProduct";
-import NewProduct from "./pages/agent/products/NewProduct";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EditOrder from "./pages/agent/orders/EditOrder";
-import TotalUsers from "./pages/agent/users/TotalUsers";
-import EditUser from "./pages/agent/users/EditUser";
-import NewUser from "./pages/agent/users/NewUser";
+import { Chat, NavBar, ProtectedRoute } from "./components";
+import {
+  Cart,
+  ChatAgent,
+  CheckOut,
+  EditOrder,
+  EditProduct,
+  EditUser,
+  Error404,
+  Example,
+  Home,
+  Login,
+  NewProduct,
+  NewUser,
+  ProductDetail,
+  ProductsByCategory,
+  ProfilePage,
+  Register,
+  TotalOrders,
+  TotalProducts,
+  TotalUsers,
+} from "./pages";
 
 const App = () => {
   const [socket, setSocket] = useState(null);
   const [anoUser, setAnoUser] = useState();
   const { user } = useSelector((state) => state.user);
-  const clientSocket = io.connect(
-    "https://e-commerce-backend-studentquan9-9b1574ae.koyeb.app/"
-  );
+  const clientSocket = io.connect(import.meta.env.VITE_URL_SERVER);
   useEffect(() => {
     if (!socket && user === null) {
       setSocket(clientSocket);

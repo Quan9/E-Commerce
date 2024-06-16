@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import QuillEditor from "../../../components/misc/QuillEditor";
+import {QuillEditor} from "../../../components";
 import { toast } from "react-toastify";
 import { Button } from "@mantine/core";
 const Example = () => {

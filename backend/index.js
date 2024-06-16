@@ -31,10 +31,7 @@ app.use(function (req, res, next) {
 const socketIO = require("socket.io")(http, {
   cors: {
     origin: [
-      "http://localhost:8080",
-      "https://e-commerce-frontend4139.netlify.app",
-      "https://e-commerce-frontend41.netlify.app",
-
+      `${process.env.CLIENT_URL}`,
     ],
   },
 });

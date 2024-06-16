@@ -1,13 +1,13 @@
-.transition-3 {
-  transition: all 0.33s ease;
-  -webkit-transition: all 0.33s ease;
-  -moz-transition: all 0.33s ease;
+.first {
+  height: 100%;
 }
 
-.transition-5 {
-  transition: all 0.5s ease;
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
+#root>div {
+  background: rgba(198, 198, 198, 1);
+  ~div{
+  background: rgba(198, 198, 198, 0.5);
+
+  }
 }
 
 .image360 {
@@ -16,34 +16,85 @@
   height: 300px;
   display: flex;
   flex-direction: column;
+
+  .a {
+    width: 100%;
+    height: 300px !important;
+  }
+
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    pointer-events: none;
+  }
 }
 
-.image360,
-.a {
-  width: 100%;
-  height: 300px !important;
+.transition-3 {
+  transition: all 0.33s ease;
+  -webkit-transition: all 0.33s ease;
+  -moz-transition: all 0.33s ease;
 }
 
-.image360 img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  pointer-events: none;
+.transition-1 {
+  transition: all 2.5s ease-in;
+  -webkit-transition: all 2.5s ease-in;
+  -moz-transition: all 2.5s ease-in;
+  position: fixed;
+  bottom: 115px;
+  width: 250px;
+  height: 50%;
+  right: 24px;
+  max-width: calc(100% - 48px - 60px);
+  max-height: calc(100%-48px - 60px);
+  z-index: 1;
 }
 
 .quill {
-  height: 75vh;
+  .ql-toolbar {
+    position: sticky;
+    top: 5%;
+    background: #b9afaf;
+    z-index: 2;
+  }
+
+  .ql-container.ql-snow {
+    height: 95%;
+  }
 }
 
-.ql-toolbar {
-  position: sticky;
-  top: 5%;
-  background: #b9afaf;
-  z-index: 2;
+
+.quill-chat {
+  display: flex;
+  width: 100%;
+
+  .ql-container {
+    flex-grow: 1;
+
+    .ql-editor[contenteditable=false] {
+      background-color: grey;
+    }
+  }
+
+  img {
+    height: 50px;
+    width: 50px;
+  }
 }
-.ql-container.ql-snow {
-  height: 95%;
+
+.chat-client img {
+  height: 50px;
+  width: 50px;
+}
+
+
+
+
+
+.description img {
+  width: 100%;
+  height: 100%;
 }

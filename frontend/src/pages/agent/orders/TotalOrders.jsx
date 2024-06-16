@@ -7,6 +7,7 @@ import {
   ActionIcon,
   Center,
   Group,
+  Indicator,
   Loader,
   Paper,
   Stack,
@@ -14,7 +15,7 @@ import {
   Title,
 } from "@mantine/core";
 import { DataTable } from "mantine-datatable";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 const TotalOrders = () => {
   const { user } = useSelector((state) => state.user);
@@ -22,6 +23,8 @@ const TotalOrders = () => {
   const PAGE_SIZES = [2, 5, 10, 15];
   const [pageSize, setPageSize] = useState(PAGE_SIZES[1]);
   const [records, setRecords] = useState();
+  const [selectedRecords, setSelectedRecords] = useState();
+
   const [data, setData] = useState();
   const nav = useNavigate();
   useEffect(() => {
@@ -60,6 +63,12 @@ const TotalOrders = () => {
     };
     data && update();
   }, [page, pageSize]);
+  useEffect(() => {
+    selectedRecords && handleDelete();
+  }, [selectedRecords]);
+  const handleDelete = () => {
+    alert("delete" + selectedRecords._id);
+  };
   return (
     <Paper>
       {data ? (
@@ -111,9 +120,9 @@ const TotalOrders = () => {
                   accessor: "products",
                   textAlign: "center",
                   render: (record) => (
-                    <Stack >
+                    <Stack>
                       {record.products.map((product, index) => (
-                        <Group key={product + index} justify="center" >
+                        <Group key={product + index} justify="center">
                           <Text>Product: {product.productName}</Text>
                           <Text>Quantity: {product.quantity}</Text>
                           <Text> Color: {product.color}</Text>
@@ -125,12 +134,31 @@ const TotalOrders = () => {
                 {
                   accessor: "Action",
                   render: (record) => (
-                    <ActionIcon
-                      title="Detail"
-                      onClick={() => nav(`${record._id}`)}
-                    >
-                      <IconEdit />
-                    </ActionIcon>
+                    <Group gap={4} justify="center" wrap="nowrap">
+                      <Indicator title="Edit" disabled>
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="green"
+                          onClick={() => nav(`${record._id}`)}
+                        >
+                          <IconEdit size={20} />
+                        </ActionIcon>
+                      </Indicator>
+                      <Indicator title="Delete" disabled>
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="red"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedRecords(record);
+                          }}
+                        >
+                          <IconTrash size={20} />
+                        </ActionIcon>
+                      </Indicator>
+                    </Group>
                   ),
                 },
               ]}

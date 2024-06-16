@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getSingleOrder, updateOrder } from "../../../services/order";
-import FormatPrice from "../../../components/misc/FormatPrice";
+import { FormatPrice } from "../../../components";
 import { useSelector } from "react-redux";
 import {
   Button,

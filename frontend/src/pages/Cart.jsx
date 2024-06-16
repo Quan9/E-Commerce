@@ -8,26 +8,24 @@ import {
   getTotals,
   clearCart,
 } from "../slices/CartSlice";
-import FormatPrice from "../components/misc/FormatPrice";
 import { createPaymentIntent } from "../services/payment";
 import {
-  Box,
   Button,
   Group,
   Card,
   CardSection,
   Center,
-  Container,
   Grid,
   GridCol,
   Image,
-  List,
   NavLink,
   Space,
   Stack,
   Text,
   TextInput,
   Title,
+  Table,
+  Container,
 } from "@mantine/core";
 import {
   IconArrowLeft,
@@ -35,8 +33,9 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
+import { FormatPrice } from "../components";
 import { isNotEmpty, useForm } from "@mantine/form";
-
+import { motion } from "framer-motion";
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
@@ -44,7 +43,7 @@ const Cart = () => {
   const nav = useNavigate();
   const EmptyCart = () => {
     return (
-      <Center w={"100%"} h={"100%"}>
+      <Center h={"90vh"}>
         <Stack>
           <Title order={1}>Your Cart is Empty</Title>
           <NavLink
@@ -52,7 +51,7 @@ const Cart = () => {
             variant="light"
             leftSection={<IconArrowLeft />}
             label="Continue Shopping"
-          ></NavLink>
+          />
         </Stack>
       </Center>
     );
@@ -62,8 +61,6 @@ const Cart = () => {
     const [payment, setPayment] = useState("");
     const form = useForm({
       initialValues: { name: "", email: "", phonenumber: "", address: "" },
-
-      // functions will be used to validate values at corresponding key
       validate: {
         name: (value) =>
           value.length < 2 ? "Name must have at least 2 letters" : null,
@@ -101,189 +98,193 @@ const Cart = () => {
       nav("/checkoutsuccess", { state: { values } });
     };
     return (
-      <Container>
-        <Center h={"100%"}>
-          <Grid>
-            <GridCol span={{ base: 12, lg: 8 }}>
-              <Stack w={"100%"} justify="center" align="center">
-                <Title order={1}>Item List</Title>
-                <Button
-                  onClick={() => clear()}
-                  leftSection={<IconTrash size={24} />}
-                  variant="transparent"
-                  bg={"red"}
-                  size="md"
-                  c={'black'}
-                >
-                  Clear Cart
-                </Button>
-                <Group w={"100%"}>
-                  <Stack w={"100%"}>
-                    {cart.cartItems.map((item) => {
-                      return (
-                        <Grid
-                          align="center"
-                          justify="space-around"
-                          key={item}
-                          w={"100%"}
-                        >
-                          <GridCol span={5}>
-                            <Image
-                              src={item.thumbnail}
-                              alt={item.title}
-                              fit="contain"
-                            />
-                          </GridCol>
-                          <GridCol span={7} ms={"auto"}>
-                            <Title ta="center" order={3}>
-                              {item.name}
-                            </Title>
-                            <Text fw={600} ta="center">
-                              Color: {item?.color}
-                            </Text>
-                            <Group justify="end" align="end">
-                              <Button
-                                disabled={item.cartQuantity === 1}
-                                onClick={() => {
-                                  decrease(item);
-                                }}
-                                variant="light"
-                              >
-                                <IconMinus />
-                              </Button>
-
-                              <Text>{item.cartQuantity}</Text>
-
-                              <Button
-                                onClick={() => {
-                                  increase(item);
-                                }}
-                                variant="light"
-                                disabled={item.cartQuantity === item.inStock}
-                              >
-                                <IconPlus />
-                              </Button>
-                            </Group>
-                            <Group justify="start" align="start">
-                              {item.cartQuantity === item.inStock && (
-                                <Text size="lg">No more items in stock</Text>
-                              )}
-                              <Button
-                                className="btn px-3"
-                                onClick={() => {
-                                  deletes(item);
-                                }}
-                                // c={"red"}
-                                bg={'red'}
-                                size="sm"
-                              >
-                                <IconTrash color="black"/>
-                              </Button>
-                            </Group>
-                          </GridCol>
-                        </Grid>
-                      );
-                    })}
-                  </Stack>
-                </Group>
-              </Stack>
-            </GridCol>
-            <GridCol span={{ base: 12, lg: 3 }} ps={"sm"}>
-              <Card pos={"sticky"} top={40}>
-                <Title order={3} ta={"center"}>
-                  Order Summary
-                </Title>
-                <CardSection>
-                  <List>
-                    {cart.cartItems.map((cartItem) => (
-                      <List.Item key={cartItem.name} in>
-                        <Text>
-                          {cartItem.name} ({cartItem.color}){" "}
-                        </Text>
-                        <FormatPrice
-                          price={cartItem.price}
-                          discount={cartItem.discount}
-                          quantity={cartItem.cartQuantity}
-                        />
-                      </List.Item>
-                    ))}
-                  </List>
-                  <Space h="md" />
-                  <Title order={3} fw={750} ta={"center"}>
-                    Total amount
-                  </Title>
-                  <FormatPrice price={cart.total} />
-
-                  {payment === "" && (
-                    <Group justify="center">
-                      <Button
-                        onClick={() => setPayment("stripe")}
-                        variant="default"
-                      >
-                        Pay with Card
-                      </Button>
-                      <Button
-                        onClick={() => setPayment("manual")}
-                        variant="default"
-                      >
-                        Cash Payment
-                      </Button>
-                    </Group>
-                  )}
-                  {payment === "manual" && (
-                    <Card>
-                      <CardSection>
+      <Grid>
+        <GridCol span={{ base: 12, lg: 8 }}>
+          <Stack justify="center" align="center" bg={"rgba(198,198,198,0.5)"}>
+            <Title order={2}>Item List</Title>
+            <Button
+              onClick={() => clear()}
+              leftSection={<IconTrash size={20} />}
+              bg={"red"}
+              c={"black"}
+              ms={"auto"}
+            >
+              Clear Cart
+            </Button>
+            <Group>
+              <Stack>
+                {cart.cartItems.map((item) => (
+                  <Grid align="center" justify="space-around" key={item}>
+                    <GridCol span={4}>
+                      <Image src={item.thumbnail} alt={item.title} fit="fill" />
+                    </GridCol>
+                    <GridCol span={8} ms={"auto"}>
+                      <Title ta="center" order={3}>
+                        {item.name}
+                      </Title>
+                      <Text fw={600} ta="center">
+                        Color: {item?.color}
+                      </Text>
+                      <Group justify="start" align="start">
                         <Button
-                          onClick={() => setPayment("")}
-                          variant="default"
+                          disabled={item.cartQuantity === 1}
+                          onClick={() => {
+                            decrease(item);
+                          }}
+                          variant="light"
                         >
-                          <IconArrowLeft />
+                          <IconMinus />
                         </Button>
-                      </CardSection>
-                      <CardSection>
-                        <form
-                          onSubmit={form.onSubmit((values) =>
-                            handleSubmit(values)
-                          )}
+
+                        <Text>{item.cartQuantity}</Text>
+
+                        <Button
+                          onClick={() => {
+                            increase(item);
+                          }}
+                          variant="light"
+                          disabled={item.cartQuantity === item.inStock}
                         >
-                          <TextInput
-                            label="Name (*)"
-                            placeholder="Name"
-                            {...form.getInputProps("name")}
-                          />
-                          <TextInput
-                            label="Address (*)"
-                            placeholder="Address"
-                            {...form.getInputProps("address")}
-                          />
-                          <TextInput
-                            label="Phone Number (*)"
-                            placeholder="Phone Number"
-                            {...form.getInputProps("phonenumber")}
-                          />
-                          <TextInput
-                            label="Email (*)"
-                            placeholder="Email"
-                            {...form.getInputProps("email")}
-                          />
-                          <Button type="submit">Order</Button>
-                        </form>
-                      </CardSection>
-                    </Card>
-                  )}
+                          <IconPlus />
+                        </Button>
+                        {item.cartQuantity === item.inStock && (
+                          <Text size="lg">No more items in stock</Text>
+                        )}
+                        <Button
+                          className="btn px-3"
+                          onClick={() => {
+                            deletes(item);
+                          }}
+                          bg={"red"}
+                          ms={"auto"}
+                        >
+                          <IconTrash color="black" />
+                        </Button>
+                      </Group>
+                    </GridCol>
+                  </Grid>
+                ))}
+              </Stack>
+            </Group>
+          </Stack>
+        </GridCol>
+        <GridCol span={{ base: 12, lg: 4 }}>
+          <Card pos={"sticky"} top={"10%"} bg={"rgba(198,198,198,0.5)"}>
+            <Title order={3} ta={"center"}>
+              Order Summary
+            </Title>
+            <CardSection>
+              <Table ta={"center"}>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th ta={"center"}>Product</Table.Th>
+                    <Table.Th ta={"center"}>Quantity</Table.Th>
+                    <Table.Th ta={"center"}>Price</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {cart.cartItems.map((cartItem, index) => (
+                    <Table.Tr key={cartItem + index}>
+                      <Table.Td key={cartItem + index}>
+                        <Text>
+                          {cartItem.name} ({cartItem.color})
+                        </Text>
+                      </Table.Td>
+                      <FormatPrice
+                        price={cartItem.price}
+                        discount={cartItem.discount}
+                        quantity={cartItem.cartQuantity}
+                      />
+                    </Table.Tr>
+                  ))}
+                  <Table.Tr>
+                    <Table.Td>
+                      <Title order={3}>Total amount</Title>
+                    </Table.Td>
+                    <Table.Td></Table.Td>
+                    <FormatPrice price={cart.total} />
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
+
+              <Space h="md" />
+
+              {payment === "" && (
+                <Group justify="space-around">
+                  <Button
+                    onClick={() => setPayment("stripe")}
+                    variant="default"
+                    size="compact-md"
+                  >
+                    Card Payment
+                  </Button>
+                  <Button
+                    onClick={() => setPayment("manual")}
+                    variant="default"
+                    size="compact-md"
+                  >
+                    Cash Payment
+                  </Button>
+                </Group>
+              )}
+            </CardSection>
+            {payment === "manual" && (
+              <>
+                <CardSection>
+                  <Button
+                    onClick={() => setPayment("")}
+                    variant="default"
+                    size="compact-md"
+                  >
+                    <IconArrowLeft />
+                  </Button>
                 </CardSection>
-              </Card>
-            </GridCol>
-          </Grid>
-        </Center>
-      </Container>
+                <CardSection ta={"center"} style={{ justifyContent: "center" }}>
+                  <form
+                    onSubmit={form.onSubmit((values) => handleSubmit(values))}
+                  >
+                    <TextInput
+                      label="Name (*)"
+                      placeholder="Name"
+                      {...form.getInputProps("name")}
+                    />
+                    <TextInput
+                      label="Address (*)"
+                      placeholder="Address"
+                      {...form.getInputProps("address")}
+                    />
+                    <TextInput
+                      label="Phone Number (*)"
+                      placeholder="Phone Number"
+                      {...form.getInputProps("phonenumber")}
+                    />
+                    <TextInput
+                      label="Email (*)"
+                      placeholder="Email"
+                      {...form.getInputProps("email")}
+                    />
+                    <Button type="submit">Order</Button>
+                  </form>
+                </CardSection>
+              </>
+            )}
+          </Card>
+        </GridCol>
+      </Grid>
     );
   };
 
   return (
-    <Box h={"90vh"} w={"100%"}>
-      {cart.cartItems.length > 0 ? <ShowCart /> : <EmptyCart />}
-    </Box>
+    <Container bg={"rgba(198,198,198,0.3)"} p={0}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ ease: "easeInOut", duration: 1 }}
+        className="first"
+      >
+        {cart.cartItems.length > 0 ? <ShowCart /> : <EmptyCart />}
+      </motion.div>
+    </Container>
   );
 };
 

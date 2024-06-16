@@ -26,10 +26,8 @@ const verifyTokenAndAuthorization = (req, res, next) => {
 const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
     if (req.user.role === "admin" || req.user.role === "mod") {
-      console.log("3rd");
       next();
     } else {
-      console.log("4rd");
       res.status(403).json("You are not alowed to do that!");
     }
   });
