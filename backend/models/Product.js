@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { model3DSchema } = require("./Model3D");
 const ProductReviewSchema = new mongoose.Schema(
   {
     name: { type: String, required: [true, "name is required"] },
