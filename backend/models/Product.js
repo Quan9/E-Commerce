@@ -34,8 +34,6 @@ const ProductSchema = new mongoose.Schema(
     discount: { type: Number },
     isActive: { type: String, default: "Inactive" },
     image360: { type: [String] },
-    model: model3DSchema,
-    image123: [String],
     reviews: [ProductReviewSchema],
     rating: {
       type: Number,

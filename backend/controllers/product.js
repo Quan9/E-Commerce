@@ -2,20 +2,7 @@ const Product = require("../models/Product");
 const User = require("../models/User");
 const createProduct = async (req, res) => {
   try {
-    let model;
-    if (req.file) {
-      const file = req.file;
-
-      const fileData = Buffer.from(file.buffer);
-
-      model = new FileModel({
-        filename: req.body.name,
-        mimeType: req.body.mimetype,
-        data: fileData,
-        description: req.body.description,
-      });
-    } 
-    const newProduct = new Product(req.body, { model: model });
+    const newProduct = new Product(req.body);
     await newProduct.save();
     res.status(200).json("Product Created Successfully!");
   } catch (err) {

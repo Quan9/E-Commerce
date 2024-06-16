@@ -8,7 +8,6 @@ const orderRoute = require("./routes/order");
 const stripeRoute = require("./routes/stripe");
 const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
-const model3DRoute = require("./routes/model3D");
 const cors = require("cors");
 const User = require("./models/User");
 const app = express();
@@ -126,7 +125,6 @@ app.use("/api/orders", orderRoute);
 app.use("/api/stripe", stripeRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/message", messageRoute);
-app.use("/api/model", model3DRoute);
 app.get("/api/test", (req, res) => {
   res.status(200).send({ data: "hello" });
 });
