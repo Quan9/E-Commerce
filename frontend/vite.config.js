@@ -15,7 +15,6 @@ export default ({ mode }) => {
         "/api": {
           target: `${process.env.VITE_URL_SERVER}`,
           changeOrigin: true,
-          rewrite: true,
           ws: true,
         },
       },
