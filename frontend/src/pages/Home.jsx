@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 import { NavLink } from "react-router-dom";
 import { IconPlayerTrackNext } from "@tabler/icons-react";
 const Home = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   useEffect(() => {
     getAllPublicProducts()
       .then((res) => {
