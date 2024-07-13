@@ -10,7 +10,7 @@ export default ({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: process.env.VITE_URL,
+          target: `${process.env.VITE_URL}`,
           changeOrigin: true,
           ws: true,
         },
@@ -18,16 +18,3 @@ export default ({ mode }) => {
     },
   });
 };
-// export default defineConfig({
-//   plugins: [react()],
-//   server: {
-//     proxy: {
-//       "/api": {
-//         target: import.meta.env.VITE_URL,
-//         changeOrigin: true,
-//         secure: true,
-//         ws: true,
-//       },
-//     },
-//   },
-// });
