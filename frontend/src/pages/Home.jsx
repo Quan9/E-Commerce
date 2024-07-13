@@ -21,6 +21,7 @@ const Home = () => {
   useEffect(() => {
     getAllPublicProducts()
       .then((res) => {
+        console.log(res.data, "res.data");
         setData(res.data);
       })
       .catch((err) => {

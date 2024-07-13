@@ -75,6 +75,7 @@ const getAllPublicProduct = async (req, res) => {
         },
       },
     ]);
+    console.log(data1);
     return res.status(200).json(data1);
   } catch (e) {
     return res.status(401).json(e);
@@ -82,7 +83,6 @@ const getAllPublicProduct = async (req, res) => {
 };
 const getProductByCategory = async (req, res) => {
   const { category } = req.params;
-  const query = {};
   const products = await Product.find(
     { categories: category, isActive: "Active" },
     {
