@@ -41,7 +41,9 @@ const App = () => {
   const [socket, setSocket] = useState(null);
   const [anoUser, setAnoUser] = useState();
   const { user } = useSelector((state) => state.user);
-  const clientSocket = io.connect(import.meta.env.VITE_URL_SERVER);
+  const clientSocket = io(import.meta.env.VITE_URL_SERVER, {
+    transports: ["websocket"],
+  });
   useEffect(() => {
     if (!socket && user === null) {
       setSocket(clientSocket);
