@@ -17,8 +17,9 @@ const http = require("http").Server(app);
 dotenv.config();
 const connect = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
-    console.log("Connect to MongoDB");
+    await mongoose.connect(process.env.MONGO_URL).then(() => {
+      console.log("Connect to MongoDB");
+    });
   } catch (error) {
     throw error;
   }
