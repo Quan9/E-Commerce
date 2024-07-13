@@ -29,7 +29,11 @@ const allowedOrigins = [
   "https://e-commerce-frontend4139.netlify.app",
   "https://e-commerce-frontend41.netlify.app",
 ];
-app.use(cors(allowedOrigins));
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
 app.use(express.json());
 app.use(function (req, res, next) {
   res.header(
@@ -40,7 +44,7 @@ app.use(function (req, res, next) {
   next();
 });
 const socketIO = require("socket.io")(http, {
-  cors: allowedOrigins,
+  cors: { origin: allowedOrigins },
 });
 //Add this before the app.get() block
 let onlineUsers = [];
