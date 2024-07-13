@@ -19,7 +19,12 @@ import {
 } from "@mantine/core";
 import { toast } from "react-toastify";
 import { NavLink, useNavigate } from "react-router-dom";
-import { IconDeviceIpad, IconDeviceLaptop, IconDeviceMobile, IconPlayerTrackNext } from "@tabler/icons-react";
+import {
+  IconDeviceIpad,
+  IconDeviceLaptop,
+  IconDeviceMobile,
+  IconPlayerTrackNext,
+} from "@tabler/icons-react";
 const Home = () => {
   const [data, setData] = useState([]);
   const [content, setContent] = useState();
@@ -78,7 +83,7 @@ const Home = () => {
       {/* <Categories /> */}
       {data.length !== 0 ? (
         <Grid overflow="hidden" p={10}>
-          {data.map((items, index) => {
+          {data.forEach((items) => {
             return (
               <GridCol
                 key={items._id}
