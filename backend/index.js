@@ -24,10 +24,18 @@ const connect = async () => {
     throw error;
   }
 };
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
 app.use(express.json());
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Headers","Access-Control-Allow-Origin", "Origin, Content-Type, Accept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Origin",
+    "Origin, Content-Type, Accept"
+  );
   next();
 });
 const socketIO = require("socket.io")(http, {
