@@ -3,7 +3,6 @@ import NewProductInfo from "./agent/NewProductInfo";
 import ProductInfo from "./agent/ProductInfo";
 import Categories from "./client/Categories";
 import Chat from "./client/Chat";
-import Products from "./client/Products";
 import {
   isSameSenderMargin,
   isSameSender,
@@ -44,7 +43,6 @@ export {
   ProductInfo,
   Categories,
   Chat,
-  Products,
   isSameSenderMargin,
   isSameSender,
   isLastMessage,
