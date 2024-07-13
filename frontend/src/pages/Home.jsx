@@ -92,9 +92,9 @@ const Home = () => {
       />
       {data && (
         <Grid overflow="hidden">
-          {data.map((items) => (
+          {data.map((items, index) => (
             <GridCol
-              key={items}
+              key={index}
               order={
                 items[0].categories === "Phone"
                   ? 1
@@ -118,7 +118,7 @@ const Home = () => {
                 {items.map((product, index) => (
                   <GridCol
                     span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
-                    key={product._id + index}
+                    key={product._id}
                     maw={{ xs: "50%" }}
                   >
                     <Card display={index === 4 && "none"} align={"center"}>
