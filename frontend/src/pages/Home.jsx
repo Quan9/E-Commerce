@@ -77,7 +77,12 @@ const Home = () => {
         label="Check your order"
         onChange={(e) => setContent(e.currentTarget.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") navigate();
+          if (e.key === "Enter") {
+            if (content.length === 0) {
+              return;
+            }
+            navigate();
+          }
         }}
       />
       <Grid overflow="hidden" p={10}>
@@ -102,7 +107,7 @@ const Home = () => {
                       </UnstyledButton>
                     )}
                   </Group>
-                  <Grid mt={"sm"}>
+                  {/* <Grid mt={"sm"}>
                     {items.data.map((product, index) => (
                       <GridCol
                         span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
@@ -140,7 +145,7 @@ const Home = () => {
                         </Card>
                       </GridCol>
                     ))}
-                  </Grid>
+                  </Grid> */}
                 </GridCol>
               );
             })}
