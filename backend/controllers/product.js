@@ -75,7 +75,6 @@ const getAllPublicProduct = async (req, res) => {
         },
       },
     ]);
-    console.log(products);
     return res.status(200).json(products);
   } catch (e) {
     return res.status(401).json(e);

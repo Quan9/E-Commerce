@@ -39,7 +39,6 @@ const Home = () => {
           const { _id, data } = item;
           return data;
         });
-        console.log(products, "products");
         setData(products);
       })
       .catch((err) => {

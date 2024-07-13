@@ -25,9 +25,7 @@ const connect = async () => {
   }
 };
 app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-  })
+  cors()
 );
 app.use(express.json());
 app.use(function (req, res, next) {
