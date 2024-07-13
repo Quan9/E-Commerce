@@ -85,28 +85,25 @@ const Home = () => {
           }
         }}
       />
-      <Grid overflow="hidden">
-        {data &&
-          data.map((items) => {
-            return (
-              <GridCol
-                key={items._id}
-                order={
-                  items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3
-                }
-                mt={"sm"}
-              >
-                <Flex>
-                  <Title order={2} mx={"auto"}>
-                    Latest {items._id}
-                  </Title>
-                  {items.data.length > 4 && (
-                    <UnstyledButton component={NavLink} to={`/${items._id}`}>
-                      more <IconPlayerTrackNext size={12} />
-                    </UnstyledButton>
-                  )}
-                </Flex>
-                {/* <Grid mt={"sm"}>
+      {data && (
+        <Grid overflow="hidden">
+          {data.map((items) => (
+            <GridCol
+              key={items._id}
+              order={items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3}
+              mt={"sm"}
+            >
+              <Flex>
+                <Title order={2} mx={"auto"}>
+                  Latest {items._id}
+                </Title>
+                {items.data.length > 4 && (
+                  <UnstyledButton component={NavLink} to={`/${items._id}`}>
+                    more <IconPlayerTrackNext size={12} />
+                  </UnstyledButton>
+                )}
+              </Flex>
+              {/* <Grid mt={"sm"}>
                     {items.data.map((product, index) => (
                       <GridCol
                         span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
@@ -145,10 +142,10 @@ const Home = () => {
                       </GridCol>
                     ))}
                   </Grid> */}
-              </GridCol>
-            );
-          })}
-      </Grid>
+            </GridCol>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 };
