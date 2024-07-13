@@ -13,7 +13,7 @@ const User = require("./models/User");
 const Message = require("./models/Message");
 const Chat = require("./models/Chat");
 const app = express();
-const http = require("https").Server(app);
+const http = require("http").Server(app);
 dotenv.config();
 const connect = async () => {
   try {
