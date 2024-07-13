@@ -24,27 +24,26 @@ const connect = async () => {
     throw error;
   }
 };
-const allowedOrigins = [
-  "http://localhost:8080",
-  "https://e-commerce-frontend4139.netlify.app",
-  "https://e-commerce-frontend41.netlify.app",
-];
-app.use(
-  cors({
-    origin: allowedOrigins,
-  })
-);
+const allowedOrigins = {
+  origin: [
+    "http://localhost:8080",
+    "https://e-commerce-frontend4139.netlify.app",
+    "https://e-commerce-frontend41.netlify.app",
+  ],
+};
+app.use(cors(allowedOrigins));
 app.use(express.json());
 app.use(function (req, res, next) {
   res.header(
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin",
+    "Access-Control-Allow-Cross-Origin",
     "Origin, Content-Type, Accept"
   );
   next();
 });
 const socketIO = require("socket.io")(http, {
-  cors: { origin: allowedOrigins },
+  cors: allowedOrigins,
 });
 let onlineUsers = [];
 const removeUser = async (socketId) => {
