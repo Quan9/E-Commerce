@@ -80,10 +80,10 @@ const Home = () => {
           if (e.key === "Enter") navigate();
         }}
       />
-      <Flex>
-        {data.length !== 0 ? (
-          <Grid overflow="hidden" p={10}>
-            {data.forEach((items) => {
+      <Grid overflow="hidden" p={10}>
+        {data && (
+          <>
+            {data.map((items) => {
               return (
                 <GridCol
                   key={items._id}
@@ -144,13 +144,9 @@ const Home = () => {
                 </GridCol>
               );
             })}
-          </Grid>
-        ) : (
-          <Center h={"100%"}>
-            <Loader type="dots" size={100} />
-          </Center>
+          </>
         )}
-      </Flex>
+      </Grid>
     </Container>
   );
 };
