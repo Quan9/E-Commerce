@@ -85,9 +85,9 @@ const Home = () => {
           }
         }}
       />
-      {/* {data && (
+      {data && (
         <Grid overflow="hidden">
-          {data.map((items) => (
+          {data.flat().map((items) => (
             <GridCol
               key={items._id}
               order={items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3}
@@ -145,7 +145,7 @@ const Home = () => {
             </GridCol>
           ))}
         </Grid>
-      )} */}
+      )}
     </Container>
   );
 };
