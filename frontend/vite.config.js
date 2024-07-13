@@ -12,7 +12,7 @@ export default ({ mode }) => {
         "/api": {
           target: `${process.env.VITE_URL}`,
           changeOrigin: true,
-          secure: false,
+          // secure: false,
           ws: true,
           configure: (proxy, _options) => {
             proxy.on("error", (err, _req, _res) => {
