@@ -59,7 +59,7 @@ const FormatPrice = ({ price, discount, quantity }) => {
           suffix="đ"
           value={price}
           thousandSeparator
-          style={{ textDecorationLine: "line-through", color: "green" }}
+          style={{ textDecorationLine: "line-through", color: "red" }}
         />
         <NumberFormatter
           prefix="&nbsp;&nbsp;"

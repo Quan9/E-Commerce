@@ -3,12 +3,10 @@ const Chat = require("../models/Chat");
 const User = require("../models/User");
 const CryptoJS = require("crypto-js");
 const Message = require("../models/Message");
-
 const fetchChats = asyncHandler(async (req, res) => {
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user.id } } })
-      .populate("users", "-password")
-      .populate("groupAdmin", "-password")
+      .populate("users", "username img")
       .populate({
         path: "latestMessage",
       })
@@ -16,12 +14,16 @@ const fetchChats = asyncHandler(async (req, res) => {
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
-          select: "username img email",
+          select: "username img",
+        });
+        results = await User.populate(results, {
+          path: "latestMessage.readBy",
+          select: "username img",
         });
         const data = [];
         results.forEach((item, index) => {
-          if (item.isUser === false && item?.latestMessage === undefined) {
-            return
+          if (item.latestMessage === undefined) {
+            return;
           } else {
             data.push(item);
           }
@@ -32,35 +34,37 @@ const fetchChats = asyncHandler(async (req, res) => {
     res.status(400);
   }
 });
-const getChat = async(req,res) =>{
-  const {id} = req.params;
+const getChat = async (req, res) => {
+  const { id } = req.params;
   try {
-    Chat.findById(id)
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password")
-    .populate({
-      path: "latestMessage",
-    })
-    .then(async (result) => {
-      result = await User.populate(result, {
-        path: "latestMessage.sender",
-        select: "username img email",
+    await Chat.findById(id)
+      .populate("users", "-password")
+      .populate({
+        path: "latestMessage",
+      })
+      .then(async (result) => {
+        result = await User.populate(result, {
+          path: "latestMessage.sender",
+          select: "username img",
+        });
+        result = await User.populate(result, {
+          path: "latestMessage.readBy",
+          select: "username img",
+        });
+        res.status(200).send(result);
       });
-      res.status(200).send(result);
-    });
   } catch (error) {
-    res.status(400).json(err)
+    res.status(400).json(err);
   }
-}
+};
 const findUserGroupChat = asyncHandler(async (req, res) => {
-  const { chatName, loggedIn } = req.params;
+  const { chatName } = req.params;
   const existUser = await User.findOne({ username: chatName }, { _id: 1 });
   const existGroup = await Chat.findOne({ chatName: chatName }, { _id: 1 });
   const adminsAndMods = await User.find(
     { role: { $nin: ["user", "guess"] } },
     { _id: 1 }
   );
-  //check guess
   if (!existUser) {
     const guess = await User.create({
       username: chatName,
@@ -71,32 +75,15 @@ const findUserGroupChat = asyncHandler(async (req, res) => {
     const createGroup = await Chat.create({
       chatName: chatName,
       users: adminsAndMods.concat(guess._id),
-      isUser: false,
-      isGroupChat: true,
-      groupAdmin: adminsAndMods,
     });
     res.status(200).json(createGroup._id);
-  } else if (existUser && !loggedIn && !existGroup) {
+  } else if (existUser && !existGroup) {
     const createGroup = await Chat.create({
       chatName: chatName,
       users: adminsAndMods.concat(existUser),
-      isUser: false,
-      isGroupChat: true,
-      groupAdmin: adminsAndMods,
     });
     res.status(200).json(createGroup._id);
-  } else if (existUser && loggedIn && !existGroup) {
-    const createGroup = await Chat.create({
-      chatName: chatName,
-      users: adminsAndMods.concat(existUser),
-      isUser: true,
-      isGroupChat: true,
-      groupAdmin: adminsAndMods,
-    });
-    res.status(200).json(createGroup._id);
-  }
-  //check logged/guess chat group
-  else {
+  } else {
     res.status(200).json(existGroup._id);
   }
 });
@@ -105,30 +92,36 @@ const updateChat = async (req, res) => {
   const user = await User.findById(req.user.id);
   const haveMessage = await Chat.findById(chatId);
   if (haveMessage.latestMessage) {
-    await Message.updateMany(
-      { chat: chatId },
-      { $set: { readBy: user } },
+    await Message.findOneAndUpdate(
+      { _id: haveMessage.latestMessage._id, readBy: { $nin: [user._id] } },
+      { $push: { readBy: user } },
       { upsert: true, new: true }
     );
   }
-  await Chat.findById(chatId)
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password")
-    .populate({
-      path: "latestMessage",
-    })
-    // .sort({ updatedAt: -1 })
-    .then(async (results) => {
-      results = await User.populate(results, {
-        path: "latestMessage.sender",
-        select: "username img email",
+  try {
+    await Chat.findById(chatId)
+      .populate("users", "username img")
+      .populate({
+        path: "latestMessage",
+      })
+      .then(async (results) => {
+        results = await User.populate(results, {
+          path: "latestMessage.sender",
+          select: "username img",
+        });
+        results = await User.populate(results, {
+          path: "latestMessage.readBy",
+          select: "username img",
+        });
+        res.status(200).json(results);
       });
-      res.status(200).send(results);
-    });
+  } catch (error) {
+    console.log("error");
+  }
 };
 module.exports = {
   fetchChats,
   findUserGroupChat,
   updateChat,
-  getChat
+  getChat,
 };

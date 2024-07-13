@@ -98,6 +98,9 @@ const CheckInfo = ({ info, withModal }) => {
             {data.map((items, index) => {
               return (
                 <Stack key={items.name + index}>
+                  <Title order={2} ta={"center"}>
+                    System Info
+                  </Title>
                   <Title
                     order={5}
                     w={"100%"}

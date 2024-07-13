@@ -1,28 +1,45 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { login } from "../services/auth";
+import { NavLink, useNavigate } from "react-router-dom";
+import { googleLogin, login } from "../services/auth";
 import { LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS } from "../slices/UserSlice";
 import {
   Alert,
   Button,
-  Card,
   Center,
   Container,
+  Loader,
   PasswordInput,
+  Stack,
   Text,
   TextInput,
   UnstyledButton,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-const Login = ({ socket }) => {
-  const [data, setData] = useState({});
+import { useForm } from "@mantine/form";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { IconBrandGoogle } from "@tabler/icons-react";
+const Login = ({ socket, user1 }) => {
+  const form = useForm({
+    initialValues: {
+      username: "",
+      password: "",
+    },
+    validate: {
+      username: (value) =>
+        value.length < 2 ? "Name must have at least 2 letters" : null,
+      password: (value) =>
+        value.length < 6 ? "Password must have at least 6 characters" : null,
+    },
+  });
   const { user, loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [count, setCount] = useState(5);
-  const [visible, { toggle }] = useDisclosure(false);
+  const [userGoogle, setUserGoogle] = useState();
+  const [profile, setProfile] = useState();
+  const [google, setGoogle] = useState(false);
   useEffect(() => {
     const checkTimer = () => {
       if (count < 0) navigate("/");
@@ -37,87 +54,131 @@ const Login = ({ socket }) => {
   }, [count, user]);
   useEffect(() => {
     const checkUser = () => {
-      if (user !== null) {
+      if (!!user1) {
         alert("Already logged-in");
         navigate("/");
       }
     };
     checkUser();
   }, []);
-  const handleChange = (e) => {
-    setData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
   useEffect(() => {
     const LoginCheck = () => {
-      login({ username: data.username, password: data.password })
-        .then((res) => {
-          dispatch(LOGIN_SUCCESS(res.data));
-          socket.emit("loggedUser", res.data.username);
-        })
-        .catch((err) => {
-          dispatch(LOGIN_FAILURE(err.response.data));
-        });
+      if (google) {
+        googleLogin({ email: profile.email })
+          .then((res) => {
+            dispatch(LOGIN_SUCCESS(res.data));
+            socket.emit("loggedUser", res.data.username);
+          })
+          .catch((err) => {
+            dispatch(LOGIN_FAILURE(err.response.data));
+          });
+      } else {
+        login(form.getValues())
+          .then((res) => {
+            dispatch(LOGIN_SUCCESS(res.data));
+            socket.emit("loggedUser", res.data.username);
+          })
+          .catch((err) => {
+            dispatch(LOGIN_FAILURE(err.response.data));
+          });
+      }
     };
     loading && LoginCheck();
   }, [loading]);
-  const handleLogin = () => {
-    if (data) {
-      dispatch(LOGIN_START());
-    } else {
-      dispatch(LOGIN_FAILURE());
+  const loginGoogle = useGoogleLogin({
+    onSuccess: (e) => setUserGoogle(e),
+    onError: (e) => LOGIN_FAILURE(e),
+  });
+  useEffect(() => {
+    google && dispatch(LOGIN_START());
+  }, [google]);
+  useEffect(() => {
+    if (userGoogle) {
+      axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${userGoogle.access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userGoogle.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          setProfile(res.data);
+          setGoogle(true);
+        })
+        .catch((err) => dispatch(LOGIN_FAILURE(err.message)));
     }
-  };
-
+  }, [userGoogle]);
   return (
-    <Container px={0}>
-      <Center h={"90vh"}>
-        {user !== null ? (
-          <Alert variant="light" color="blue" title="Logged-in successfully">
-            <Text>redirecting to home page in {count} seconds</Text>
-          </Alert>
-        ) : (
-          <Card withBorder bg={"rgba(195, 195, 195, 0.3)"}>
-            <Card.Section>
+    <Container className="auth">
+      {user !== null ? (
+        <Alert
+          variant="light"
+          color="blue"
+          title="Logged-in successfully"
+          style={{ justifyContent: "center" }}
+        >
+          <Text span ta={"center"}>
+            redirecting to home page in {count} seconds <Loader type="dots" />
+          </Text>
+        </Alert>
+      ) : (
+        <>
+          <form>
+            <Stack m={"auto"} gap={"sm"} justify="center" align="center">
               <TextInput
+                withAsterisk
                 label="Username"
-                onChange={handleChange}
-                name="username"
+                key={form.key("username")}
+                {...form.getInputProps("username")}
+                w={200}
               />
               <PasswordInput
                 label="Password"
-                visible={visible}
-                onVisibilityChange={toggle}
-                onChange={handleChange}
-                name="password"
+                withAsterisk
+                key={form.key("password")}
+                {...form.getInputProps("password")}
+                w={200}
+                placeholder="password"
               />
-            </Card.Section>
-
+              <Center>
+                <Button
+                  onClick={() => dispatch(LOGIN_START())}
+                  loading={loading}
+                  loaderProps={{ type: "dots" }}
+                >
+                  Login
+                </Button>
+              </Center>
+              {error && (
+                <Text c={"red"} ta={"center"}>
+                  {error}
+                </Text>
+              )}
+            </Stack>
+          </form>
+          <Stack mt={"sm"} gap={"sm"}>
             <Button
-              mt="md"
-              onClick={handleLogin}
-              size="compact-md"
-              loading={loading}
+              leftSection={<IconBrandGoogle />}
+              onClick={loginGoogle}
+              variant="default"
             >
-              Login
+              Login with Google
             </Button>
             <Text>{`Don't have an account?`}</Text>
             <UnstyledButton
-              onClick={() => navigate("/register")}
+              component={NavLink}
+              to={"/register"}
               style={{ color: "blue" }}
-              ta={'center'}
+              ta={"center"}
             >
               Register now
             </UnstyledButton>
-            {loading && <Card.Section>Signing in...</Card.Section>}
-            {error && (
-              <Card.Section className="text-danger">{error}</Card.Section>
-            )}
-          </Card>
-        )}
-      </Center>
+          </Stack>
+        </>
+      )}
     </Container>
   );
 };

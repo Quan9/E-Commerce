@@ -23,6 +23,7 @@ import {
   Loader,
   Modal,
   Paper,
+  Select,
   Stack,
   Text,
   TextInput,
@@ -54,7 +55,7 @@ const TotalProducts = () => {
   const [sortStatus, setSortStatus] = useState(false);
   const [debouncedQuery] = useDebouncedValue(query, 200);
   const [opened, { open, close }] = useDisclosure(false);
-
+  const [sortCategory, setSortCategory] = useState("");
   useEffect(() => {
     getProducts();
   }, []);
@@ -68,23 +69,23 @@ const TotalProducts = () => {
   }, [page, pageSize]);
   useEffect(() => {
     if (data !== undefined && data.length !== 0) {
-      const filterData = data.filter(({ _id, isActive }) => {
+      const filterData = data.filter(({ _id, isActive, categories }) => {
         if (
           debouncedQuery !== "" &&
           !`${_id}`.includes(debouncedQuery.trim().toLowerCase())
-        ) {
+        )
           return false;
-        }
-        if (sortStatus && isActive === "Active") {
-          return false;
-        }
+        if (sortStatus && isActive === "Active") return false;
+
+        if (sortCategory !== "" && categories !== sortCategory) return false;
         return true;
       });
       setDataFilter(filterData);
       setRecords(filterData.slice(0, pageSize));
       setPage(1);
+      console.log(sortCategory, filterData);
     }
-  }, [debouncedQuery, sortStatus]);
+  }, [debouncedQuery, sortStatus, sortCategory]);
   const displayModal = () => {
     return (
       <Modal opened={opened} onClose={close} withCloseButton={true}>
@@ -204,6 +205,14 @@ const TotalProducts = () => {
                   accessor: "categories",
                   textAlign: "center",
                   title: "Category",
+                  filter: (
+                    <Select
+                      data={["Phone", "Laptop", "Tablet"]}
+                      onChange={setSortCategory}
+                      placeholder="Select a category"
+                      value={sortCategory}
+                    />
+                  ),
                 },
                 {
                   accessor: "image",

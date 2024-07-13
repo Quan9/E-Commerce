@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   Button,
   Card,
@@ -7,6 +7,7 @@ import {
   Flex,
   Grid,
   GridCol,
+  Group,
   Image,
   Title,
   UnstyledButton,
@@ -14,42 +15,34 @@ import {
 import FormatPrice from "../misc/FormatPrice";
 import { IconPlayerTrackNext } from "@tabler/icons-react";
 const Products = ({ content }) => {
-  const nav = useNavigate();
   return (
-    <Grid>
+    <Grid overflow="hidden" p={10}>
       {content &&
         content.map((items, index) => {
           return (
             <GridCol
               key={index}
-              span={12}
               order={items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3}
+              mt={"sm"}
             >
-              <Flex align="flex-end" justify="flex-end">
+              <Group align="flex-end" justify="flex-end">
                 <Title order={2} ta="center" flex={1}>
                   Latest {items._id}
                 </Title>
                 {items.data.length > 4 && (
-                  <UnstyledButton onClick={() => nav(`/${items._id}`)}>
+                  <UnstyledButton component={NavLink} to={`/${items._id}`}>
                     more <IconPlayerTrackNext size={12} />
                   </UnstyledButton>
                 )}
-              </Flex>
-              <Grid mt={"md"}>
+              </Group>
+              <Grid mt={"sm"}>
                 {items.data.map((product, index) => (
                   <GridCol
-                    key={product._id + index}
                     span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
-                    align={"center"}
+                    key={product._id + index}
+                    maw={{ xs: "50%" }}
                   >
-                    <Card
-                      h={"100%"}
-                      shadow="sm"
-                      padding="lg"
-                      radius="md"
-                      withBorder
-                      display={index === 4 && "none"}
-                    >
+                    <Card display={index === 4 && "none"} align={"center"}>
                       <CardSection>
                         <Image
                           src={product.colors[0].image}
@@ -70,9 +63,8 @@ const Products = ({ content }) => {
                           <FormatPrice price={product.price} />
                         )}
                         <Button
-                          onClick={() =>
-                            nav(`/${product.categories}/${product._id}`)
-                          }
+                          component={NavLink}
+                          to={`/${product.categories}/${product._id}`}
                           variant="light"
                         >
                           Detail

@@ -10,18 +10,21 @@ import CheckOut from "./CheckOut";
 import ChatAgent from "./agent/chat/ChatAgent";
 import EditOrder from "./agent/orders/EditOrder";
 import TotalOrders from "./agent/orders/TotalOrders";
-import Example from "./agent/orders/Example";
 import EditProduct from "./agent/products/EditProduct";
 import TotalProducts from "./agent/products/TotalProducts";
 import NewProduct from "./agent/products/NewProduct";
 import EditUser from "./agent/users/EditUser";
 import NewUser from "./agent/users/NewUser";
 import TotalUsers from "./agent/users/TotalUsers";
+import Order from "./Order";
+import VerifyEmail from "./VerifyEmail";
 export {
   Cart,
+  Order,
   Error404,
   Home,
   Login,
+  VerifyEmail,
   ProductDetail,
   ProductsByCategory,
   ProfilePage,
@@ -30,7 +33,6 @@ export {
   ChatAgent,
   EditOrder,
   TotalOrders,
-  Example,
   EditProduct,
   TotalProducts,
   NewProduct,

@@ -89,12 +89,12 @@ const ProfilePage = () => {
   });
 
   return (
-    <Center maw={"90%"} h={"100%"}>
+    <Center h={"100%"}>
       {user.role === "user" ? (
         <Group>
           <Button
             variant="default"
-            onClick={() => nav(`/user/${user._id}`)}
+            onClick={() => nav(`/user/totalUsers/${user._id}`)}
             c={"blue"}
           >
             Edit Profile

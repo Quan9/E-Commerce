@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Button,
   Container,
@@ -10,6 +10,7 @@ import {
   Space,
   Stack,
   Title,
+  UnstyledButton,
 } from "@mantine/core";
 import { useSelector } from "react-redux";
 import Error404 from "../../pages/Error404";
@@ -21,37 +22,37 @@ const ProtectedRoute = () => {
       {user ? (
         <Grid>
           <GridCol visibleFrom="md" span={1}>
-            <Title
-              order={3}
-              onClick={() => nav("/user")}
-              onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
-              align="center"
-            >
-              Dashboard
-            </Title>
+            <UnstyledButton component={NavLink} to={"/user"} ta={"center"}>
+              <Title order={5}>Dashboard</Title>
+            </UnstyledButton>
             <Space h={"md"} />
             <Stack gap={"sm"}>
               {user.role !== "user" ? (
                 <>
                   <Button
+                    size="compact-sm"
+                    component={NavLink}
+                    to={"/user/totalUsers"}
                     variant="default"
-                    onClick={() => nav("/user/totalUsers")}
                     c={"blue"}
                     fullWidth
                   >
                     Users
                   </Button>
                   <Button
-                    to="/profile/products"
+                    size="compact-sm"
+                    component={NavLink}
+                    to={"/user/products"}
                     variant="default"
-                    onClick={() => nav("/user/products")}
                     fullWidth
                     c={"blue"}
                   >
                     Products
                   </Button>
                   <Button
-                    onClick={() => nav(`/user/chats`)}
+                    size="compact-sm"
+                    component={NavLink}
+                    to={"/user/chats"}
                     variant="default"
                     fullWidth
                     c={"blue"}
@@ -61,8 +62,10 @@ const ProtectedRoute = () => {
                 </>
               ) : (
                 <Button
+                  size="compact-sm"
+                  component={NavLink}
+                  to={`/user/totalUsers/${user._id}`}
                   variant="default"
-                  onClick={() => nav(`/user/${user._id}`)}
                   fullWidth
                   c={"blue"}
                 >
@@ -70,7 +73,9 @@ const ProtectedRoute = () => {
                 </Button>
               )}
               <Button
-                onClick={() => nav(`/user/orders`)}
+                size="compact-sm"
+                component={NavLink}
+                to={`/user/orders`}
                 variant="default"
                 c={"blue"}
               >
@@ -78,7 +83,7 @@ const ProtectedRoute = () => {
               </Button>
             </Stack>
           </GridCol>
-          <GridCol span={{ base: 12, md: 11 }}>
+          <GridCol span={{ md: 11 }}>
             <Paper hiddenFrom="md" mb={"lg"}>
               <Title
                 order={3}
@@ -92,15 +97,18 @@ const ProtectedRoute = () => {
                 {user.role !== "user" ? (
                   <>
                     <Button
+                      size="compact-sm"
+                      component={NavLink}
+                      to={"/user/totalUsers"}
                       variant="default"
-                      to="/profile/users"
-                      onClick={() => nav("/user/totalUsers")}
                       c={"blue"}
                     >
                       Users
                     </Button>
                     <Button
-                      to="/profile/products"
+                      size="compact-sm"
+                      component={NavLink}
+                      to={"/user/products"}
                       variant="default"
                       onClick={() => nav("/user/products")}
                       c={"blue"}
@@ -108,7 +116,9 @@ const ProtectedRoute = () => {
                       Products
                     </Button>
                     <Button
-                      onClick={() => nav(`/user/chats`)}
+                      size="compact-sm"
+                      component={NavLink}
+                      to={"/user/chats"}
                       variant="default"
                       c={"blue"}
                     >
@@ -117,6 +127,7 @@ const ProtectedRoute = () => {
                   </>
                 ) : (
                   <Button
+                    size="compact-sm"
                     variant="default"
                     onClick={() => nav(`/user/${user._id}`)}
                     c={"blue"}
@@ -125,6 +136,7 @@ const ProtectedRoute = () => {
                   </Button>
                 )}
                 <Button
+                  size="compact-sm"
                   onClick={() => nav(`/user/orders`)}
                   variant="default"
                   c={"blue"}

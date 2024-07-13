@@ -1,24 +1,29 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useClickOutside } from "@mantine/hooks";
 import { useLocation } from "react-router-dom";
 import parse from "html-react-parser";
 import {
   Avatar,
+  AvatarGroup,
   Box,
   Center,
   Flex,
+  Group,
   Indicator,
   Loader,
-  Paper,
   Text,
   Title,
   Tooltip,
 } from "@mantine/core";
 import { clientChat } from "../../services/chat";
 import { getAnoUser } from "../../services/user";
-import { getAllMessages, sendMessage } from "../../services/message";
+import {
+  getAllMessages,
+  sendMessage,
+  updateChatRead,
+} from "../../services/message";
 import { toast } from "react-toastify";
 import {
   isLastMessage,
@@ -29,64 +34,123 @@ import {
 import QuillChat from "../misc/QuillChat";
 
 const Chat = (props) => {
-  const { user, loggedIn, socket } = props;
+  const { user, socket } = props;
   const [visible, setVisible] = useState(false);
   const [alarm, setAlarm] = useState(false);
   const [hovered, setHovered] = useState(false);
-
-  const ref = useClickOutside(() => setVisible(false));
-  const scrollRef = useRef();
-  const location = useLocation();
-  const pathname = location.pathname.split("/")[1];
-  const paths = ["login", "register", "user"];
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [room, setRoom] = useState();
   const [typing, setTyping] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [user1, setUser1] = useState(user);
+  const [guess, setGuess] = useState(user);
   const quillRef = useRef();
   const [doubleKey, setDoubleKey] = useState(false);
-  useEffect(() => {
-    if (messages.length) {
-      scrollRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }
-  }, [messages]);
+  const refScroll = useRef();
+  const [oldestMessage, setOldestMessage] = useState(0);
+  const [loadingOldMess, setLoadingOldMess] = useState(false);
+  const [top, setTop] = useState(false);
+
+  const ref = useClickOutside(() => setVisible(false));
+  const scrollRef = useRef();
+  const location = useLocation();
+  const pathname = location.pathname.split("/")[1];
+  const paths = ["login", "register", "user", "verifyEmail"];
+
   useEffect(() => {
     const enterChat = async () => {
-      setLoading(true);
-
-      await clientChat(user.username, { loggedIn })
-        .then((res) => {
-          const data = res.data;
-          if (user._id === undefined) {
-            getAnoUser(user).then((res) => {
-              const sesUser = JSON.parse(sessionStorage.getItem("userSes"));
-              sesUser._id = res.data;
-              sessionStorage.setItem("userSes", JSON.stringify(sesUser));
-              setUser1(sesUser);
-            });
-          }
-          getAllMessages(data).then((res) => {
-            setMessages(res.data);
+      if (!paths.includes(pathname)) {
+        setLoading(true);
+        await clientChat(user.username)
+          .then(async (res) => {
+            const data = res.data;
+            if (user._id === undefined) {
+              getAnoUser(user).then((res) => {
+                const sesUser = JSON.parse(sessionStorage.getItem("userSes"));
+                sesUser._id = res.data;
+                sessionStorage.setItem("userSes", JSON.stringify(sesUser));
+                setGuess(sesUser);
+              });
+            }
             setRoom(data);
             socket.emit("join", data);
             setLoading(false);
-          });
-        })
-        .catch((err) => toast.error(err, { position: "top-right" }));
+          })
+          .catch((err) => toast.error(err, { position: "top-right" }));
+      }
     };
     enterChat();
   }, []);
+
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
-      setMessages([...messages, newMessageRecieved]);
-      toggleAlarm();
-    });
-  });
+    room && fetchMessages();
+  }, [room]);
+
+  useEffect(() => {
+    const messageReceived = async () => {
+      await updateChatRead(room, {
+        totalMessage: messages.length + 1,
+        user: guess.username,
+      }).then((response) => {
+        const updateMessages = response.data.reverse();
+        setMessages(updateMessages);
+        setOldestMessage(oldestMessage + 1);
+        toggleAlarm();
+        setTimeout(() => {
+          ref.current.scrollIntoView();
+        }, 100);
+      });
+      socket.emit("userRead", {
+        room: room,
+        user: guess.username,
+      });
+    };
+    const updateMessage = async () => {
+      await updateChatRead(room, {
+        totalMessage: messages.length,
+        user: guess.username,
+      }).then((response) => {
+        const updateMessages = response.data.reverse();
+        setMessages(updateMessages);
+        setTimeout(() => {
+          ref.current.scrollIntoView();
+        }, 100);
+      });
+    };
+    socket.on("message recieved", messageReceived);
+    socket.on("updateMessages", updateMessage);
+    return () => {
+      socket.off("message recieved", messageReceived);
+      socket.off("updateMessages", updateMessage);
+    };
+  }, [socket, messages, room]);
+
+  useEffect(() => {
+    const handle = () => {
+      setTyping(false);
+      handleSubmit();
+    };
+    doubleKey && handle();
+  }, [doubleKey]);
+
+  useEffect(() => {
+    const check = async () => {
+      if (messages.length === 0) {
+        return;
+      }
+      if (oldestMessage === messages.length) {
+        return scrollRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }
+      setLoadingOldMess(true);
+      await fetchMessages();
+      setLoadingOldMess(false);
+    };
+    check();
+  }, [oldestMessage]);
+
   const toggleAlarm = () => {
     if (visible !== true) {
       setAlarm(true);
@@ -94,6 +158,7 @@ const Chat = (props) => {
       setAlarm(false);
     }
   };
+
   const handleSubmit = async () => {
     let newMessage1 = newMessage.replaceAll("<p><br></p>", "");
 
@@ -107,6 +172,7 @@ const Chat = (props) => {
 
         socket.emit("userMessage", data);
         setMessages([...messages, data]);
+        setOldestMessage(oldestMessage + 1);
         setNewMessage("");
         const quill = document.getElementsByClassName("ql-editor");
         quill[0].innerHTML = "";
@@ -119,13 +185,33 @@ const Chat = (props) => {
     setTyping(true);
     setDoubleKey(false);
   };
-  useEffect(() => {
-    const handle = () => {
-      setTyping(false);
-      handleSubmit();
-    };
-    doubleKey && handle();
-  }, [doubleKey]);
+
+  const fetchMessages = async () => {
+    await getAllMessages(room, {
+      total: oldestMessage,
+      user: guess.username,
+    }).then((res) => {
+      const response = res.data.messages.reverse();
+      setTop(res.data.top);
+      if (messages.length === 0) {
+        setMessages(response);
+        return setOldestMessage(response.length);
+      } else {
+        setMessages([...response, ...messages]);
+        setTimeout(() => {
+          scrollRef.current.childNodes[data.length].scrollIntoView();
+        }, 100);
+      }
+    });
+  };
+
+  const handleScroll = useCallback(async (e) => {
+    let element = e.target;
+    if (element.scrollTop === 0 && !top) {
+      setOldestMessage(oldestMessage + 20);
+    }
+  });
+
   return (
     <>
       {paths.includes(pathname) ? (
@@ -133,80 +219,146 @@ const Chat = (props) => {
       ) : (
         <div ref={ref}>
           <Box className="transition-1" display={!visible && "none"}>
-            <Title bg={"blue"} order={4} ta={"center"}>
+            <Title bg={"blue"} order={4} ta={"center"} h={"10%"}>
               Customer Support
             </Title>
             <Box
-              justify="flex-end"
-              bg={"rgba(198, 198, 198, 1)"}
+              bg={"white"}
               style={{
                 overflow: "auto",
-                overflowY: "scroll",
-                overflowX: "hidden",
+                wordBreak: "break-all",
+                alignContent: "end",
               }}
               h={"80%"}
-              pb={"sm"}
-              w={"100%"}
+              maw={"100%"}
+              onScroll={handleScroll}
+              ref={refScroll}
             >
               {loading ? (
-                <Loader color="blue" />
+                <Center h={"100%"}>
+                  <Loader size={"xl"} />
+                </Center>
               ) : (
-                <Flex
-                  direction="column"
-                  justify={"flex-end"}
-                  w={"100%"}
-                  style={{ overflowWrap: "break-word" }}
-                >
-                  {messages?.map((m, i) => {
-                    return (
-                      <Flex key={m._id} className="chat-client">
-                        {(isSameSender(messages, m, i, user1._id) ||
-                          isLastMessage(messages, i, user1._id)) && (
-                          <Tooltip
-                            label={m.sender.username}
-                            position="top-center"
-                            withArrow
-                          >
-                            <Avatar
-                              mt="7px"
-                              mr={1}
-                              size="sm"
-                              cursor="pointer"
-                              name={m.sender.username}
-                              src={m.sender.img}
-                            />
-                          </Tooltip>
-                        )}
-                        <Text
-                          span
-                          key={m._id}
-                          style={{
-                            backgroundColor: `${
-                              m.sender.username === user1.username
-                                ? "#BEE3F8"
-                                : "#B9F5D0"
-                            }`,
-                            marginLeft: isSameSenderMargin(
-                              messages,
-                              m,
-                              i,
-                              user1._id
-                            ),
-                            marginTop: isSameUser(messages, m, i, user1._id)
-                              ? 3
-                              : 10,
-                            borderRadius: "10px",
-                            padding: "5px 0px",
-                            maxWidth: "70%",
-                          }}
-                        >
-                          {parse(`${m.content}`) || m.content}
-                        </Text>
-                      </Flex>
-                    );
-                  })}
-                  <div ref={scrollRef} />
-                </Flex>
+                <>
+                  {messages.length === 0 ? (
+                    <Center h={"100%"}>
+                      <Title order={3}>Chat with us!</Title>
+                    </Center>
+                  ) : (
+                    <>
+                      {messages?.map((m, i) => {
+                        return (
+                          <>
+                            <Flex
+                              key={m._id}
+                              className={"chat client"}
+                              opacity={loadingOldMess ? 0.5 : 1}
+                              maw={"50%"}
+                              mt={!isSameUser(messages, m, i, guess._id) && 10}
+                              ms={
+                                isSameSender(messages, m, i, guess._id)
+                                  ? "auto"
+                                  : isLastMessage(messages, i, guess._id)
+                                  ? "auto"
+                                  : isSameSenderMargin(
+                                      messages,
+                                      m,
+                                      i,
+                                      guess._id
+                                    )
+                              }
+                              justify={
+                                isSameSender(messages, m, i, user._id)
+                                  ? "end"
+                                  : isLastMessage(messages, i, user._id)
+                                  ? "end"
+                                  : isSameSenderMargin(
+                                      messages,
+                                      m,
+                                      i,
+                                      user._id
+                                    ) !== 0 && "end"
+                              }
+                            >
+                              <Group gap={"5px"} align="center"></Group>
+                              {(isSameSender(messages, m, i, guess._id) ||
+                                isLastMessage(messages, i, guess._id)) && (
+                                <Tooltip
+                                  label={m.sender.username}
+                                  position="top-center"
+                                  withArrow
+                                  events={{
+                                    hover: true,
+                                    focus: true,
+                                    touch: true,
+                                  }}
+                                >
+                                  <Avatar src={m.sender.img} />
+                                </Tooltip>
+                              )}
+                              <Text
+                                span
+                                ms={isSameSenderMargin(
+                                  messages,
+                                  m,
+                                  i,
+                                  guess._id
+                                )}
+                                bg={
+                                  m.sender.username === guess.username
+                                    ? "#BEE3F8"
+                                    : "#B9F5D0"
+                                }
+                                style={{
+                                  borderRadius:
+                                    m.sender._id === user._id
+                                      ? "0 20px 20px 0"
+                                      : "20px 0 0 20px",
+                                }}
+                              >
+                                {parse(`${m.content}`, {
+                                  replace: (domNode) => {
+                                    if (
+                                      domNode.name === "p" &&
+                                      domNode.children[0].name === "br"
+                                    ) {
+                                      return <></>;
+                                    }
+                                  },
+                                  transform(reactNode) {
+                                    return <>{reactNode}</>;
+                                  },
+                                })}
+                              </Text>
+                            </Flex>
+                            {m.readBy.length !== 0 && (
+                              <Group justify="end">
+                                <AvatarGroup>
+                                  {m.readBy.map((user1, index) => (
+                                    <Tooltip
+                                      key={user1 + index}
+                                      label={user1.username}
+                                    >
+                                      <Avatar
+                                      size={'sm'}
+                                        src={user1.img}
+                                        display={
+                                          user1.username === user.username &&
+                                          "none"
+                                        }
+                                      />
+                                    </Tooltip>
+                                  ))}
+                                </AvatarGroup>
+                              </Group>
+                            )}
+                          </>
+                        );
+                      })}
+                      <div ref={scrollRef} style={{ marginTop: "5px" }} />
+                    </>
+                  )}
+                </>
               )}
             </Box>
             <QuillChat
@@ -242,7 +394,6 @@ const Chat = (props) => {
                 onMouseLeave={() => setHovered(false)}
                 color="blue"
                 size={60}
-                // display={visible && "none"}
               >
                 <Text size="sm" c={"green"}>
                   Support

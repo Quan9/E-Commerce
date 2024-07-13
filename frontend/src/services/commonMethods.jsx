@@ -1,14 +1,21 @@
 import axios from "axios";
 const BASE_URL = "/api";
-const TOKEN = JSON.parse(localStorage.getItem("user"))?.accessToken || null;
-export const publicRequest = axios.create({
+const publicRequest = axios.create({
   baseURL: BASE_URL,
 });
 
-export const userRequest = axios.create({
+const userRequest = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    token: TOKEN,
-    id: JSON.parse(localStorage.getItem("user"))?._id,
-  },
 });
+userRequest.interceptors.request.use(
+  (config) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      config.headers.token = user?.accessToken;
+      config.headers.id = user?._id;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+export { userRequest, publicRequest };

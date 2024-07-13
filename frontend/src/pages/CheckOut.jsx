@@ -29,10 +29,17 @@ const CheckOut = ({ socket }) => {
   };
   useEffect(() => {
     const createOrder = () => {
+      if (user) {
+        form.userId = user.username;
+      } else {
+        const sessionUser = JSON.parse(
+          sessionStorage.getItem("userSes")
+        );
+        form.userId = sessionUser.username;
+      }
       form.address = session.customer_details.address;
       form.address.phone = session.customer_details.phone;
       form.payment_method = session.payment_method_types[0];
-      form.userId = user.username;
       newOrder(form)
         .then((res) => {
           setOrderId(res.data._id);

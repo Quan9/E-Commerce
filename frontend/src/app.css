@@ -1,112 +1,307 @@
-.first {
-  height: 100%;
-}
+body {
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 
-#root>div {
-  background: rgba(198, 198, 198, 1);
-
-  ~div {
-    background: rgba(198, 198, 198, 0.5);
-
-  }
-}
-
-.image360 {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  display: flex;
-  flex-direction: column;
-
-  .a {
-    width: 100%;
-    height: 300px !important;
-  }
-
-  img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    pointer-events: none;
-  }
-}
-
-.transition-3 {
-  transition: all 0.33s ease;
-  -webkit-transition: all 0.33s ease;
-  -moz-transition: all 0.33s ease;
-}
-
-.transition-1 {
-  transition: all 2.5s ease-in;
-  -webkit-transition: all 2.5s ease-in;
-  -moz-transition: all 2.5s ease-in;
-  position: fixed;
-  bottom: 115px;
-  width: 250px;
-  height: 50%;
-  right: 24px;
-  max-width: calc(100% - 48px - 60px);
-  max-height: calc(100%-48px - 60px);
-  z-index: 1;
-}
-
-.quill {
-  .ql-toolbar {
-    position: sticky;
-    top: 5%;
-    background: #b9afaf;
-    z-index: 2;
-  }
-
-  .ql-container.ql-snow {
-    height: 95%;
-  }
-}
-
-
-.quill-chat {
-  display: flex;
-  width: 100%;
-
-  .ql-container {
-    flex-grow: 1;
-
-    .ql-editor[contenteditable=false] {
-      background-color: grey;
+    @mixin light {
+      background: rgb(230, 230, 230);
     }
-  }
 
-  img {
-    height: 50px;
-    width: 50px;
+    @mixin dark {
+      background: rgb(150, 150, 150);
+    }
+
+
+    /* navbar */
+    >div.navbar {
+
+
+      padding: 0;
+      margin: 0;
+      max-width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+
+      @mixin dark {
+        background: rgb(100, 100, 100);
+      }
+
+      @mixin light {
+        background: rgb(200, 200, 200);
+      }
+
+      .icon {
+        width: 22px;
+        height: 22px;
+
+        &.dark {
+          @mixin dark {
+            display: none;
+          }
+
+          @mixin light {
+            display: block;
+          }
+        }
+
+        &.light {
+          @mixin light {
+            display: none;
+          }
+
+          @mixin dark {
+            display: block;
+          }
+        }
+      }
+
+
+      a,
+      button {
+        background: var(--mantine-primary-color-transparent);
+      }
+
+      .active {
+        @mixin dark {
+          background: var(--mantine-color-blue-6);
+
+        }
+
+        @mixin light {
+          background: var(--mantine-primary-color-filled);
+        }
+      }
+
+      .noti svg {
+        animation: shake 1s linear infinite;
+      }
+
+
+    }
+
+    /* content */
+    >div+div.m_7485cace {
+      padding: 1%;
+      max-width: 100%;
+      flex-grow: 1;
+      top: 10vh;
+      min-height: 90vh;
+      height: 100%;
+
+      .selected {
+        @mixin light {
+          background: grey;
+        }
+
+        @mixin dark {
+          background: var(--mantine-color-blue-6)
+        }
+      }
+
+      &.auth {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        margin: auto;
+
+        @mixin dark {
+          background: rgb(150, 150, 150);
+
+
+        }
+
+        @mixin light {
+          background: rgb(230, 230, 230);
+        }
+      }
+
+      .image360 {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+
+        .a {
+          width: 100%;
+          height: 300px !important;
+        }
+
+        img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
+          pointer-events: none;
+        }
+      }
+
+      .quill {
+        .ql-toolbar {
+          position: sticky;
+          top: 5%;
+          background: #b9afaf;
+          z-index: 2;
+        }
+
+        .ql-container.ql-snow {
+          height: 95%;
+        }
+      }
+
+      .description img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .similarProduct p {
+        @mixin dark {
+          color: blue;
+        }
+      }
+
+      +div {
+
+        .transition-3 {
+          transition: all 0.33s ease;
+          -webkit-transition: all 0.33s ease;
+          -moz-transition: all 0.33s ease;
+        }
+
+        .transition-1 {
+          transition: all 2.5s ease-in;
+          -webkit-transition: all 2.5s ease-in;
+          -moz-transition: all 2.5s ease-in;
+          position: fixed;
+          bottom: 115px;
+          width: 250px;
+          height: 50%;
+          right: 24px;
+          max-width: calc(100% - 48px - 60px);
+          max-height: calc(100%-48px - 60px);
+          z-index: 1;
+        }
+      }
+    }
+
+    .latest {
+      img{
+
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    .chat {
+      display: flex;
+
+      &.client {
+        img {
+
+          height: 50px;
+          width: 50px;
+        }
+        iframe {
+          height: 100%;
+          width: 100%;
+        }
+      }
+
+      &.admin {
+
+        img {
+
+          width: 250px;
+        }
+      }
+    }
+
+    .quill-chat {
+      width: 70%;
+      flex-grow: 1;
+
+      .ql-container {
+        .ql-editor[contenteditable=false] {
+          background-color: grey;
+        }
+      }
+
+      img {
+        height: 50px;
+        width: 50px;
+      }
+    }
+
+
+    ~div[data-portal='true'] {
+      background: rgba(198, 198, 198, 1);
+
+      .m_f11b401e {
+
+        a,
+        button {
+          color: black;
+          background: var(--mantine-color-dimmed);
+        }
+
+        .active {
+          background: var(--mantine-primary-color-filled);
+        }
+
+        button:last-child {
+          background: var(--mantine-color-red-8);
+
+          &.noti {
+            background: unset;
+          }
+        }
+      }
+
+      .noti {
+        background: unset;
+      }
+
+    }
+
   }
 }
 
-.chat-client {
 
-  img {
-
-    height: 50px;
-    width: 50px;
-  }
-
-  iframe {
-    height: 100px;
-    width: 100px;
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+    color: darkblue;
+    fill: darkblue;
 
   }
 
-}
+  20% {
+    transform: rotate(-20deg);
+    color: darkblue;
+    fill: darkblue;
+  }
 
+  50% {
+    transform: rotate(0deg);
+    color: darkblue;
+    fill: darkblue;
+  }
 
+  75% {
+    transform: rotate(20deg);
+    color: darkblue;
+    fill: darkblue;
+  }
 
-
-
-.description img {
-  width: 100%;
-  height: 100%;
+  100% {
+    transform: rotate(0deg);
+    color: darkblue;
+    fill: darkblue;
+  }
 }

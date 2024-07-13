@@ -20,5 +20,6 @@ export const deleteOrder = (id) => {
   return userRequest.delete(API_URL + `/${id}`);
 };
 export const getOrdersPerMonth = () => {
+  console.log(userRequest);
   return userRequest.get(API_URL + "/income");
 };

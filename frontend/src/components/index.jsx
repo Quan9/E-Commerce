@@ -9,8 +9,6 @@ import {
   isSameSender,
   isLastMessage,
   isSameUser,
-  getSender,
-  getSenderFull,
 } from "./config/ChatLogics";
 import ProtectedRoute from "./config/ProtectedRoute";
 import CheckInfo from "./misc/CheckInfo";
@@ -51,8 +49,6 @@ export {
   isSameSender,
   isLastMessage,
   isSameUser,
-  getSender,
-  getSenderFull,
   ProtectedRoute,
   CheckInfo,
   FormatPrice,

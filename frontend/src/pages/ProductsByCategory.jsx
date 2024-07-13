@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getProductByCategory } from "../services/product";
 import {
@@ -11,8 +11,12 @@ import {
   Group,
   Image,
   Loader,
+  MultiSelect,
+  Select,
   Stack,
   Title,
+  getBreakpointValue,
+  useMantineCssVariablesResolver,
 } from "@mantine/core";
 import { motion } from "framer-motion";
 import {
@@ -20,6 +24,7 @@ import {
   dataFilterBrandPhone,
   dataFilterPrice,
 } from "../components";
+import { useMediaQuery } from "@mantine/hooks";
 
 const ProductsByCategory = () => {
   const category = useLocation().pathname.split("/")[1];
@@ -28,12 +33,13 @@ const ProductsByCategory = () => {
   const [open, setOpen] = useState(8);
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const refWidth = useRef();
   const [checkFilter, setCheckFilter] = useState({
     price: "",
     brand: [],
     function: "",
   });
+  const windowSize = useMediaQuery(`(max-width: 75em`);
 
   useEffect(() => {
     getProductByCategory(category).then((res) => {
@@ -51,6 +57,7 @@ const ProductsByCategory = () => {
       }
     });
   }, []);
+
   useEffect(() => {
     const handleFilter = () => {
       let temp = [...data];
@@ -73,7 +80,7 @@ const ProductsByCategory = () => {
             return b.price - a.price;
           }
         });
-      if (brand.length !== 0) {
+      if (brand.length !== 0 && brand[0] !== "") {
         const array = temp.filter((items) => {
           return brand.includes(items?.systeminfo?.productInfo?.brand);
         });
@@ -85,6 +92,25 @@ const ProductsByCategory = () => {
 
     data && handleFilter();
   }, [checkFilter]);
+
+  useEffect(() => {
+    const a = () => {
+      const brand = searchParams.get("brand");
+      if (windowSize && brand === null) {
+        return setCheckFilter((prev) => ({
+          ...prev,
+          ["brand"]: [""],
+        }));
+      } else if (!windowSize && brand === null) {
+
+        return setCheckFilter((prev) => ({
+          ...prev,
+          ["brand"]: [],
+        }));
+      }
+    };
+    a();
+  }, [windowSize]);
   const handlePrice = (e) => {
     if (e.target.checked) {
       if (e.target.value === "") {
@@ -109,6 +135,7 @@ const ProductsByCategory = () => {
       }
     }
   };
+
   const handleBrand = (e) => {
     let temp = checkFilter.brand;
     if (e.target.checked) {
@@ -141,11 +168,51 @@ const ProductsByCategory = () => {
       setCheckFilter((prev) => ({ ...prev, [e.target.name]: temp }));
     }
   };
+
+  const handlePriceSelect = (e) => {
+    if (e === null) {
+      setSearchParams((params) => {
+        params.delete("price");
+        return params;
+      });
+      return setCheckFilter((prev) => ({ ...prev, ["price"]: "" }));
+    } else {
+      setSearchParams((params) => {
+        params.set("price", e);
+        return params;
+      });
+      setCheckFilter((prev) => ({ ...prev, ["price"]: e }));
+    }
+  };
+
+  const handleBrandSelect = (e) => {
+    if (e.length === 0) {
+      setSearchParams((params) => {
+        params.delete("brand");
+        return params;
+      });
+      return setCheckFilter((prev) => ({ ...prev, ["brand"]: [""] }));
+    } else if (e.includes("")) {
+      const data = e.filter((item) => item !== "");
+      setSearchParams((params) => {
+        params.set("brand", data);
+        return params;
+      });
+      return setCheckFilter((prev) => ({ ...prev, ["brand"]: data }));
+    } else {
+      setSearchParams((params) => {
+        params.set("brand", e);
+        return params;
+      });
+      setCheckFilter((prev) => ({ ...prev, ["brand"]: e }));
+    }
+  };
   return (
-    <Grid m={"lg"} p={"lg"}>
+    <Grid m={"lg"} p={"lg"} ref={refWidth}>
       <GridCol
         span={"2"}
         style={{ borderStyle: "hidden outset hidden hidden " }}
+        visibleFrom="lg"
       >
         <Stack>
           <Title order={4} ta={"center"}>
@@ -153,7 +220,7 @@ const ProductsByCategory = () => {
           </Title>
           <Grid>
             {dataFilterPrice.map((item, index) => (
-              <GridCol span={{ base: 12, lg: 6 }}>
+              <GridCol span={{ base: 12, lg: 6 }} key={item.value + index}>
                 <Checkbox
                   key={item + index}
                   name="price"
@@ -174,7 +241,7 @@ const ProductsByCategory = () => {
             {dataFilterBrandPhone.map((item, index) => {
               if (item.value === "") {
                 return (
-                  <GridCol span={{ base: 12, lg: 6 }}>
+                  <GridCol span={{ base: 12, lg: 6 }} key={item + index}>
                     <Checkbox
                       key={index}
                       name="brand"
@@ -187,7 +254,7 @@ const ProductsByCategory = () => {
                 );
               }
               return (
-                <GridCol span={{ base: 12, lg: 6 }}>
+                <GridCol span={{ base: 12, lg: 6 }} key={item + index}>
                   <Checkbox
                     key={index}
                     name="brand"
@@ -202,7 +269,26 @@ const ProductsByCategory = () => {
           </Grid>
         </Stack>
       </GridCol>
-      <GridCol span={"10"}>
+
+      <GridCol span={{ base: 12, lg: 10 }}>
+        <Group hiddenFrom="lg" wrap="nowrap" mb={"sm"} justify="center">
+          <Select
+            data={dataFilterPrice}
+            value={checkFilter?.price}
+            onChange={handlePriceSelect}
+            label="Price"
+            ta={"center"}
+          />
+          <MultiSelect
+            data={dataFilterBrandPhone}
+            value={checkFilter?.brand}
+            onChange={handleBrandSelect}
+            clearable
+            label="Brand"
+            ta={"center"}
+            maxDropdownHeight={200}
+          />
+        </Group>
         {filter ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -277,7 +363,7 @@ const ProductsByCategory = () => {
             )}
           </motion.div>
         ) : (
-          <Center h={"90vh"} w={"100%"}>
+          <Center w={"100%"}>
             <Loader size={"100"} />
           </Center>
         )}

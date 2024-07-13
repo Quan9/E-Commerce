@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 /* eslint-disable react/prop-types */
 import {
+  ActionIcon,
   AspectRatio,
   Burger,
   Button,
@@ -11,7 +12,11 @@ import {
   Image,
   Indicator,
   Menu,
+  Stack,
+  Text,
   UnstyledButton,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
@@ -19,12 +24,14 @@ import {
   IconBrandMantine,
   IconChevronRight,
   IconLogout,
+  IconMoon,
   IconRegistered,
   IconShoppingCart,
+  IconSun,
   IconUser,
 } from "@tabler/icons-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { LOGOUT } from "../../slices/UserSlice.jsx";
 import { useEffect, useState } from "react";
 import { getTotals } from "../../slices/CartSlice.jsx";
@@ -38,6 +45,10 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   const location = useLocation();
   const pathname = location.pathname.split("/")[1];
   const dispatch = useDispatch();
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("light", {
+    getInitialValueInEffect: true,
+  });
   const redirectPage = (path) => {
     navigate(path);
   };
@@ -47,38 +58,14 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
     };
     cart && getTotal();
   }, [cart, dispatch]);
+
   useEffect(() => {
     const updateUser = () => {
       setUser(currentUser);
     };
     updateUser();
   }, [socket, currentUser]);
-  const logout = () => {
-    socket.emit("logout", anoUser.username);
-    sessionStorage.removeItem("userSes");
-    dispatch(LOGOUT());
-    if (pathname !== "") navigate("/");
-  };
-  const checkNoti = () => {
-    let noti = true;
-    if (user) {
-      user?.noti.map((item) => {
-        if (item.number !== 0) return (noti = false);
-      });
-    }
-    return noti;
-  };
-  const handleClick = (data, page) => {
-    updateNoti(user._id, { noti: user.noti, data: data }).then((res) => {
-      let editUser = JSON.parse(localStorage.getItem("user"));
-      editUser.noti = res.data;
-      localStorage.setItem("user", JSON.stringify(editUser));
-      setUser(editUser);
-      if (page) {
-        redirectPage(`/user/${page}`);
-      }
-    });
-  };
+
   useEffect(() => {
     socket.on("message notification", (userNoti) => {
       if (location.pathname === "/user/chats") {
@@ -100,284 +87,231 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
       setUser(editUser);
     });
   });
+
+  const logout = () => {
+    socket.emit(
+      "logout",
+      currentUser ? currentUser.username : anoUser.username
+    );
+    sessionStorage.removeItem("userSes");
+    dispatch(LOGOUT());
+    if (pathname !== "") navigate("/");
+    window.location.reload();
+  };
+
+  const checkNoti = () => {
+    let noti = false;
+    if (user) {
+      user?.noti.map((item) => {
+        if (item.number !== 0) noti = true;
+      });
+    }
+    return noti;
+  };
+
+  const handleClick = (data, page) => {
+    const a = location.pathname.split("/")[2];
+    if (page && a === page) {
+      return;
+    }
+    updateNoti(user._id, { noti: user.noti, data: data }).then((res) => {
+      let editUser = JSON.parse(localStorage.getItem("user"));
+      editUser.noti = res.data;
+      localStorage.setItem("user", JSON.stringify(editUser));
+      setUser(editUser);
+      if (page) {
+        redirectPage(`/user/${page}`);
+      }
+    });
+  };
+
   return (
-    <Container
-      h={"10%"}
-      size={"xs"}
-      w={"100%"}
-      maw={"100%"}
-      mb={"md"}
-      style={{ position: "sticky", top: "0", zIndex: "2" }}
-      bg={"rgba(195, 195, 195, 10)"}
-    >
+    <Container className="navbar">
       <Flex
-        justify={"space-between"}
+        justify={"space-evenly"}
         align={"center"}
         display={opened && medium && "none"}
       >
         <Button
-          leftSection={<IconBrandMantine size={30} />}
-          autoContrast={true}
-          variant="transparent"
-          color="black"
-          onClick={() => redirectPage("/")}
+          component={NavLink}
+          to="/"
+          leftSection={<IconBrandMantine size={36} />}
+          c="black"
         >
           MobileShop
         </Button>
-        <UnstyledButton
-          onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
-          onClick={() => redirectPage("/cart")}
-        >
-          <Indicator
-            label={cart.amount}
-            offset={7}
-            position="bottom-end"
-            color="blue"
-            size={16}
-          >
-            <IconShoppingCart size={36} />
-          </Indicator>
-        </UnstyledButton>
+        <Group flex={1} align="center" justify="center">
+          <Button component={NavLink} to={"/cart"}>
+            <Indicator
+              label={cart.amount}
+              offset={8}
+              position="bottom-end"
+              color="blue"
+            >
+              <IconShoppingCart size={36} color="black" />
+            </Indicator>
+          </Button>
+        </Group>
 
-        <Group visibleFrom="md" gap={2}>
+        <Group visibleFrom="md" gap={"sm"}>
           {currentUser ? (
             <>
-              <Menu>
-                <Menu.Target>
-                  <UnstyledButton>
-                    <Indicator
-                      disabled={checkNoti()}
-                      inline
-                      size={16}
-                      offset={7}
-                      color="blue"
-                      withBorder
-                      processing
-                    >
-                      <IconBell size={36} />
-                    </Indicator>
-                  </UnstyledButton>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Label fw={750}>Order</Menu.Label>
-                  {user?.noti.map((item) => {
-                    if (item.name === "order") {
-                      if (item.number === 1)
-                        return (
-                          <Menu.Item
-                            c={"blue"}
-                            fw={500}
-                            key={item.name}
-                            onClick={() => handleClick(item.name, "orders")}
-                          >
-                            {item.number} new order
-                          </Menu.Item>
-                        );
-                      else if (item.number > 1)
-                        return (
-                          <Menu.Item
-                            c={"blue"}
-                            fw={500}
-                            key={item.name}
-                            onClick={() => handleClick(item.name, "orders")}
-                          >
-                            {item.number} new orders
-                          </Menu.Item>
-                        );
-                      else
-                        return (
-                          <Menu.Item fw={500} key={item.name}>
-                            No new order
-                          </Menu.Item>
-                        );
-                    }
-                  })}
-                  <Menu.Divider />
-                  <Menu.Label>Message</Menu.Label>
-                  {user?.noti.map((item) => {
-                    if (item.name === "message") {
-                      if (item.number === 1)
-                        return (
-                          <Menu.Item
-                            c={"blue"}
-                            fw={500}
-                            onClick={() => handleClick(item.name, "chats")}
-                            key={item.name}
-                          >
-                            {item.number} new message
-                          </Menu.Item>
-                        );
-                      else if (item.number > 1)
-                        return (
-                          <Menu.Item
-                            c={"blue"}
-                            fw={500}
-                            onClick={() => handleClick(item.name, "chats")}
-                            key={item.name}
-                          >
-                            {item.number} new messages
-                          </Menu.Item>
-                        );
-                      else
-                        return (
-                          <Menu.Item fw={500} key={item.name}>
-                            No new message
-                          </Menu.Item>
-                        );
-                    }
-                  })}
-                </Menu.Dropdown>
-              </Menu>
-              <Button
-                leftSection={
-                  <AspectRatio ratio={1080 / 720} maw={30}>
-                    <Image src={currentUser?.img} alt="UserImage" />
-                  </AspectRatio>
-                }
-                autoContrast={true}
-                variant="light"
-                onClick={() => redirectPage("/user")}
-              >
-                {currentUser.username}
-              </Button>
-              <Button
-                leftSection={<IconLogout size={20} />}
-                rightSection={
-                  <IconChevronRight
-                    size="0.8rem"
-                    stroke={1.5}
-                    className="mantine-rotate-rtl"
-                  />
-                }
-                autoContrast={true}
-                variant="light"
-                onClick={logout}
-              >
-                Logout
-              </Button>
+              <Stack gap={0} align="flex-start" justify="flex-start">
+                <ActionIcon
+                  onClick={() =>
+                    setColorScheme(
+                      computedColorScheme === "light" ? "dark" : "light"
+                    )
+                  }
+                  variant="transparent"
+                >
+                  <IconSun className={"icon light"} stroke={1.5} />
+                  <IconMoon className={"icon dark"} stroke={1.5} />
+                </ActionIcon>
+                <Menu>
+                  <Menu.Target>
+                    <UnstyledButton className={checkNoti() && "noti"}>
+                      <Indicator
+                        disabled={!checkNoti()}
+                        processing={checkNoti()}
+                      >
+                        <IconBell />
+                      </Indicator>
+                    </UnstyledButton>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    {user?.noti.map((item, index) => {
+                      return (
+                        <Menu.Item
+                          key={item + index}
+                          c={item.number !== 0 ? "blue" : "black"}
+                          onClick={() =>
+                            handleClick(
+                              item.name,
+                              item.name === "message" ? `chats` : `orders`
+                            )
+                          }
+                          className="noti"
+                        >
+                          {item.number !== 0 ? item.number : "No "} new{" "}
+                          {item.name}(s)
+                        </Menu.Item>
+                      );
+                    })}
+                  </Menu.Dropdown>
+                </Menu>
+              </Stack>
+              <Stack gap={0} align="flex-start" justify="flex-start">
+                <Button
+                  component={NavLink}
+                  to={"/user"}
+                  leftSection={
+                    <Image
+                      src={currentUser?.img}
+                      alt="UserImage"
+                      w={18}
+                      h={18}
+                      radius={50}
+                    />
+                  }
+                  p={0}
+                  size="compact-sm"
+                  autoContrast
+                  c={"black"}
+                >
+                  {currentUser.username}
+                </Button>
+                <Button
+                  leftSection={<IconLogout size={18} />}
+                  rightSection={
+                    <IconChevronRight
+                      size="0.8rem"
+                      stroke={1.5}
+                      className="mantine-rotate-rtl"
+                    />
+                  }
+                  autoContrast
+                  onClick={logout}
+                  p={0}
+                  size="compact-sm"
+                  c={"red"}
+                >
+                  Logout
+                </Button>
+              </Stack>
             </>
           ) : (
             <>
-              <Button
-                leftSection={<IconUser size={20} />}
-                rightSection={
-                  <IconChevronRight
-                    size="0.8rem"
-                    stroke={1.5}
-                    className="mantine-rotate-rtl"
-                  />
+              <ActionIcon
+                onClick={() =>
+                  setColorScheme(
+                    computedColorScheme === "light" ? "dark" : "light"
+                  )
                 }
-                size="compact-md"
-                autoContrast={true}
-                variant="light"
-                onClick={() => redirectPage("login")}
+                variant="default"
+                size="xl"
+                aria-label="Toggle color scheme"
               >
-                Login
-              </Button>
-              <Button
-                leftSection={<IconRegistered size={20} />}
-                rightSection={
-                  <IconChevronRight
-                    size="0.8rem"
-                    stroke={1.5}
-                    className="mantine-rotate-rtl"
-                  />
-                }
-                size="compact-md"
-                autoContrast={true}
-                variant="light"
-                onClick={() => redirectPage("register")}
-              >
-                Register
-              </Button>
+                <IconSun className={"icon light"} stroke={1.5} />
+                <IconMoon className={"icon dark"} stroke={1.5} />
+              </ActionIcon>
+              <Stack gap={0} align="flex-start">
+                <Button
+                  component={NavLink}
+                  to={"/login"}
+                  leftSection={<IconUser size={20} />}
+                  rightSection={
+                    <IconChevronRight
+                      size="0.8rem"
+                      stroke={1.5}
+                      className="mantine-rotate-rtl"
+                    />
+                  }
+                  c="black"
+                  size="compact-sm"
+                >
+                  Login
+                </Button>
+              </Stack>
             </>
           )}
         </Group>
         <Group hiddenFrom="md">
+          <ActionIcon
+            onClick={() =>
+              setColorScheme(computedColorScheme === "light" ? "dark" : "light")
+            }
+            variant="default"
+            size="xl"
+            aria-label="Toggle color scheme"
+          >
+            <IconSun className={"icon light"} stroke={1.5} />
+            <IconMoon className={"icon dark"} stroke={1.5} />
+          </ActionIcon>
           {currentUser && (
             <Menu>
               <Menu.Target>
-                <UnstyledButton>
-                  <Indicator
-                    disabled={checkNoti()}
-                    inline
-                    size={16}
-                    offset={7}
-                    color="blue"
-                    withBorder
-                    processing
-                  >
-                    <IconBell size={36} />
-                  </Indicator>
+                <UnstyledButton className={checkNoti() && "noti"}>
+                  <IconBell size={36} />
                 </UnstyledButton>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label fw={750}>Order</Menu.Label>
-                {user?.noti.map((item) => {
-                  if (item.name === "order") {
-                    if (item.number === 1)
-                      return (
-                        <Menu.Item
-                          c={"blue"}
-                          fw={500}
-                          key={item.name}
-                          onClick={() => handleClick(item.name, "orders")}
-                        >
-                          {item.number} new order
-                        </Menu.Item>
-                      );
-                    else if (item.number > 1)
-                      return (
-                        <Menu.Item
-                          c={"blue"}
-                          fw={500}
-                          key={item.name}
-                          onClick={() => handleClick(item.name, "orders")}
-                        >
-                          {item.number} new orders
-                        </Menu.Item>
-                      );
-                    else
-                      return (
-                        <Menu.Item fw={500} key={item.name}>
-                          No new order
-                        </Menu.Item>
-                      );
-                  }
-                })}
-                <Menu.Divider />
-                <Menu.Label>Message</Menu.Label>
-                {user?.noti.map((item) => {
-                  if (item.name === "message") {
-                    if (item.number === 1)
-                      return (
-                        <Menu.Item
-                          c={"blue"}
-                          fw={500}
-                          onClick={() => handleClick(item.name, "chats")}
-                          key={item.name}
-                        >
-                          {item.number} new message
-                        </Menu.Item>
-                      );
-                    else if (item.number > 1)
-                      return (
-                        <Menu.Item
-                          c={"blue"}
-                          fw={500}
-                          onClick={() => handleClick(item.name, "chats")}
-                          key={item.name}
-                        >
-                          {item.number} new messages
-                        </Menu.Item>
-                      );
-                    else
-                      return (
-                        <Menu.Item fw={500} key={item.name}>
-                          No new message
-                        </Menu.Item>
-                      );
-                  }
+                {user?.noti.map((item, index) => {
+                  return (
+                    <Menu.Item
+                      key={item + index}
+                      c={item.number !== 0 ? "blue" : "black"}
+                      onClick={() =>
+                        handleClick(
+                          item.name,
+                          item.name === "message" ? `chats` : `orders`
+                        )
+                      }
+                    >
+                      {item.number !== 0 ? item.number : "No "} new
+                      {item.name}(s)
+                    </Menu.Item>
+                  );
                 })}
               </Menu.Dropdown>
             </Menu>
@@ -388,11 +322,11 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
       <Drawer onClose={toggle} opened={opened}>
         <Drawer.Header>
           <Button
+            component={NavLink}
+            to={"/"}
             leftSection={<IconBrandMantine size={30} />}
-            autoContrast={true}
-            variant="transparent"
+            autoContrast
             color="black"
-            onClick={() => redirectPage("/")}
             mx={"auto"}
           >
             MobileShop
@@ -402,13 +336,11 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
           {currentUser ? (
             <Group justify="center">
               <Button
+                component={NavLink}
+                to={"/user"}
                 leftSection={
-                  <AspectRatio ratio={1080 / 720} maw={30}>
-                    <Image src={currentUser?.img} alt="UserImage" />
-                  </AspectRatio>
+                  <Image src={currentUser?.img} alt="UserImage" w={36} h={36} />
                 }
-                autoContrast={true}
-                onClick={() => redirectPage("/user")}
               >
                 {currentUser.username}
               </Button>
@@ -421,8 +353,6 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
                     className="mantine-rotate-rtl"
                   />
                 }
-                autoContrast={true}
-                variant="light"
                 onClick={logout}
               >
                 Logout
@@ -431,6 +361,8 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
           ) : (
             <Group justify="center">
               <Button
+                component={NavLink}
+                to={"/login"}
                 leftSection={<IconUser size={20} />}
                 rightSection={
                   <IconChevronRight
@@ -439,26 +371,8 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
                     className="mantine-rotate-rtl"
                   />
                 }
-                autoContrast={true}
-                variant="light"
-                onClick={() => redirectPage("/login")}
               >
                 Login
-              </Button>
-              <Button
-                leftSection={<IconRegistered size={20} />}
-                rightSection={
-                  <IconChevronRight
-                    size="0.8rem"
-                    stroke={1.5}
-                    className="mantine-rotate-rtl"
-                  />
-                }
-                autoContrast={true}
-                variant="light"
-                onClick={() => redirectPage("/register")}
-              >
-                Register
               </Button>
             </Group>
           )}

@@ -14,21 +14,35 @@ import {
   Card,
   CardSection,
   UnstyledButton,
+  GridCol,
+  Stack,
+  Loader,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { register } from "../services/auth";
-import { IconArrowLeft, IconFileImport, IconUser } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
+import { register, registerGoogle } from "../services/auth";
+import {
+  IconArrowLeft,
+  IconBrandGoogle,
+  IconFileImport,
+  IconUser,
+} from "@tabler/icons-react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useGoogleLogin } from "@react-oauth/google";
 const Register = () => {
   const [img, setImg] = useState();
   const [message, setMessage] = useState();
   const [success, setSuccess] = useState(false);
   const [load, setLoad] = useState(false);
   const { user } = useSelector((state) => state.user);
-
+  const [userGoogle, setUserGoogle] = useState();
+  const [profile, setProfile] = useState();
+  const [google, setGoogle] = useState(false);
   const navigate = useNavigate();
+  const redirectPage = (path) => {
+    navigate(path);
+  };
   const form = useForm({
     initialValues: { username: "", email: "", password: "" },
 
@@ -41,6 +55,12 @@ const Register = () => {
         value.length < 6 ? "Password must have at least 6 characters" : null,
     },
   });
+
+  const loginGoogle = useGoogleLogin({
+    onSuccess: (e) => setUserGoogle(e),
+    onError: (e) => LOGIN_FAILURE(e),
+  });
+
   const handleSubmit = async (data) => {
     setLoad(true);
     let image = "";
@@ -65,64 +85,114 @@ const Register = () => {
         setLoad(false);
       });
   };
-  const redirectPage = (path) => {
-    navigate(path);
-  };
 
+  useEffect(() => {
+    const submit = async () => {
+      setLoad(true);
+      const username = profile.email.split("@")[0];
+      const newUser = {
+        img: profile.picture,
+        username: username,
+        email: profile.email,
+        password: "123456",
+      };
+      registerGoogle(newUser)
+        .then((res) => {
+          setMessage(res.data);
+          setSuccess(true);
+        })
+        .catch((e) => {
+          setMessage(e.response.data);
+          setLoad(false);
+        });
+      console.log(profile);
+    };
+    google && submit();
+  }, [google]);
+  useEffect(() => {
+    if (userGoogle) {
+      axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${userGoogle.access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userGoogle.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          setProfile(res.data);
+          setGoogle(true);
+        })
+        .catch((e) => {
+          setSuccess(false);
+          setMessage(e.message);
+        });
+    }
+  }, [userGoogle]);
   return (
-    <Container px={0}>
-      <Center h={"90vh"}>
-        {user ? (
-          <Alert variant="light" color="blue" title="Already logged-in">
-            <Button onClick={() => navigate("/")}>Back to Home Page</Button>
-          </Alert>
-        ) : (
-          <>
-            {success ? (
-              <Flex direction={"column"} align={"center"}>
-                <Text c={"green"}>{message}</Text>
-                <Group justify="space-between">
-                  <Button
-                    leftSection={<IconArrowLeft />}
-                    variant="transparent"
-                    onClick={() => redirectPage("/")}
-                  >
-                    HomePage
-                  </Button>
-                  <Button
-                    leftSection={<IconUser />}
-                    variant="transparent"
-                    onClick={() => redirectPage("/login")}
-                  >
-                    Login
-                  </Button>
-                </Group>
-              </Flex>
-            ) : (
-              <Card withBorder bg={"rgba(195, 195, 195, 0.3)"}>
-                <CardSection>
-                  <form
-                    onSubmit={form.onSubmit((values) => handleSubmit(values))}
-                  >
+    <Container className="auth">
+      {user ? (
+        <Stack align="center">
+          <Text c={"green"}>Already logged-in</Text>
+          <Group>
+            <Button component={NavLink} to={"/"} variant="subtle">
+              Back to Home Page
+            </Button>
+          </Group>
+        </Stack>
+      ) : (
+        <>
+          {success ? (
+            <Flex direction={"column"} align={"center"}>
+              <Text c={"green"}>{message}</Text>
+              <Group justify="space-between">
+                <Button
+                  leftSection={<IconArrowLeft />}
+                  variant="subtle"
+                  onClick={() => redirectPage("/")}
+                >
+                  HomePage
+                </Button>
+                <Button
+                  leftSection={<IconUser />}
+                  variant="subtle"
+                  onClick={() => redirectPage("/login")}
+                >
+                  Login
+                </Button>
+              </Group>
+            </Flex>
+          ) : (
+            <>
+              <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+                <Stack m={"auto"} gap={"sm"} justify="center" align="center">
+                  <Group>
                     <TextInput
-                      label="Name"
-                      placeholder="Name (*)"
+                      label="Username"
+                      placeholder="Name"
                       {...form.getInputProps("username")}
+                      withAsterisk
+                      w={200}
                     />
                     <TextInput
-                      mt="sm"
-                      label="Email (*)"
+                      label="Email"
                       placeholder="Email"
                       {...form.getInputProps("email")}
+                      withAsterisk
+                      w={200}
                     />
+                  </Group>
+                  <Group>
                     <PasswordInput
-                      mt="sm"
-                      label="Password (*)"
+                      label="Password"
                       placeholder="password"
                       {...form.getInputProps("password")}
+                      withAsterisk
+                      w={200}
                     />
                     <FileInput
-                      mt="sm"
                       label="Profile Picture"
                       accept="image/png,image/jpeg"
                       placeholder="Import file"
@@ -136,35 +206,46 @@ const Register = () => {
                           stroke={1.5}
                         />
                       }
+                      rightSectionPointerEvents="none"
+                      w={200}
                     />
-                    <Center>
-                      <Button
-                        type="submit"
-                        mt="md"
-                        disabled={load}
-                      >
-                        {load ? "Loading" : "Register"}
-                      </Button>
-                    </Center>
+                  </Group>
+                  <Center>
+                    <Button type="submit" mt="md" disabled={load}>
+                      {load ? <Loader type="dots" /> : "Register"}
+                    </Button>
+                  </Center>
+                  {!success && message !== null && (
+                    <Text c={"red"} ta={"center"}>
+                      {message}
+                    </Text>
+                  )}
+                </Stack>
+              </form>
+              <Stack gap={"sm"} mt={"sm"}>
+                <Button
+                  leftSection={<IconBrandGoogle />}
+                  onClick={loginGoogle}
+                  variant="default"
+                >
+                  Register with Google
+                </Button>
 
-                    {!success && message !== null && (
-                      <Text c={"red"}>{message}</Text>
-                    )}
-                  </form>
-                </CardSection>
                 <Text>{`Already have an account?`}</Text>
                 <UnstyledButton
+                  component={NavLink}
+                  to={"/login"}
                   onClick={() => navigate("/login")}
                   style={{ color: "blue" }}
                   ta={"center"}
                 >
                   Login now
                 </UnstyledButton>
-              </Card>
-            )}
-          </>
-        )}
-      </Center>
+              </Stack>
+            </>
+          )}
+        </>
+      )}
     </Container>
   );
 };

@@ -1,5 +1,6 @@
 import { Carousel, CarouselSlide } from "@mantine/carousel";
 import {
+  Box,
   Button,
   Center,
   FileInput,
@@ -19,6 +20,7 @@ import {
   Title,
   Transition,
 } from "@mantine/core";
+import { Canvas } from "@react-three/fiber";
 import { ReactImageTurntable } from "react-image-turntable";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -32,6 +34,7 @@ import { IconFileImport } from "@tabler/icons-react";
 import axios from "axios";
 import { editProduct, getProduct } from "../../../services/product";
 import { toast } from "react-toastify";
+import ModelCanvas from "../../../components/agent/ModelCanvas";
 const EditProduct = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[3];
@@ -54,6 +57,7 @@ const EditProduct = () => {
   const quillRef = useRef();
   const [activeTab, setActiveTab] = useState("1");
   const [previousTab, setPreviousTab] = useState();
+  const [render3D, setRender3D] = useState();
   const onSelectFile = (e) => {
     let images = [];
     setImages(e);
@@ -263,6 +267,7 @@ const EditProduct = () => {
               <Tabs.Tab value="2">Description</Tabs.Tab>
               <Tabs.Tab value="3">System Info</Tabs.Tab>
               <Tabs.Tab value="4">Images</Tabs.Tab>
+              <Tabs.Tab value="5">3D Model</Tabs.Tab>
               <Button
                 type="submit"
                 size="md"
@@ -578,6 +583,27 @@ const EditProduct = () => {
                       )}
                     </GridCol>
                   </Grid>
+                </Tabs.Panel>
+              )}
+            </Transition>
+            <Transition
+              mounted={activeTab === "5"}
+              transition={"slide-left"}
+              duration={300}
+              timingFunction="ease"
+            >
+              {(transitionStyle) => (
+                <Tabs.Panel value="5" mt={"md"} style={{ transitionStyle }}>
+                  <FileInput
+                    placeholder="Upload 3d model (accept .gltf,.glb.ftx)"
+                    onChange={setRender3D}
+                    accept=".gltf,.glb,.ftx,.obj,.zip"
+                  />
+                  {render3D && (
+                    <Box h={"90vh"}>
+                      <ModelCanvas model={render3D}  />
+                    </Box>
+                  )}
                 </Tabs.Panel>
               )}
             </Transition>

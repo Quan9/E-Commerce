@@ -50,7 +50,7 @@ const getSingleOrder = async (req, res) => {
     const order = await Order.findById(req.params.id);
     return res.status(200).json(order);
   } catch (err) {
-    return res.status(403).json(err);
+    return res.status(403).json('Order not exist!');
   }
 };
 const updatedOrder = async (req, res) => {

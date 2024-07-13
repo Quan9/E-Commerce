@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
         number: { type: Number },
       },
     ],
+    email_conformation: { type: Boolean, default: false, required: true },
   },
   { timestamps: true }
 );

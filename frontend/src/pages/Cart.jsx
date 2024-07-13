@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   addItem,
   removeItem,
@@ -18,7 +18,6 @@ import {
   Grid,
   GridCol,
   Image,
-  NavLink,
   Space,
   Stack,
   Text,
@@ -26,6 +25,7 @@ import {
   Title,
   Table,
   Container,
+  Flex,
 } from "@mantine/core";
 import {
   IconArrowLeft,
@@ -43,15 +43,17 @@ const Cart = () => {
   const nav = useNavigate();
   const EmptyCart = () => {
     return (
-      <Center h={"90vh"}>
+      <Center w={"100%"} h={"85vh"}>
         <Stack>
           <Title order={1}>Your Cart is Empty</Title>
-          <NavLink
-            href="/"
+          <Button
+            component={NavLink}
+            to={"/"}
             variant="light"
             leftSection={<IconArrowLeft />}
-            label="Continue Shopping"
-          />
+          >
+            Continue Shopping
+          </Button>
         </Stack>
       </Center>
     );
@@ -98,16 +100,16 @@ const Cart = () => {
       nav("/checkoutsuccess", { state: { values } });
     };
     return (
-      <Grid>
+      <Grid p={"md"}>
         <GridCol span={{ base: 12, lg: 8 }}>
           <Stack justify="center" align="center" bg={"rgba(198,198,198,0.5)"}>
             <Title order={2}>Item List</Title>
             <Button
               onClick={() => clear()}
               leftSection={<IconTrash size={20} />}
-              bg={"red"}
               c={"black"}
               ms={"auto"}
+              variant="subtle"
             >
               Clear Cart
             </Button>
@@ -275,12 +277,11 @@ const Cart = () => {
   };
 
   return (
-    <Container bg={"rgba(198,198,198,0.3)"} p={0}>
+    <Container bg={"rgba(198,198,198,0.3)"} w={"100%"} h={"100%"}>
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ ease: "easeInOut", duration: 1 }}
-        className="first"
       >
         {cart.cartItems.length > 0 ? <ShowCart /> : <EmptyCart />}
       </motion.div>

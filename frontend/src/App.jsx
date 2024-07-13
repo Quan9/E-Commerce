@@ -9,7 +9,7 @@ import "mantine-datatable/styles.layer.css";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { MantineProvider } from "@mantine/core";
+import { Container, MantineProvider } from "@mantine/core";
 import "./app.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,11 +22,11 @@ import {
   EditProduct,
   EditUser,
   Error404,
-  Example,
   Home,
   Login,
   NewProduct,
   NewUser,
+  Order,
   ProductDetail,
   ProductsByCategory,
   ProfilePage,
@@ -34,6 +34,7 @@ import {
   TotalOrders,
   TotalProducts,
   TotalUsers,
+  VerifyEmail,
 } from "./pages";
 
 const App = () => {
@@ -64,8 +65,18 @@ const App = () => {
         <BrowserRouter>
           <NavBar socket={socket} anoUser={anoUser} currentUser={user} />
           <Routes>
+            <Route
+              path="/verifyEmail/:username/:token"
+              element={<VerifyEmail />}
+            />
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login socket={socket} />} />
+            <Route
+              path="/login"
+              element={<Login socket={socket} user1={user} />}
+            />
+            <Route path="/order">
+              <Route index element={<Order />} />
+            </Route>
             <Route path="/register" element={<Register />} />
             <Route
               path="/checkoutsuccess"
@@ -79,8 +90,21 @@ const App = () => {
                 element={<ProductDetail user={user ? user : anoUser} />}
               />
             </Route>
-            <Route path="/Laptop" element={<ProductsByCategory />} />
-            <Route path="/Tablet" element={<ProductsByCategory />} />
+            <Route path="/Laptop">
+              <Route index element={<ProductsByCategory />} />
+              <Route
+                path=":id"
+                element={<ProductDetail user={user ? user : anoUser} />}
+              />
+            </Route>
+
+            <Route path="/Tablet">
+              <Route index element={<ProductsByCategory />} />
+              <Route
+                path=":id"
+                element={<ProductDetail user={user ? user : anoUser} />}
+              />
+            </Route>
             <Route path="/*" element={<Error404 />} />
             <Route path="/user" element={<ProtectedRoute />}>
               <Route index element={<ProfilePage />} />
@@ -99,7 +123,6 @@ const App = () => {
                 <Route path=":id" element={<EditUser />} />
                 <Route path="new" element={<NewUser />} />
               </Route>
-              <Route path="example" element={<Example />} />
             </Route>
           </Routes>
           {user === null && (

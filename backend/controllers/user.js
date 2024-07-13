@@ -87,24 +87,6 @@ const getAnoUser = async (req, res) => {
   }
 };
 const getAllUser = async (req, res) => {
-  /* const page = req.query.page || 1;
-  const ITEMS_PER_PAGE = req.query.perPage || 4;
-  const query = {};
-  try {
-    const skip = (page - 1) * ITEMS_PER_PAGE;
-    const countPromise = User.countDocuments(query);
-    const itemsPromise = User.find(query)
-      .sort({ createdAt: -1 })
-      .limit(ITEMS_PER_PAGE)
-      .skip(skip);
-    const [count, items] = await Promise.all([countPromise, itemsPromise]);
-    return res.status(200).json({
-      count,
-      items,
-    });
-  } catch (e) {
-    return res.status(401).json(e);
-  } */
   try {
     const items = await User.find({}).sort({ createdAt: -1 });
     return res.status(200).json(items);

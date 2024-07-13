@@ -9,17 +9,23 @@ import {
   FileInput,
   Grid,
   GridCol,
+  Group,
   Image,
   Input,
   Loader,
   Select,
+  Stack,
   Text,
 } from "@mantine/core";
 import { IconFileImport } from "@tabler/icons-react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { LOGIN_SUCCESS } from "../../../slices/UserSlice";
 const EditUser = () => {
   const [data, setData] = useState();
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     getSingleUser(id)
       .then((res) => {
@@ -59,6 +65,7 @@ const EditUser = () => {
     );
   };
   const handleSubmit = async () => {
+    setLoading(true);
     if (data.img && typeof data.img !== "string") {
       const res = await uploadImage(data.img, "MobileShop");
       data.img = res.data.url;
@@ -66,6 +73,7 @@ const EditUser = () => {
     try {
       await editUser(data._id, data)
         .then((res) => {
+          dispatch(LOGIN_SUCCESS(data));
           toast.success(res.data);
         })
         .catch((err) => {
@@ -76,6 +84,7 @@ const EditUser = () => {
         position: "top-center",
       });
     }
+    setLoading(false);
   };
   return (
     <Center>
@@ -93,7 +102,7 @@ const EditUser = () => {
                         ? data.img
                         : URL.createObjectURL(data.img)
                     }
-                    w={"70%"}
+                    w={250}
                   />
                 </Center>
               ) : (
@@ -101,18 +110,16 @@ const EditUser = () => {
               )}
             </Card.Section>
             <Card.Section ta={"center"}>
-              <Grid justify="space-evenly" style={{ wordBreak: "break-all" }}>
-                <GridCol span={3}>
+              <Stack>
+                <Group justify="space-evenly">
                   <Input.Wrapper label="User name">
                     <Text>{data.username}</Text>
                   </Input.Wrapper>
-                </GridCol>
-                <GridCol span={3}>
                   <Input.Wrapper label="Email">
                     <Text>{data.email}</Text>
                   </Input.Wrapper>
-                </GridCol>
-                <GridCol span={3}>
+                </Group>
+                <Group justify="space-evenly">
                   <Input.Wrapper label="Password">
                     <Input
                       // defaultValue={data.password}
@@ -120,31 +127,34 @@ const EditUser = () => {
                       onChange={(e) => handleChange(e, "password")}
                     />
                   </Input.Wrapper>
-                </GridCol>
-                <GridCol span={3}>
-                  <Input.Wrapper label="Role">
+                  <Input.Wrapper label="Role" hidden={data.role !== "admin"}>
                     <Select
                       value={data.role}
                       data={values}
                       onChange={(e) => handleChange(e, "role")}
                     />
                   </Input.Wrapper>
-                </GridCol>
-                <GridCol>
                   <FileInput
                     accept="image/png,image/jpeg"
                     label="Profile Picture"
                     placeholder="upload Image"
                     style={{ overflow: "hidden" }}
                     onChange={(e) => handleChange(e, "img")}
-                    leftSection={<IconFileImport size={"24"} />}
+                    leftSection={
+                      <IconFileImport
+                        style={{ width: "18rem", height: "18rem" }}
+                        stroke={1.5}
+                      />
+                    }
                     leftSectionPointerEvents="none"
                   />
-                </GridCol>
-              </Grid>
+                </Group>
+              </Stack>
             </Card.Section>
-            <Card.Section>
-              <Button onClick={() => handleSubmit()}>Edit</Button>
+            <Card.Section mt={"sm"} ta={"center"}>
+              <Button onClick={() => handleSubmit()} disabled={loading}>
+                {loading ? <Loader type="dots" /> : "Edit"}
+              </Button>
             </Card.Section>
           </>
         ) : (
