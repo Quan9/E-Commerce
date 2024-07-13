@@ -35,7 +35,12 @@ const Home = () => {
   useEffect(() => {
     getAllPublicProducts()
       .then((res) => {
-        setData(res.data);
+        const products = res.data.map((item) => {
+          const { _id, data } = item;
+          return data;
+        });
+        console.log(products, "products");
+        setData(products);
       })
       .catch((err) => {
         toast.error(err);
@@ -87,61 +92,67 @@ const Home = () => {
       />
       {data && (
         <Grid overflow="hidden">
-          {data.flat().map((items) => (
+          {data.map((items) => (
             <GridCol
-              key={items._id}
-              order={items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3}
+              key={items}
+              order={
+                items[0].categories === "Phone"
+                  ? 1
+                  : items[0].categories === "Laptop"
+                  ? 2
+                  : 3
+              }
               mt={"sm"}
             >
-              <Flex align={'center'}>
+              <Flex align={"center"}>
                 <Title order={2} mx={"auto"}>
-                  Latest {items._id}
+                  Latest {items[0].categories}
                 </Title>
-                {items.data.length > 4 && (
+                {items.length > 4 && (
                   <UnstyledButton component={NavLink} to={`/${items._id}`}>
                     more <IconPlayerTrackNext size={12} />
                   </UnstyledButton>
                 )}
               </Flex>
               <Grid mt={"sm"} p={10}>
-                    {items.data.map((product, index) => (
-                      <GridCol
-                        span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
-                        key={product._id + index}
-                        maw={{ xs: "50%" }}
-                      >
-                        <Card display={index === 4 && "none"} align={"center"}>
-                          <CardSection>
-                            <Image
-                              src={product.colors[0].image}
-                              alt="Image"
-                              h={300}
-                            />
-                          </CardSection>
-                          <CardSection>
-                            <Title order={4} fw={700}>
-                              {product.name}
-                            </Title>
-                            {product?.discount ? (
-                              <FormatPrice
-                                price={product.price}
-                                discount={product.discount}
-                              />
-                            ) : (
-                              <FormatPrice price={product.price} />
-                            )}
-                            <Button
-                              component={NavLink}
-                              to={`/${product.categories}/${product._id}`}
-                              variant="light"
-                            >
-                              Detail
-                            </Button>
-                          </CardSection>
-                        </Card>
-                      </GridCol>
-                    ))}
-                  </Grid>
+                {items.map((product, index) => (
+                  <GridCol
+                    span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
+                    key={product._id + index}
+                    maw={{ xs: "50%" }}
+                  >
+                    <Card display={index === 4 && "none"} align={"center"}>
+                      <CardSection>
+                        <Image
+                          src={product.colors[0].image}
+                          alt="Image"
+                          h={300}
+                        />
+                      </CardSection>
+                      <CardSection>
+                        <Title order={4} fw={700}>
+                          {product.name}
+                        </Title>
+                        {product?.discount ? (
+                          <FormatPrice
+                            price={product.price}
+                            discount={product.discount}
+                          />
+                        ) : (
+                          <FormatPrice price={product.price} />
+                        )}
+                        <Button
+                          component={NavLink}
+                          to={`/${product.categories}/${product._id}`}
+                          variant="light"
+                        >
+                          Detail
+                        </Button>
+                      </CardSection>
+                    </Card>
+                  </GridCol>
+                ))}
+              </Grid>
             </GridCol>
           ))}
         </Grid>
