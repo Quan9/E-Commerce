@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllPublicProducts } from "../services/product";
-import { Categories } from "../components";
+import { Categories, FormatPrice } from "../components";
 import {
   Center,
   Container,
@@ -16,6 +16,8 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { toast } from "react-toastify";
+import { NavLink } from "react-router-dom";
+import { IconPlayerTrackNext } from "@tabler/icons-react";
 const Home = () => {
   const [data, setData] = useState();
   useEffect(() => {
@@ -31,7 +33,7 @@ const Home = () => {
   return (
     <Container p={0} m={0}>
       <Categories />
-      {data ? (
+      {data.length !== 0 ? (
         <Grid overflow="hidden" p={10}>
           {data.map((items, index) => (
             <GridCol

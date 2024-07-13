@@ -115,7 +115,6 @@ const sendMessage = asyncHandler(async (req, res) => {
     }
     res.status(200).json(messageSend);
   } catch (error) {
-    console.log(error);
     res.status(400).json(error);
   }
 });
@@ -147,7 +146,6 @@ const messageRead = asyncHandler(async (req, res) => {
       .limit(totalMessage);
     res.status(200).json(messagesSend);
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "error" });
   }
 });

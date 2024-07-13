@@ -186,23 +186,25 @@ const Chat = (props) => {
     setDoubleKey(false);
   };
 
-  const fetchMessages = async () => {
-    await getAllMessages(room, {
+  const fetchMessages = () => {
+    getAllMessages(room, {
       total: oldestMessage,
       user: guess.username,
-    }).then((res) => {
-      const response = res.data.messages.reverse();
-      setTop(res.data.top);
-      if (messages.length === 0) {
-        setMessages(response);
-        return setOldestMessage(response.length);
-      } else {
-        setMessages([...response, ...messages]);
-        setTimeout(() => {
-          scrollRef.current.childNodes[data.length].scrollIntoView();
-        }, 100);
-      }
-    });
+    })
+      .then((res) => {
+        const response = res.data.messages.reverse();
+        setTop(res.data.top);
+        if (messages.length === 0) {
+          setMessages(response);
+          return setOldestMessage(response.length);
+        } else {
+          setMessages([...response, ...messages]);
+          setTimeout(() => {
+            scrollRef.current.childNodes[data.length].scrollIntoView();
+          }, 100);
+        }
+      })
+      .catch((err) => setMessages([]));
   };
 
   const handleScroll = useCallback(async (e) => {
@@ -340,7 +342,7 @@ const Chat = (props) => {
                                       label={user1.username}
                                     >
                                       <Avatar
-                                      size={'sm'}
+                                        size={"sm"}
                                         src={user1.img}
                                         display={
                                           user1.username === user.username &&
