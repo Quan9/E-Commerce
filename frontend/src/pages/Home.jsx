@@ -14,12 +14,19 @@ import {
   Image,
   Title,
   UnstyledButton,
+  Flex,
+  TextInput,
 } from "@mantine/core";
 import { toast } from "react-toastify";
-import { NavLink } from "react-router-dom";
-import { IconPlayerTrackNext } from "@tabler/icons-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { IconDeviceIpad, IconDeviceLaptop, IconDeviceMobile, IconPlayerTrackNext } from "@tabler/icons-react";
 const Home = () => {
   const [data, setData] = useState([]);
+  const [content, setContent] = useState();
+  const nav = useNavigate();
+  const navigate = () => {
+    return nav("/order", { state: { data: content } });
+  };
   useEffect(() => {
     getAllPublicProducts()
       .then((res) => {
@@ -31,13 +38,50 @@ const Home = () => {
   }, []);
   return (
     <Container p={0} m={0}>
-      <Categories />
+      <Flex justify="space-around" direction={"row"} mb={"sm"}>
+        <Button
+          component={NavLink}
+          to={"/Phone"}
+          leftSection={<IconDeviceMobile size={26} />}
+          variant="default"
+        >
+          Phone
+        </Button>
+        <Button
+          component={NavLink}
+          to={"/Tablet"}
+          leftSection={<IconDeviceIpad size={26} />}
+          variant="default"
+        >
+          Tablet
+        </Button>
+        <Button
+          component={NavLink}
+          to={"/Laptop"}
+          leftSection={<IconDeviceLaptop size={26} />}
+          variant="default"
+        >
+          Laptop
+        </Button>
+      </Flex>
+      <TextInput
+        w={"50%"}
+        ta={"center"}
+        mx={"auto"}
+        placeholder="enter your order full id"
+        label="Check your order"
+        onChange={(e) => setContent(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") navigate();
+        }}
+      />
+      {/* <Categories /> */}
       {data.length !== 0 ? (
         <Grid overflow="hidden" p={10}>
           {data.map((items, index) => {
             return (
               <GridCol
-                key={index}
+                key={items._id}
                 order={
                   items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3
                 }

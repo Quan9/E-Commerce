@@ -71,7 +71,7 @@ const getAllPublicProduct = async (req, res) => {
       },
       {
         $project: {
-          data: { $slice: ["$data", 0, 4] },
+          data: { $slice: ["$data", 0, 5] },
         },
       },
     ]);
