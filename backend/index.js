@@ -24,11 +24,10 @@ const connect = async () => {
     throw error;
   }
 };
-app.use(
-  cors()
-);
+app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
+  const allowedOrigins = [];
   res.header(
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin",
@@ -38,7 +37,11 @@ app.use(function (req, res, next) {
 });
 const socketIO = require("socket.io")(http, {
   cors: {
-    origin: [`${process.env.CLIENT_URL}`],
+    origin: [
+      "http://localhost:8080",
+      "https://e-commerce-frontend4139.netlify.app",
+      "https://e-commerce-frontend41.netlify.app",
+    ],
   },
 });
 //Add this before the app.get() block
