@@ -46,7 +46,6 @@ app.use(function (req, res, next) {
 const socketIO = require("socket.io")(http, {
   cors: { origin: allowedOrigins },
 });
-//Add this before the app.get() block
 let onlineUsers = [];
 const removeUser = async (socketId) => {
   const anoUser = onlineUsers.find((user) => user.socketId === socketId);
