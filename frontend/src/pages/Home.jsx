@@ -85,7 +85,7 @@ const Home = () => {
           }
         }}
       />
-      {data && (
+      {/* {data && (
         <Grid overflow="hidden">
           {data.map((items) => (
             <GridCol
@@ -93,7 +93,7 @@ const Home = () => {
               order={items._id === "Phone" ? 1 : items._id === "Laptop" ? 2 : 3}
               mt={"sm"}
             >
-              <Flex>
+              <Flex align={'center'}>
                 <Title order={2} mx={"auto"}>
                   Latest {items._id}
                 </Title>
@@ -103,7 +103,7 @@ const Home = () => {
                   </UnstyledButton>
                 )}
               </Flex>
-              {/* <Grid mt={"sm"}>
+              <Grid mt={"sm"} p={10}>
                     {items.data.map((product, index) => (
                       <GridCol
                         span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
@@ -141,11 +141,11 @@ const Home = () => {
                         </Card>
                       </GridCol>
                     ))}
-                  </Grid> */}
+                  </Grid>
             </GridCol>
           ))}
         </Grid>
-      )}
+      )} */}
     </Container>
   );
 };
