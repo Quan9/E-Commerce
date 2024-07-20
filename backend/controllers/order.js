@@ -46,11 +46,19 @@ const createOrder = async (req, res) => {
   }
 };
 const getSingleOrder = async (req, res) => {
+  console.log(req.params);
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.find({
+      phone: req.params.id,
+    });
+    if (order.length === 0) {
+      return res
+        .status(403)
+        .json("Can't find orders based on given phone number");
+    }
     return res.status(200).json(order);
   } catch (err) {
-    return res.status(403).json('Order not exist!');
+    return res.status(403).json("error");
   }
 };
 const updatedOrder = async (req, res) => {

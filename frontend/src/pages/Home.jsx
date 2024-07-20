@@ -77,7 +77,7 @@ const Home = () => {
         w={"50%"}
         ta={"center"}
         mx={"auto"}
-        placeholder="enter your order full id"
+        placeholder="enter your phone number"
         label="Check your order"
         onChange={(e) => setContent(e.currentTarget.value)}
         onKeyDown={(e) => {
@@ -108,7 +108,10 @@ const Home = () => {
                   Latest {items[0].categories}
                 </Title>
                 {items.length > 4 && (
-                  <UnstyledButton component={NavLink} to={`/${items._id}`}>
+                  <UnstyledButton
+                    component={NavLink}
+                    to={`/${items[0].categories}`}
+                  >
                     more <IconPlayerTrackNext size={12} />
                   </UnstyledButton>
                 )}

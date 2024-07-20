@@ -270,7 +270,7 @@ const ChatAgent = ({ socket }) => {
     setTyping(true);
     setDoubleKey(false);
   };
-  
+
   const handleSelectedChat = (currentChat) => {
     if (currentChat._id === searchParams.get("room")) return;
     setMessages([]);
@@ -479,7 +479,7 @@ const ChatAgent = ({ socket }) => {
                             </Text>
                           </Group>
                         </Flex>
-                        {m.readBy.length !== 0 && (
+                        {/* {m.readBy.length !== 0 && (
                           <Group justify="end" key={m._id + i}>
                             <AvatarGroup>
                               {m.readBy.map((user1, index) => (
@@ -499,7 +499,7 @@ const ChatAgent = ({ socket }) => {
                               ))}
                             </AvatarGroup>
                           </Group>
-                        )}
+                        )} */}
                       </>
                     ))
                   ) : (

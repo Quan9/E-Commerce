@@ -66,7 +66,7 @@ const Cart = () => {
       validate: {
         name: (value) =>
           value.length < 2 ? "Name must have at least 2 letters" : null,
-        email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+        // email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
         phonenumber: (value) =>
           value.length < 8 ? "Invalid phone number" : null,
         address: isNotEmpty("Address must not be empty"),
@@ -246,22 +246,25 @@ const Cart = () => {
                     onSubmit={form.onSubmit((values) => handleSubmit(values))}
                   >
                     <TextInput
-                      label="Name (*)"
+                      label="Name"
+                      withAsterisk
                       placeholder="Name"
                       {...form.getInputProps("name")}
                     />
                     <TextInput
-                      label="Address (*)"
+                      label="Address"
+                      withAsterisk
                       placeholder="Address"
                       {...form.getInputProps("address")}
                     />
                     <TextInput
-                      label="Phone Number (*)"
+                      label="Phone Number"
+                      withAsterisk
                       placeholder="Phone Number"
                       {...form.getInputProps("phonenumber")}
                     />
                     <TextInput
-                      label="Email (*)"
+                      label="Email"
                       placeholder="Email"
                       {...form.getInputProps("email")}
                     />

@@ -43,6 +43,8 @@ const TotalOrders = () => {
       } else {
         getAllOrder()
           .then((res) => {
+            console.log(res.data);
+
             setRecords(res.data.slice(0, pageSize));
             setData(res.data);
           })
@@ -98,7 +100,7 @@ const TotalOrders = () => {
                         <>
                           <Text>Email: {record.address?.email}</Text>
                           <Text>Name: {record.address?.name}</Text>
-                          <Text>Phone Number: {record.address?.number}</Text>
+                          <Text>Phone Number: {record.address?.number || record.phone}</Text>
                           <Text>Address: {record.address?.address}</Text>
                         </>
                       ) : (

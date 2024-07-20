@@ -83,7 +83,7 @@ const Chat = (props) => {
   }, []);
 
   useEffect(() => {
-    room && fetchMessages();
+    room !== undefined && fetchMessages();
   }, [room]);
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const Chat = (props) => {
         setOldestMessage(oldestMessage + 1);
         toggleAlarm();
         setTimeout(() => {
-          ref.current.scrollIntoView();
+          scrollRef.current.scrollIntoView();
         }, 100);
       });
       socket.emit("userRead", {
@@ -113,7 +113,7 @@ const Chat = (props) => {
         const updateMessages = response.data.reverse();
         setMessages(updateMessages);
         setTimeout(() => {
-          ref.current.scrollIntoView();
+          scrollRef.current.scrollIntoView();
         }, 100);
       });
     };
@@ -137,20 +137,17 @@ const Chat = (props) => {
     const check = async () => {
       if (messages.length === 0) {
         return;
-      }
-      if (oldestMessage === messages.length) {
+      } else if (oldestMessage === messages.length) {
         return scrollRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
         });
+      } else {
+        fetchMessages();
       }
-      setLoadingOldMess(true);
-      await fetchMessages();
-      setLoadingOldMess(false);
     };
     check();
   }, [oldestMessage]);
-
   const toggleAlarm = () => {
     if (visible !== true) {
       setAlarm(true);
@@ -167,7 +164,7 @@ const Chat = (props) => {
         const { data } = await sendMessage({
           chatId: room,
           content: newMessage1,
-          user: user.username,
+          user: guess.username,
         });
 
         socket.emit("userMessage", data);
@@ -186,8 +183,8 @@ const Chat = (props) => {
     setDoubleKey(false);
   };
 
-  const fetchMessages = () => {
-    getAllMessages(room, {
+  const fetchMessages = async () => {
+    await getAllMessages(room, {
       total: oldestMessage,
       user: guess.username,
     })
@@ -196,7 +193,7 @@ const Chat = (props) => {
         setTop(res.data.top);
         if (messages.length === 0) {
           setMessages(response);
-          return setOldestMessage(response.length);
+          setOldestMessage(response.length);
         } else {
           setMessages([...response, ...messages]);
           setTimeout(() => {
@@ -216,9 +213,7 @@ const Chat = (props) => {
 
   return (
     <>
-      {paths.includes(pathname) ? (
-        <></>
-      ) : (
+      {paths.includes(pathname) ? null : (
         <div ref={ref}>
           <Box className="transition-1" display={!visible && "none"}>
             <Title bg={"blue"} order={4} ta={"center"} h={"10%"}>
@@ -244,13 +239,101 @@ const Chat = (props) => {
                 <>
                   {messages.length === 0 ? (
                     <Center h={"100%"}>
-                      <Title order={3}>Chat with us!</Title>
+                      {loading ? (
+                        <Loader />
+                      ) : (
+                        <Title order={3}>Chat with us!</Title>
+                      )}
                     </Center>
                   ) : (
                     <>
                       {messages?.map((m, i) => {
                         return (
                           <>
+                            <Flex
+                              key={m._id}
+                              className={"chat client"}
+                              opacity={loading ? 0.1 : 1}
+                              maw={"50%"}
+                              mt={!isSameUser(messages, m, i, guess._id) && 10}
+                              ms={
+                                isSameSender(messages, m, i, guess._id)
+                                  ? "auto"
+                                  : isLastMessage(messages, i, guess._id)
+                                  ? "auto"
+                                  : isSameSenderMargin(
+                                      messages,
+                                      m,
+                                      i,
+                                      guess._id
+                                    )
+                              }
+                              justify={
+                                isSameSender(messages, m, i, guess._id)
+                                  ? "end"
+                                  : isLastMessage(messages, i, guess._id)
+                                  ? "end"
+                                  : isSameSenderMargin(
+                                      messages,
+                                      m,
+                                      i,
+                                      guess._id
+                                    ) !== 0 && "end"
+                              }
+                            >
+                              <Group gap={"5px"} align="center">
+                                {(isSameSender(messages, m, i, guess._id) ||
+                                  isLastMessage(messages, i, guess._id)) && (
+                                  <Tooltip
+                                    label={m.sender.username}
+                                    position="top-center"
+                                    withArrow
+                                    events={{
+                                      hover: true,
+                                      focus: true,
+                                      touch: true,
+                                    }}
+                                  >
+                                    <Avatar src={m.sender.img} />
+                                  </Tooltip>
+                                )}
+
+                                <Text
+                                  span
+                                  ms={isSameSenderMargin(
+                                    messages,
+                                    m,
+                                    i,
+                                    guess._id
+                                  )}
+                                  bg={
+                                    m.sender.username === guess.username
+                                      ? "#BEE3F8"
+                                      : "#B9F5D0"
+                                  }
+                                  style={{
+                                    borderRadius:
+                                      m.sender._id === guess._id
+                                        ? "0 20px 20px 0"
+                                        : "20px 0 0 20px",
+                                  }}
+                                >
+                                  {parse(`${m.content}`, {
+                                    replace: (domNode) => {
+                                      if (
+                                        domNode.name === "p" &&
+                                        domNode.children[0].name === "br"
+                                      ) {
+                                        return <></>;
+                                      }
+                                    },
+                                    transform(reactNode) {
+                                      return <>{reactNode}</>;
+                                    },
+                                  })}
+                                </Text>
+                              </Group>
+                            </Flex>
                             <Flex
                               key={m._id}
                               className={"chat client"}
@@ -270,70 +353,19 @@ const Chat = (props) => {
                                     )
                               }
                               justify={
-                                isSameSender(messages, m, i, user._id)
+                                isSameSender(messages, m, i, guess._id)
                                   ? "end"
-                                  : isLastMessage(messages, i, user._id)
+                                  : isLastMessage(messages, i, guess._id)
                                   ? "end"
                                   : isSameSenderMargin(
                                       messages,
                                       m,
                                       i,
-                                      user._id
+                                      guess._id
                                     ) !== 0 && "end"
                               }
-                            >
-                              <Group gap={"5px"} align="center"></Group>
-                              {(isSameSender(messages, m, i, guess._id) ||
-                                isLastMessage(messages, i, guess._id)) && (
-                                <Tooltip
-                                  label={m.sender.username}
-                                  position="top-center"
-                                  withArrow
-                                  events={{
-                                    hover: true,
-                                    focus: true,
-                                    touch: true,
-                                  }}
-                                >
-                                  <Avatar src={m.sender.img} />
-                                </Tooltip>
-                              )}
-                              <Text
-                                span
-                                ms={isSameSenderMargin(
-                                  messages,
-                                  m,
-                                  i,
-                                  guess._id
-                                )}
-                                bg={
-                                  m.sender.username === guess.username
-                                    ? "#BEE3F8"
-                                    : "#B9F5D0"
-                                }
-                                style={{
-                                  borderRadius:
-                                    m.sender._id === user._id
-                                      ? "0 20px 20px 0"
-                                      : "20px 0 0 20px",
-                                }}
-                              >
-                                {parse(`${m.content}`, {
-                                  replace: (domNode) => {
-                                    if (
-                                      domNode.name === "p" &&
-                                      domNode.children[0].name === "br"
-                                    ) {
-                                      return <></>;
-                                    }
-                                  },
-                                  transform(reactNode) {
-                                    return <>{reactNode}</>;
-                                  },
-                                })}
-                              </Text>
-                            </Flex>
-                            {m.readBy.length !== 0 && (
+                            ></Flex>
+                            {/* {m.readBy.length !== 0 && (
                               <Group justify="end">
                                 <AvatarGroup>
                                   {m.readBy.map((user1, index) => (
@@ -353,7 +385,7 @@ const Chat = (props) => {
                                   ))}
                                 </AvatarGroup>
                               </Group>
-                            )}
+                            )} */}
                           </>
                         );
                       })}

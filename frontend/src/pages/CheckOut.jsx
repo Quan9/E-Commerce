@@ -32,13 +32,11 @@ const CheckOut = ({ socket }) => {
       if (user) {
         form.userId = user.username;
       } else {
-        const sessionUser = JSON.parse(
-          sessionStorage.getItem("userSes")
-        );
+        const sessionUser = JSON.parse(sessionStorage.getItem("userSes"));
         form.userId = sessionUser.username;
       }
       form.address = session.customer_details.address;
-      form.address.phone = session.customer_details.phone;
+      form.phone = session.customer_details.phone;
       form.payment_method = session.payment_method_types[0];
       newOrder(form)
         .then((res) => {
@@ -65,9 +63,9 @@ const CheckOut = ({ socket }) => {
       // order by Cash
       if (location.state) {
         const username = user?.username || location.state.values.name;
-
         form.payment_method = "cash";
         form.address = location.state.values;
+        form.phone = location.state.values.phonenumber;
         form.userId = username;
         newOrder(form)
           .then((res) => {

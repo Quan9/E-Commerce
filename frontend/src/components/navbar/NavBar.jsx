@@ -67,26 +67,33 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   }, [socket, currentUser]);
 
   useEffect(() => {
-    socket.on("message notification", (userNoti) => {
+    const messageNoti = (data) => {
       if (location.pathname === "/user/chats") {
         handleClick("message");
       } else {
         let userEdit = JSON.parse(JSON.stringify(currentUser));
-        userEdit.noti = userNoti;
+        userEdit.noti = data;
         localStorage.setItem("user", JSON.stringify(userEdit));
         setUser(userEdit);
       }
-    });
-    socket.on("new order", (userOrder) => {
+    };
+    const orderNoti = (data) => {
+      console.log("neworder", data);
       if (location.pathname === "/user/orders") {
         handleClick("orders");
       }
       let editUser = JSON.parse(JSON.stringify(currentUser));
-      editUser.noti = userOrder;
+      editUser.noti = data;
       localStorage.setItem("user", JSON.stringify(editUser));
       setUser(editUser);
-    });
-  });
+    };
+    socket.on("message notification", messageNoti);
+    socket.on("new order", orderNoti);
+    return () => {
+      socket.off("message notification", messageNoti);
+      socket.off("new order", orderNoti);
+    };
+  }, [socket, user]);
 
   const logout = () => {
     socket.emit(
