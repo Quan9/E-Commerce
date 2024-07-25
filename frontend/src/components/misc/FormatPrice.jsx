@@ -53,25 +53,38 @@ const FormatPrice = ({ price, discount, quantity }) => {
     );
   }
   if (discount) {
+    const discountpercent = Math.ceil(((price - discount) / price) * 100);
+    const discountedprice = price - discount;
     return (
-      <Text ta={"center"}>
+      <>
+        <Text>
+          <NumberFormatter
+            suffix="đ"
+            value={price}
+            thousandSeparator
+            style={{ textDecorationLine: "line-through", color: "gray" }}
+          />
+          <Text c={"red"} span>
+            &nbsp;&nbsp;{discountpercent}%
+          </Text>
+          <NumberFormatter
+            prefix="&nbsp;&nbsp;(- "
+            suffix="đ)"
+            value={discountedprice}
+            thousandSeparator
+            style={{ color: "green" }}
+          />
+        </Text>
         <NumberFormatter
-          suffix="đ"
-          value={price}
-          thousandSeparator
-          style={{ textDecorationLine: "line-through", color: "red" }}
-        />
-        <NumberFormatter
-          prefix="&nbsp;&nbsp;"
           suffix="đ"
           value={discount}
           thousandSeparator
         />
-      </Text>
+      </>
     );
   }
   return (
-    <Text ta={"center"}>
+    <Text>
       <NumberFormatter suffix="đ" value={price} thousandSeparator />
     </Text>
   );

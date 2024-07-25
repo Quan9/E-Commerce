@@ -1,9 +1,8 @@
-const asyncHandler = require("express-async-handler");
 const Chat = require("../models/Chat");
 const User = require("../models/User");
 const CryptoJS = require("crypto-js");
 const Message = require("../models/Message");
-const fetchChats = asyncHandler(async (req, res) => {
+const fetchChats = (async (req, res) => {
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user.id } } })
       .populate("users", "username img")
@@ -57,7 +56,7 @@ const getChat = async (req, res) => {
     res.status(400).json(err);
   }
 };
-const findUserGroupChat = asyncHandler(async (req, res) => {
+const findUserGroupChat = (async (req, res) => {
   const { chatName } = req.params;
   const existUser = await User.findOne({ username: chatName }, { _id: 1 });
   const existGroup = await Chat.findOne({ chatName: chatName }, { _id: 1 });

@@ -21,6 +21,7 @@ import {
   TableTd,
 } from "@mantine/core";
 import { FormatPrice } from "../components";
+import dayjs from "dayjs";
 
 const Order = () => {
   const location = useLocation();
@@ -39,8 +40,9 @@ const Order = () => {
     setLoading(true);
     await getSingleOrder(data)
       .then((res) => {
-        console.log(res);
-        setData(res.data);
+        console.log(res.data);
+        const sortData = res.data.reverse();
+        setData(sortData);
         setLoading(false);
       })
       .catch((e) => {
@@ -67,6 +69,7 @@ const Order = () => {
                   <TableTh>Amount</TableTh>
                   <TableTh>status</TableTh>
                   <TableTh>payment</TableTh>
+                  <TableTh>Date</TableTh>
                 </TableTr>
               </TableThead>
               <TableTbody>
@@ -94,63 +97,15 @@ const Order = () => {
                       <TableTd>{item.amount}</TableTd>
                       <TableTd>{item.status}</TableTd>
                       <TableTd>{item.payment_method}</TableTd>
+                      <TableTd>
+                        {dayjs(item.createdAt).format("MM-DD-YYYY")}
+                      </TableTd>
                     </TableTr>
                   );
                 })}
               </TableTbody>
             </Table>
           ) : (
-            // <Grid>
-            //   <GridCol span={"auto"} ta={"center"}>
-            //     <Text fw={500}>
-            //       {data.userId.match(/^[0-9]/) ? "UserId" : "User Name"}
-            //     </Text>
-            //     {data.userId}
-            //   </GridCol>
-            //   <GridCol span={"auto"} ta={"center"}>
-            //     <Text fw={500}>Products</Text>
-            //     {data.products.map((product, index) => {
-            //       return (
-            //         <Stack key={index} style={{ borderBottom: "solid" }}>
-            //           <Group justify="center">
-            //             <Text>
-            //               Name: {product.productName}({product.color})
-            //             </Text>
-            //             <Text>Quantity: {product.quantity}</Text>
-            //           </Group>
-            //         </Stack>
-            //       );
-            //     })}
-            //   </GridCol>
-            //   <GridCol span={"auto"} ta={"center"}>
-            //     <Text fw={500}>Address</Text>
-            //     <Stack>
-            //       {data.address?.city === undefined ? (
-            //         <>
-            //           <Text>Email: {data.address?.email}</Text>
-            //           <Text>Name: {data.address?.name}</Text>
-            //           <Text>Phone Number: {data.address?.number}</Text>
-            //           <Text>Address: {data.address?.address}</Text>
-            //         </>
-            //       ) : (
-            //         <>
-            //           <Text>City: {data.address.city}</Text>
-            //           <Text>Country: {data.address.country}</Text>
-            //           <Text>Address: {data.address.line1}</Text>
-            //         </>
-            //       )}
-            //     </Stack>
-            //   </GridCol>
-            //   <GridCol span={"content"} ta={"center"}>
-            //     <Text fw={500}>Total Price</Text>
-            //     <FormatPrice price={data.amount} />
-            //   </GridCol>
-
-            //   <GridCol span={"content"} ta={"center"}>
-            //     <Text fw={500}>Shipment Status</Text>
-            //     <Text fw={500}>{data.status}</Text>
-            //   </GridCol>
-            // </Grid>
             <>
               {error ? (
                 <Text c={"red"}>{error}</Text>

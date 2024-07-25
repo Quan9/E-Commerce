@@ -9,8 +9,8 @@ const { verifyTokenAndAdmin } = require("../middleware/verifyToken");
 
 const router = express.Router();
 
-router.route("/").get(verifyTokenAndAdmin, fetchChats);
-router.route("/client/:chatName").get(findUserGroupChat);
-router.route("/agent/:chatId").get(verifyTokenAndAdmin, updateChat);
-router.route('/agent/get/:id').get(verifyTokenAndAdmin,getChat)
+router.get("/", verifyTokenAndAdmin, fetchChats);
+router.get("/client/:chatName", findUserGroupChat);
+router.get("/agent/:chatId", verifyTokenAndAdmin, updateChat);
+router.get("/agent/get/:id", verifyTokenAndAdmin, getChat);
 module.exports = router;

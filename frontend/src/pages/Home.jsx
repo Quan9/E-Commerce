@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { getAllPublicProducts } from "../services/product";
-import { Categories, FormatPrice } from "../components";
+import { FormatPrice } from "../components";
 import {
-  Center,
   Container,
-  Loader,
   Button,
   Card,
   CardSection,
@@ -16,6 +14,8 @@ import {
   UnstyledButton,
   Flex,
   TextInput,
+  Stack,
+  Box,
 } from "@mantine/core";
 import { toast } from "react-toastify";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -46,8 +46,8 @@ const Home = () => {
       });
   }, []);
   return (
-    <Container p={0} m={0}>
-      <Flex justify="space-around" direction={"row"} mb={"sm"}>
+    <Container>
+      <Group justify="center" mb={"sm"} mt={"sm"}>
         <Button
           component={NavLink}
           to={"/Phone"}
@@ -72,93 +72,96 @@ const Home = () => {
         >
           Laptop
         </Button>
-      </Flex>
-      <TextInput
-        w={"50%"}
-        ta={"center"}
-        mx={"auto"}
-        placeholder="enter your phone number"
-        label="Check your order"
-        onChange={(e) => setContent(e.currentTarget.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            if (content.length === 0) {
-              return;
-            }
-            navigate();
-          }
-        }}
-      />
-      {data && (
-        <Grid overflow="hidden">
-          {data.map((items, index) => (
-            <GridCol
-              key={index}
-              order={
-                items[0].categories === "Phone"
-                  ? 1
-                  : items[0].categories === "Laptop"
-                  ? 2
-                  : 3
+      </Group>
+      <Group justify="center">
+        <TextInput
+          ta={"center"}
+          mx={"auto"}
+          placeholder="enter your phone number"
+          label="Check your order"
+          onChange={(e) => setContent(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (content.length === 0) {
+                return;
               }
-              mt={"sm"}
-            >
-              <Flex align={"center"}>
-                <Title order={2} mx={"auto"}>
-                  Latest {items[0].categories}
-                </Title>
-                {items.length > 4 && (
-                  <UnstyledButton
-                    component={NavLink}
-                    to={`/${items[0].categories}`}
-                  >
-                    more <IconPlayerTrackNext size={12} />
-                  </UnstyledButton>
-                )}
-              </Flex>
-              <Grid mt={"sm"} p={10}>
-                {items.map((product, index) => (
-                  <GridCol
-                    span={{ lg: 3, md: 4, sm: 6, xs: 12 }}
-                    key={product._id}
-                    maw={{ xs: "50%" }}
-                  >
-                    <Card display={index === 4 && "none"} align={"center"}>
-                      <CardSection>
-                        <Image
-                          src={product.colors[0].image}
-                          alt="Image"
-                          h={300}
-                        />
-                      </CardSection>
-                      <CardSection>
-                        <Title order={4} fw={700}>
-                          {product.name}
-                        </Title>
-                        {product?.discount ? (
-                          <FormatPrice
-                            price={product.price}
-                            discount={product.discount}
-                          />
-                        ) : (
-                          <FormatPrice price={product.price} />
-                        )}
-                        <Button
+              navigate();
+            }
+          }}
+        />
+      </Group>
+      <Flex className="flexHome" direction={"column"}>
+        {data &&
+          data.map((items, index) => (
+            <Box key={index} className={items[0].categories} mt={"sm"}>
+              <Stack>
+                <Group justify="center">
+                  <Title order={2}>Latest {items[0].categories}</Title>
+                  {items.length > 4 && (
+                    <UnstyledButton
+                      component={NavLink}
+                      to={`/${items[0].categories}`}
+                    >
+                      more <IconPlayerTrackNext size={12} />
+                    </UnstyledButton>
+                  )}
+                </Group>
+                <Grid>
+                  {items.map((product, index) => (
+                    <GridCol
+                      key={product._id}
+                      span={{ lg: 3, md: 4, xs: 12, sm: 6 }}
+                    >
+                      <Card
+                        display={index >= 4 && "none"}
+                        shadow="sm"
+                        padding="lg"
+                        radius="md"
+                        withBorder
+                        className="home"
+                        h={{ md: 300, lg: 400, sm: 350 }}
+                      >
+                        <CardSection
                           component={NavLink}
                           to={`/${product.categories}/${product._id}`}
-                          variant="light"
                         >
-                          Detail
-                        </Button>
-                      </CardSection>
-                    </Card>
-                  </GridCol>
-                ))}
-              </Grid>
-            </GridCol>
+                          <Image
+                            src={product.colors[0].image}
+                            alt="Image"
+                            h={{ md: 150, lg: 250, sm: 200 }}
+                            fit="contain"
+                          />
+                        </CardSection>
+                        <CardSection ta={"center"}>
+                          <Title order={4} fw={700}>
+                            {product.name}
+                          </Title>
+                          {product?.discount ? (
+                            <FormatPrice
+                              price={product.price}
+                              discount={product.discount}
+                            />
+                          ) : (
+                            <FormatPrice price={product.price} />
+                          )}
+                        </CardSection>
+                        <Group justify="center" mt={"auto"}>
+                          <Button
+                            component={NavLink}
+                            to={`/${product.categories}/${product._id}`}
+                            variant="light"
+                          >
+                            Detail
+                          </Button>
+                        </Group>
+                      </Card>
+                    </GridCol>
+                  ))}
+                </Grid>
+              </Stack>
+            </Box>
           ))}
-        </Grid>
-      )}
+      </Flex>
     </Container>
   );
 };

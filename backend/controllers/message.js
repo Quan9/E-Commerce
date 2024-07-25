@@ -1,8 +1,7 @@
-const asyncHandler = require("express-async-handler");
 const Message = require("../models/Message");
 const User = require("../models/User");
 const Chat = require("../models/Chat");
-const allMessages = asyncHandler(async (req, res) => {
+const allMessages = (async (req, res) => {
   try {
     const total = req.query.total - 20 < 0 ? 0 : req.query.total - 20;
     if (req.query.user) {
@@ -55,7 +54,7 @@ const allMessages = asyncHandler(async (req, res) => {
     res.status(400);
   }
 });
-const sendMessage = asyncHandler(async (req, res) => {
+const sendMessage = (async (req, res) => {
   const { content, chatId, user } = req.body;
   if (!content || !chatId) {
     return res.sendStatus(400).json("Invalid data passed into request");
@@ -117,7 +116,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     res.status(400).json(error);
   }
 });
-const messageRead = asyncHandler(async (req, res) => {
+const messageRead = (async (req, res) => {
   const { id } = req.params;
   const { totalMessage, user } = req.query;
   const findUser = await User.findOne({ username: user });

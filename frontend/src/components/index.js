@@ -1,8 +1,7 @@
 import EditProductInfo from "./agent/EditProductInfo";
 import NewProductInfo from "./agent/NewProductInfo";
 import ProductInfo from "./agent/ProductInfo";
-import Categories from "./client/Categories";
-import Chat from "./client/Chat";
+import Chat from "./misc/Chat";
 import {
   isSameSenderMargin,
   isSameSender,
@@ -36,12 +35,11 @@ import {
 } from "./misc/ProductData";
 import QuillChat from "./misc/QuillChat";
 import QuillEditor from "./misc/QuillEditor";
-import NavBar from "./navbar/NavBar";
+import NavBar from "./misc/NavBar";
 export {
   EditProductInfo,
   NewProductInfo,
   ProductInfo,
-  Categories,
   Chat,
   isSameSenderMargin,
   isSameSender,

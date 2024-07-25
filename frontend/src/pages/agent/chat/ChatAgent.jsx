@@ -291,12 +291,12 @@ const ChatAgent = ({ socket }) => {
   });
 
   return (
-    <Grid>
+    <Flex mah={"80vh"}>
       {chats ? (
         <>
-          <GridCol span={2} mah={"90vh"} style={{ overflow: "auto" }}>
-            <Title ta={"center"}>Group Chats </Title>
-            <Stack gap={"lg"}>
+          <Box style={{ overflow: "auto" }}>
+            <Title ta={"center"}>Chats </Title>
+            <Stack>
               {chats.map((chat) => (
                 <Indicator
                   size={17}
@@ -324,53 +324,58 @@ const ChatAgent = ({ socket }) => {
                       c={checkUnread(chat.latestMessage) ? "gray" : "red"}
                       style={{ wordBreak: "break-all" }}
                       align={"baseline"}
+                      w={100}
                     >
-                      <Text w={100} fw={700}>
+                      <Text w={"100%"} fw={700} lineClamp={2} inline>
                         {chat?.latestMessage?.sender?.username === user.username
                           ? "You"
-                          : `${chat?.latestMessage?.sender?.username}`}
-                        : &nbsp;
-                      </Text>
-                      <Text
-                        span
-                        className="latest"
-                        lineClamp={1}
-                        style={{ textOverflow: "[...]" }}
-                      >
-                        {parse(`${chat.latestMessage.content}`, {
-                          replace: (domNode, index) => {
-                            if (domNode.name === "p" && index === 0) {
-                              return (
-                                <Text span>{domNode.children[0].data}</Text>
-                              );
-                            } else if (domNode.name === "p" && index !== 0) {
-                              return <></>;
-                            }
-                            if (domNode.name === "br") {
-                              return;
-                            }
-                            if (domNode.name === "iframe") {
-                              const props = attributesToProps(domNode.attribs);
-                              return (
-                                <Text span c={"blue"}>
-                                  {props.title}
-                                </Text>
-                              );
-                            }
-                          },
+                          : `${chat?.latestMessage?.sender?.username.substring(
+                              0,
+                              10
+                            )}`}
+                        :
+                        <Text
+                          span
+                          className="latest"
+                          style={{ textOverflow: "[...]" }}
+                        >
+                          {parse(`${chat.latestMessage.content}`, {
+                            replace: (domNode, index) => {
+                              if (domNode.name === "p" && index === 0) {
+                                return (
+                                  <Text span>{domNode.children[0].data}</Text>
+                                );
+                              } else if (domNode.name === "p" && index !== 0) {
+                                return <></>;
+                              }
+                              if (domNode.name === "br") {
+                                return;
+                              }
+                              if (domNode.name === "iframe") {
+                                const props = attributesToProps(
+                                  domNode.attribs
+                                );
+                                return (
+                                  <Text span c={"blue"}>
+                                    {props.title}
+                                  </Text>
+                                );
+                              }
+                            },
 
-                          trim: true,
-                        })}
+                            trim: true,
+                          })}
+                        </Text>
                       </Text>
                     </Flex>
                   </Box>
                 </Indicator>
               ))}
             </Stack>
-          </GridCol>
-          <GridCol m={{ base: "auto" }} span={10} h={"90vh"}>
+          </Box>
+          <Box ps={"md"} flex={1} style={{ overflow: "auto" }}>
             {selectedChat ? (
-              <Box h={"90vh"} maw={"100%"}>
+              <Box h="100%" w={"100%"}>
                 <Flex
                   w="100%"
                   h={"10%"}
@@ -479,7 +484,7 @@ const ChatAgent = ({ socket }) => {
                             </Text>
                           </Group>
                         </Flex>
-                        {/* {m.readBy.length !== 0 && (
+                        {m.readBy.length !== 0 && (
                           <Group justify="end" key={m._id + i}>
                             <AvatarGroup>
                               {m.readBy.map((user1, index) => (
@@ -490,7 +495,6 @@ const ChatAgent = ({ socket }) => {
                                   <Avatar
                                     size="sm"
                                     src={user1.img}
-                                    style={{ border: "1px solid green" }}
                                     display={
                                       user1.username === user.username && "none"
                                     }
@@ -499,7 +503,7 @@ const ChatAgent = ({ socket }) => {
                               ))}
                             </AvatarGroup>
                           </Group>
-                        )} */}
+                        )}
                       </>
                     ))
                   ) : (
@@ -523,14 +527,14 @@ const ChatAgent = ({ socket }) => {
                 <Text size="xl">Click on a user to start chatting</Text>
               </Center>
             )}
-          </GridCol>
+          </Box>
         </>
       ) : (
         <Center h={"90vh"} w={"100%"}>
           <Loader size={100} />
         </Center>
       )}
-    </Grid>
+    </Flex>
   );
 };
 

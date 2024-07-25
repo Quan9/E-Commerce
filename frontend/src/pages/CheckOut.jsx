@@ -23,7 +23,7 @@ const CheckOut = ({ socket }) => {
       color: item.color,
       colorId: item.colorId,
       quantity: item.cartQuantity,
-      productPrice: item.price,
+      productPrice: item.discount ? item.discount : item.price,
     })),
     amount: cart.total,
   };
@@ -78,36 +78,32 @@ const CheckOut = ({ socket }) => {
           });
       }
     };
-    saveOrder();
+    cart.cartItems.length !== 0 && saveOrder();
   }, []);
 
   return (
     <Center mah={"90%"} maw={"100%"}>
-      {location.search !== "" || location.state !== null ? (
-        <>
-          {orderId ? (
-            <Stack>
-              <Title order={3} c={"blue"}>
-                Order has been created successfully. Your order number is{" "}
-              </Title>
-              <Text fw={750} ta="center">
-                {orderId}
-              </Text>
-              <Button
-                onClick={() => nav("/")}
-                leftSection={<IconArrowLeft size={26} />}
-              >
-                Back to Homepage
-              </Button>
-            </Stack>
-          ) : (
-            <Title order={3}>
-              Payment Successful. Your order is being prepared...
-            </Title>
-          )}
-        </>
-      ) : (
+      {orderId ? (
+        <Stack>
+          <Title order={3} c={"blue"}>
+            Order has been created successfully. Your order number is{" "}
+          </Title>
+          <Text fw={750} ta="center">
+            {orderId}
+          </Text>
+          <Button
+            onClick={() => nav("/")}
+            leftSection={<IconArrowLeft size={26} />}
+          >
+            Back to Homepage
+          </Button>
+        </Stack>
+      ) : cart.cartItems.length === 0 ? (
         <Title order={3}>No payment detected. Please Checkout first!</Title>
+      ) : (
+        <Title order={3}>
+          Payment Successful. Your order is being prepared...
+        </Title>
       )}
     </Center>
   );

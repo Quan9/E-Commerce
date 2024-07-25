@@ -31,7 +31,8 @@ import {
   isSameSenderMargin,
   isSameUser,
 } from "../config/ChatLogics";
-import QuillChat from "../misc/QuillChat";
+import QuillChat from "./QuillChat";
+import { IconMessage } from "@tabler/icons-react";
 
 const Chat = (props) => {
   const { user, socket } = props;
@@ -429,9 +430,7 @@ const Chat = (props) => {
                 color="blue"
                 size={60}
               >
-                <Text size="sm" c={"green"}>
-                  Support
-                </Text>
+                <IconMessage/>
               </Avatar>
             </Tooltip>
           </Indicator>

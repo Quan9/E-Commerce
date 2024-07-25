@@ -8,6 +8,9 @@ const orderRoute = require("./routes/order");
 const stripeRoute = require("./routes/stripe");
 const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
+const categoryRoute = require('./routes/category')
+const colorRoute = require('./routes/color')
+const brandRoute = require('./routes/brand')
 const cors = require("cors");
 const User = require("./models/User");
 const Message = require("./models/Message");
@@ -132,7 +135,7 @@ socketIO.on("connection", (socket) => {
         (user) => user.username === username.username
       );
       if (user) {
-        socketIO.to(user.socketId).emit("new order", username.noti);
+        socketIO.to(user.socketId).emit("order notification", username.noti);
       }
     });
   });
@@ -148,9 +151,9 @@ app.use("/api/orders", orderRoute);
 app.use("/api/stripe", stripeRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/message", messageRoute);
-app.get("/api/test", (req, res) => {
-  res.status(200).send({ data: "hello" });
-});
+app.use("/api/color", colorRoute);
+app.use("/api/brand", brandRoute);
+app.use("/api/category", categoryRoute);
 http.listen(process.env.PORT || 5000, () => {
   console.log("Backend server is running on port", process.env.PORT || 5000);
   connect();

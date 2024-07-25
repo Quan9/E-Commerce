@@ -4,7 +4,7 @@ import Home from "./Home";
 import Login from "./Login";
 import ProductDetail from "./ProductDetail";
 import ProductsByCategory from "./ProductsByCategory";
-import ProfilePage from "./ProfilePage";
+import ProfilePage from "./agent/ProfilePage";
 import Register from "./Register";
 import CheckOut from "./CheckOut";
 import ChatAgent from "./agent/chat/ChatAgent";

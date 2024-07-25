@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getUserStats } from "../services/user";
-import { getOrdersPerMonth } from "../services/order";
+import { getUserStats } from "../../services/user";
+import { getOrdersPerMonth } from "../../services/order";
 import {
   Button,
   Center,
   Group,
   Loader,
+  ScrollArea,
   Stack,
   Table,
   Text,
   Title,
 } from "@mantine/core";
 import { LineChart } from "@mantine/charts";
-import { FormatPrice } from "../components";
+import { FormatPrice } from "../../components";
 import { useNavigate } from "react-router-dom";
 const ProfilePage = () => {
   const [total, setTotal] = useState(0);
@@ -87,7 +88,15 @@ const ProfilePage = () => {
       </Table.Tr>
     );
   });
-
+  const columns = (data) => {
+    return (
+      <>
+        {Object.values(orders).map((item) => {
+          return <Table.Td>{item[`${data}`]}</Table.Td>;
+        })}
+      </>
+    );
+  };
   return (
     <Center h={"100%"}>
       {user.role === "user" ? (
@@ -112,38 +121,60 @@ const ProfilePage = () => {
           {loading ? (
             <Loader size={100} />
           ) : (
-            <Stack align="center" justify="center" w={"100%"}>
-              <Title>Users Visited Site Per Year</Title>
-              <LineChart
-                h={300}
-                data={Object.values(userStats)}
-                dataKey={"month"}
-                series={[{ name: "users", color: "blue.6" }]}
-                curveType="linear"
-                connectNulls
-              />
-              <Title>
-                Annual Income <FormatPrice price={total} />
-              </Title>
-              <Text
-                c={"blue"}
-                fw={500}
-                onClick={() => nav("orders")}
-                onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
-              >
-                Details
-              </Text>
-              <Table withColumnBorders highlightOnHover align="center">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Month</Table.Th>
-                    <Table.Th>Total Orders</Table.Th>
-                    <Table.Th>Income Per Month</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>{rows}</Table.Tbody>
-              </Table>
-            </Stack>
+            <Group justify="space-around">
+              <Stack>
+                <Title ta={"center"}>Users Visited Site This Year</Title>
+                <LineChart
+                  h={300}
+                  w={500}
+                  data={Object.values(userStats)}
+                  dataKey={"month"}
+                  series={[{ name: "users", color: "blue.6" }]}
+                  curveType="linear"
+                  connectNulls
+                />
+              </Stack>
+              <Stack>
+                <Title ta={"center"}>Annual Income</Title>
+                <FormatPrice price={total} />
+                <Group justify="center">
+                  <Button onClick={() => nav("Orders")}>Details</Button>
+                </Group>
+                <Table
+                  visibleFrom="md"
+                  withColumnBorders
+                  highlightOnHover
+                  align="center"
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Month</Table.Th>
+                      <Table.Th>Total Orders</Table.Th>
+                      <Table.Th>Total Income</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>{rows}</Table.Tbody>
+                </Table>
+                <ScrollArea w={600} >
+                  <Table hiddenFrom="md" withColumnBorders highlightOnHover>
+                    <Table.Tbody>
+                      <Table.Tr>
+                        <Table.Th>Month</Table.Th>
+                        {columns("month")}
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Total Income</Table.Th>
+                        {columns("totalOrder")}
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Total Orders</Table.Th>
+                        {columns("total")}
+                      </Table.Tr>
+                    </Table.Tbody>
+                  </Table>
+                </ScrollArea>
+              </Stack>
+            </Group>
           )}
         </>
       )}

@@ -8,9 +8,9 @@ const { verifyTokenAndAdmin } = require("../middleware/verifyToken");
 
 const router = express.Router();
 
-router.route("/:chatId").get(allMessages);
-router.route("/").post(sendMessage);
-router.route("/agent/:chatId").get(verifyTokenAndAdmin, allMessages);
-router.route("/updatemessage/:id").get(messageRead);
+router.get("/:chatId", allMessages);
+router.post("/", sendMessage);
+router.get("/agent/:chatId", verifyTokenAndAdmin, allMessages);
+router.get("/updatemessage/:id", messageRead);
 
 module.exports = router;

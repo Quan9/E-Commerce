@@ -62,6 +62,11 @@ const ProductDetail = (props) => {
       rating: 0,
       user: user,
     },
+    validate: {
+      comment: (value) =>
+        value.length < 2 ? "Must have at least 2 letters" : null,
+      rating: (value) => (value === 0 ? "At least 0.5 stars" : null),
+    },
   });
   const dispatch = useDispatch();
   useEffect(() => {
@@ -109,12 +114,8 @@ const ProductDetail = (props) => {
   };
   const handleSubmitReview = (values) => {
     if (values.rating === 0) {
-      form.setFieldError("rating", "At least 0.5 star");
-    }
-    if (values.comment.length < 2) {
-      return form.setFieldError("comment", "Must have at least 2 letters");
-    }
-    if (_.isEmpty(form.errors)) {
+      return form.setFieldError("rating", "At least 0.5 star");
+    } else {
       setLoading(true);
       createProductReview(location, form.values)
         .then((res) => {
@@ -204,90 +205,93 @@ const ProductDetail = (props) => {
     );
   };
   return (
-    <Container m={"lg"} style={{ border: "1px ridge" }}>
+    <Container style={{ border: "1px ridge" }}>
       {data ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ease: "easeInOut", duration: 1 }}
-        >
+        <>
           <Grid mb={"sm"}>
             <GridCol span={{ base: 12, lg: 6 }}>
-              {data.productImage.length !== 0 ? (
-                <>
-                  <Flex display={display !== "image" && "none"}>
-                    <Carousel flex={1} loop height={300}>
-                      {data.productImage.map((product, index) => {
-                        return (
-                          <Carousel.Slide key={index}>
-                            <Image src={product} alt={product} h={300} />
-                          </Carousel.Slide>
-                        );
-                      })}
-                    </Carousel>
-                  </Flex>
-                  {data.image360 !== undefined && (
-                    <Paper display={display !== "360" && "none"}>
-                      <ReactImageTurntable
-                        className="image360"
-                        images={data.image360.sort(
-                          (a, b) =>
-                            b.substring(
-                              b.lastIndexOf("-"),
-                              b.lastIndexOf(".")
-                            ) -
-                            a.substring(a.lastIndexOf("-"), a.lastIndexOf("."))
-                        )}
-                        autoRotate={{ disabled: !autoplay, interval: 150 }}
-                      />
-                    </Paper>
-                  )}
-                  <Paper display={display !== "video" && "none"}>
-                    <iframe
-                      src="https://www.youtube.com/embed/mzJ4vCjSt28"
-                      title="YouTube video player"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      height={300}
-                      width={"100%"}
+              <Flex display={display !== "image" && "none"}>
+                {!_.isEmpty(data.productImage) ? (
+                  <Carousel flex={1} loop height={300}>
+                    {data.productImage.map((product, index) => {
+                      return (
+                        <Carousel.Slide key={index}>
+                          <Image src={product} alt={product} h={300} />
+                        </Carousel.Slide>
+                      );
+                    })}
+                  </Carousel>
+                ) : (
+                  <Center h={300} w={"100%"}>
+                    No Images
+                  </Center>
+                )}
+              </Flex>
+              <Flex display={display !== "360" && "none"}>
+                {!_.isEmpty(data.image360) ? (
+                  <Stack w={"100%"} mb={"sm"} h={300}>
+                    <ReactImageTurntable
+                      className="image360"
+                      images={data.image360.sort(
+                        (a, b) =>
+                          b.substring(b.lastIndexOf("-"), b.lastIndexOf(".")) -
+                          a.substring(a.lastIndexOf("-"), a.lastIndexOf("."))
+                      )}
+                      autoRotate={{ disabled: !autoplay, interval: 150 }}
                     />
-                  </Paper>
-                </>
-              ) : (
-                <Center h={"100%"}>No Images</Center>
-              )}
+                    <Group justify="center" mt={"sm"}>
+                      <Button
+                        onClick={() => {
+                          setAutoplay(!autoplay);
+                        }}
+                        display={display !== "360" && "none"}
+                        bg={autoplay ? "red" : "blue"}
+                      >
+                        {!autoplay ? "on" : "off"}
+                      </Button>
+                    </Group>
+                  </Stack>
+                ) : (
+                  <Center h={300} w={"100%"}>
+                    Empty
+                  </Center>
+                )}
+              </Flex>
+              <Flex display={display !== "video" && "none"}>
+                {!_.isEmpty(data?.video) ? (
+                  <iframe
+                    src="https://www.youtube.com/embed/mzJ4vCjSt28"
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    height={300}
+                    width={"100%"}
+                  />
+                ) : (
+                  <Center h={300} w={"100%"}>
+                    Empty
+                  </Center>
+                )}
+              </Flex>
 
-              {!_.isEmpty(data.image360) && (
-                <Group justify="center">
-                  <Button
-                    variant={display === "image" ? "white" : "default"}
-                    onClick={() => setDisplay("image")}
-                  >
-                    Images
-                  </Button>
-                  <Button
-                    onClick={() => setDisplay("360")}
-                    variant={display === "360" ? "white" : "default"}
-                  >
-                    360&deg;
-                  </Button>
-                  <Button
-                    onClick={() => setDisplay("video")}
-                    variant={display === "video" ? "white" : "default"}
-                  >
-                    Video
-                  </Button>
-                </Group>
-              )}
-              <Group justify="center" mt={"sm"}>
+              <Group justify="center">
                 <Button
-                  onClick={() => {
-                    setAutoplay(!autoplay);
-                  }}
-                  display={display !== "360" && "none"}
-                  variant={autoplay ? "gradient" : "subtle"}
+                  variant={display === "image" ? "white" : "default"}
+                  onClick={() => setDisplay("image")}
                 >
-                  {!autoplay ? "off" : "on"}
+                  Images
+                </Button>
+                <Button
+                  onClick={() => setDisplay("360")}
+                  variant={display === "360" ? "white" : "default"}
+                >
+                  360&deg;
+                </Button>
+                <Button
+                  onClick={() => setDisplay("video")}
+                  variant={display === "video" ? "white" : "default"}
+                >
+                  Video
                 </Button>
               </Group>
             </GridCol>
@@ -370,13 +374,11 @@ const ProductDetail = (props) => {
                     {parse(`${data.desc}`)}
                   </Paper>
                   {overflow && (
-                    <Button
-                      onClick={() => setOpen(!open)}
-                      fullWidth
-                      variant="default"
-                    >
-                      {!open ? "Show more" : "Show less"}
-                    </Button>
+                    <Group justify="center">
+                      <Button onClick={() => setOpen(!open)} variant="default">
+                        {!open ? "Show more" : "Show less"}
+                      </Button>
+                    </Group>
                   )}
                 </>
               ) : (
@@ -401,39 +403,28 @@ const ProductDetail = (props) => {
                     onSubmit={form.onSubmit((values) =>
                       handleSubmitReview(values)
                     )}
-                    style={{ margin: "auto" }}
                   >
-                    <Group align="center" justify="center">
-                      <Stack align="center" gap={0}>
+                    <Group align="start" justify="center">
+                      <Stack>
                         <Rating
                           fractions={2}
                           value={form.rating}
                           color={"grape"}
                           {...form.getInputProps("rating")}
-                          style={
-                            form.errors.rating && {
-                              border: "1px solid red",
-                              borderRadius: "10px",
-                            }
-                          }
                         />
                         {form.errors.rating && (
-                          <Text mt={"sm"} c={"red"} ta={"end"}>
-                            {form.errors.rating}
-                          </Text>
+                          <Text c={"red"}>{form.errors.rating}</Text>
                         )}
                       </Stack>
 
                       <Textarea
                         placeholder="Review Product"
                         {...form.getInputProps("comment")}
-                        rows={2}
-                        label="Comment"
+                        rows={1}
                         ta={"center"}
                       />
                       <Button
                         type="submit"
-                        mt={"sm"}
                         disabled={loading}
                         loading={loading}
                       >
@@ -479,7 +470,7 @@ const ProductDetail = (props) => {
               </Carousel>
             </GridCol>
           </Grid>
-        </motion.div>
+        </>
       ) : (
         <Center h={"90vh"}>
           <Loader size={100} />

@@ -4,6 +4,7 @@ import {
   Button,
   Grid,
   GridCol,
+  Group,
   List,
   ListItem,
   Modal,
@@ -16,6 +17,18 @@ import { useEffect, useState } from "react";
 
 const CheckInfo = ({ info, withModal }) => {
   const [data, setData] = useState([]);
+  const [opened, { open, close }] = useDisclosure(false);
+
+  useEffect(() => {
+    const getData = (info) => {
+      const temp = [];
+      Object.keys(info).forEach((key) => {
+        temp.push({ name: key, value: recursive(info[key]) });
+      });
+      setData(temp);
+    };
+    getData(info);
+  }, []);
   const recursive = (value) => {
     const items = Object.entries(value).flatMap(([key, values]) => ({
       name: key,
@@ -28,17 +41,6 @@ const CheckInfo = ({ info, withModal }) => {
     });
     return items;
   };
-  useEffect(() => {
-    const getData = (info) => {
-      const temp = [];
-      Object.keys(info).forEach((key) => {
-        temp.push({ name: key, value: recursive(info[key]) });
-      });
-      setData(temp);
-    };
-    getData(info);
-  }, []);
-  const [opened, { open, close }] = useDisclosure(false);
   const displayData = (dData, place) => {
     return (
       <Grid>
@@ -95,12 +97,12 @@ const CheckInfo = ({ info, withModal }) => {
             }}
             // pt={"sm"}
           >
+            <Title order={2} ta={"center"}>
+              System Info
+            </Title>
             {data.map((items, index) => {
               return (
                 <Stack key={items.name + index}>
-                  <Title order={2} ta={"center"}>
-                    System Info
-                  </Title>
                   <Title
                     order={5}
                     w={"100%"}
@@ -148,9 +150,11 @@ const CheckInfo = ({ info, withModal }) => {
                   );
                 })}
               </Modal>
-              <Button fullWidth variant="default" onClick={open}>
-                Details
-              </Button>
+              <Group justify="center">
+                <Button variant="default" onClick={open}>
+                  Details
+                </Button>
+              </Group>
             </>
           )}
         </>

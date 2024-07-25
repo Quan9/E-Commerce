@@ -1,6 +1,5 @@
 import { Carousel, CarouselSlide } from "@mantine/carousel";
 import {
-  Box,
   Button,
   Center,
   FileInput,
@@ -14,13 +13,18 @@ import {
   Paper,
   Select,
   Stack,
+  Table,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
   Tabs,
   Text,
   TextInput,
   Title,
   Transition,
 } from "@mantine/core";
-import { Canvas } from "@react-three/fiber";
 import { ReactImageTurntable } from "react-image-turntable";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -34,7 +38,6 @@ import { IconFileImport } from "@tabler/icons-react";
 import axios from "axios";
 import { editProduct, getProduct } from "../../../services/product";
 import { toast } from "react-toastify";
-import ModelCanvas from "../../../components/agent/ModelCanvas";
 const EditProduct = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[3];
@@ -57,7 +60,6 @@ const EditProduct = () => {
   const quillRef = useRef();
   const [activeTab, setActiveTab] = useState("1");
   const [previousTab, setPreviousTab] = useState();
-  const [render3D, setRender3D] = useState();
   const onSelectFile = (e) => {
     let images = [];
     setImages(e);
@@ -267,7 +269,6 @@ const EditProduct = () => {
               <Tabs.Tab value="2">Description</Tabs.Tab>
               <Tabs.Tab value="3">System Info</Tabs.Tab>
               <Tabs.Tab value="4">Images</Tabs.Tab>
-              <Tabs.Tab value="5">3D Model</Tabs.Tab>
               <Button
                 type="submit"
                 size="md"
@@ -287,7 +288,7 @@ const EditProduct = () => {
                 <Tabs.Panel value="1" mt={"md"} style={{ ...transitionStyle }}>
                   <Grid>
                     <GridCol span={colors.length !== 0 ? 6 : 12}>
-                      <Group justify="center" mb={"md"}>
+                      <Group justify="space-evenly" mb={"md"}>
                         <TextInput
                           label={"Name"}
                           value={data.name}
@@ -323,6 +324,8 @@ const EditProduct = () => {
                           onChange={(e) => handleChange(e, "isActive")}
                         />
                       </Group>
+                    </GridCol>
+                    <GridCol span={6}>
                       <Group wrap="nowrap" align="flex-end" justify="center">
                         <TextInput
                           label="Color"
@@ -358,64 +361,70 @@ const EditProduct = () => {
                           {colorError}
                         </Title>
                       ) : null}
+                      {colors.length !== 0 && (
+                        <>
+                          <Title order={4} c={"indigo"} ta={"center"}>
+                            Current Color(s)
+                          </Title>
+                          <Table withColumnBorders withRowBorders>
+                            <TableThead ta={"center"}>
+                              <TableTr>
+                                <TableTh>Color</TableTh>
+                                <TableTh>Image</TableTh>
+                                <TableTh>In stock</TableTh>
+                              </TableTr>
+                            </TableThead>
+                            <TableTbody>
+                              {colors.map((item, index) => {
+                                return (
+                                  <TableTr key={item + index}>
+                                    <TableTd>
+                                      <Text span fw={400}>
+                                        {item.color}
+                                      </Text>
+                                    </TableTd>
+                                    <TableTd>
+                                      <Image
+                                        name={`a+${index}`}
+                                        src={
+                                          typeof item.image === "string"
+                                            ? item.image
+                                            : URL.createObjectURL(item.image)
+                                        }
+                                        h={100}
+                                        fit="contain"
+                                      />
+                                    </TableTd>
+                                    <TableTd>
+                                      <NumberInput
+                                        value={item.inStock}
+                                        onChange={(e) =>
+                                          handleChangeColors(item, index, e)
+                                        }
+                                        onWheel={(e) => {
+                                          e.target.blur();
+                                        }}
+                                      />
+                                    </TableTd>
+                                    <TableTd>
+                                      <Button
+                                        bg={"red"}
+                                        onClick={() =>
+                                          deleteColors(item, index)
+                                        }
+                                      >
+                                        Delete
+                                      </Button>
+                                    </TableTd>
+                                  </TableTr>
+                                );
+                              })}
+                            </TableTbody>
+                          </Table>
+                          <Stack></Stack>
+                        </>
+                      )}
                     </GridCol>
-                    {colors.length !== 0 && (
-                      <GridCol span={6}>
-                        <Title order={4} c={"indigo"} ta={"center"}>
-                          Current Color(s)
-                        </Title>
-                        <Stack>
-                          {colors.map((item, index) => {
-                            return (
-                              <Grid
-                                justify="start"
-                                key={item + index}
-                                align="flex-end"
-                              >
-                                <GridCol span={3}>
-                                  <Text span fw={500}>
-                                    Color:
-                                  </Text>
-                                  <Text span>{item.color}</Text>
-                                </GridCol>
-                                <GridCol span={3}>
-                                  <Image
-                                    name={`a+${index}`}
-                                    src={
-                                      typeof item.image === "string"
-                                        ? item.image
-                                        : URL.createObjectURL(item.image)
-                                    }
-                                    fit="contain"
-                                  />
-                                </GridCol>
-                                <GridCol span={3}>
-                                  <Group>
-                                    <Text fw={500}>In Stock:</Text>
-                                    <NumberInput
-                                      value={item.inStock}
-                                      onChange={(e) =>
-                                        handleChangeColors(item, index, e)
-                                      }
-                                      onWheel={(e) => {
-                                        e.target.blur();
-                                      }}
-                                    />
-                                  </Group>
-                                </GridCol>
-                                <GridCol span={3}>
-                                  <Button
-                                    onClick={() => deleteColors(item, index)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </GridCol>
-                              </Grid>
-                            );
-                          })}
-                        </Stack>
-                      </GridCol>
-                    )}
                   </Grid>
                 </Tabs.Panel>
               )}
@@ -583,27 +592,6 @@ const EditProduct = () => {
                       )}
                     </GridCol>
                   </Grid>
-                </Tabs.Panel>
-              )}
-            </Transition>
-            <Transition
-              mounted={activeTab === "5"}
-              transition={"slide-left"}
-              duration={300}
-              timingFunction="ease"
-            >
-              {(transitionStyle) => (
-                <Tabs.Panel value="5" mt={"md"} style={{ transitionStyle }}>
-                  <FileInput
-                    placeholder="Upload 3d model (accept .gltf,.glb.ftx)"
-                    onChange={setRender3D}
-                    accept=".gltf,.glb,.ftx,.obj,.zip"
-                  />
-                  {render3D && (
-                    <Box h={"90vh"}>
-                      <ModelCanvas model={render3D}  />
-                    </Box>
-                  )}
                 </Tabs.Panel>
               )}
             </Transition>

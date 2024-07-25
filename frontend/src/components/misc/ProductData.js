@@ -83,7 +83,6 @@ export const dataBrandLaptop = [
   { value: "Vaio", label: "Vaio" },
 ];
 export const dataFilterPrice = [
-  { value: "", label: "Default" },
   {
     value: "lowToHigh",
     label: "ascending",
@@ -160,10 +159,7 @@ export const dataOthers = [
   { label: "LED notifications", value: "LED notifications" },
 ];
 export const dataFilterBrandPhone = [
-  {
-    value: "",
-    label: "All",
-  },
+
   { value: "Apple", label: "Apple" },
   { value: "Samsung", label: "Samsung" },
   { value: "Oppo", label: "Oppo" },
