@@ -8,9 +8,9 @@ const orderRoute = require("./routes/order");
 const stripeRoute = require("./routes/stripe");
 const chatRoute = require("./routes/chat");
 const messageRoute = require("./routes/message");
-const categoryRoute = require('./routes/category')
-const colorRoute = require('./routes/color')
-const brandRoute = require('./routes/brand')
+const categoryRoute = require("./routes/category");
+const colorRoute = require("./routes/color");
+const brandRoute = require("./routes/brand");
 const cors = require("cors");
 const User = require("./models/User");
 const Message = require("./models/Message");
@@ -100,6 +100,7 @@ socketIO.on("connection", (socket) => {
       );
 
       if (userOnline) {
+        console.log(userOnline);
         if (getUser.role === "admin" || getUser.role === "mod") {
           socketIO
             .to(userOnline.socketId)

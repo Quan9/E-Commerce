@@ -3,6 +3,7 @@
 import {
   ActionIcon,
   AspectRatio,
+  Box,
   Burger,
   Button,
   Container,
@@ -42,8 +43,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   const [user, setUser] = useState(currentUser);
   const medium = useMediaQuery("(max-width:50em)");
   const navigate = useNavigate();
-  const location = useLocation();
-  const pathname = location.pathname.split("/")[1];
+  const location = useLocation().pathname.split("/")[1];
   const dispatch = useDispatch();
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light", {
@@ -65,10 +65,9 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
     };
     updateUser();
   }, [socket, currentUser]);
-
   useEffect(() => {
     const messageNoti = (data) => {
-      if (location.pathname === "/user/chats") {
+      if (location === "/user/chats") {
         handleClick("message");
       } else {
         let userEdit = JSON.parse(JSON.stringify(currentUser));
@@ -78,7 +77,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
       }
     };
     const orderNoti = (data) => {
-      if (location.pathname === "/user/order") {
+      if (location === "/user/order") {
         handleClick("order");
       }
       let editUser = JSON.parse(JSON.stringify(currentUser));
@@ -95,10 +94,10 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   }, [socket, user]);
   useEffect(() => {
     const checkLocation = () => {
-      if (location.pathname === "/user/chats") {
+      if (location === "/user/chats") {
         handleClick("message");
       }
-      if (location.pathname === "/user/order") {
+      if (location === "/user/order") {
         handleClick("order");
       }
     };
@@ -111,10 +110,10 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
     );
     sessionStorage.removeItem("userSes");
     dispatch(LOGOUT());
-    if (pathname !== "") navigate("/");
+    if (location !== "") navigate("/");
     window.location.reload();
   };
-
+  console.log(location, "pathname");
   const checkNoti = () => {
     let noti = false;
     if (user) {
@@ -126,10 +125,6 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
   };
 
   const handleClick = (data, page) => {
-    const a = location.pathname.split("/")[2];
-    if (page && a === page) {
-      return;
-    }
     updateNoti(user._id, { noti: user.noti, data: data }).then((res) => {
       let editUser = JSON.parse(localStorage.getItem("user"));
       editUser.noti = res.data;
@@ -143,11 +138,7 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
 
   return (
     <Container className="navbar">
-      <Flex
-        justify={"space-evenly"}
-        align={"center"}
-        display={opened && medium && "none"}
-      >
+      <Flex justify={"space-evenly"} align={"center"}>
         <Button
           component={NavLink}
           to="/"
@@ -176,36 +167,32 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
                 position="bottom-start"
                 processing={checkNoti()}
               >
-                <Button
-                  leftSection={
-                    <Image
-                      src={currentUser?.img}
-                      alt="UserImage"
-                      w={18}
-                      h={18}
-                      radius={50}
-                    />
-                  }
-                  p={0}
-                  size="compact-sm"
-                  autoContrast
-                  c={"black"}
-                >
+                <ActionIcon p={0} size="compact-sm">
+                  <Image
+                    src={currentUser?.img}
+                    alt="UserImage"
+                    w={18}
+                    h={18}
+                    radius={50}
+                  />
                   {currentUser.username}
-                </Button>
+                </ActionIcon>
               </Indicator>
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item component={NavLink} to={"/user"}>
                 <Text>Dashboard</Text>
               </Menu.Item>
-
               <Menu.Item>
                 <Menu position="left-end">
                   <Menu.Target>
-                    <Button className={checkNoti() && "noti"} fullWidth>
+                    <ActionIcon
+                      className={checkNoti() && "noti"}
+                      bg={"blue"}
+                      w={"100%"}
+                    >
                       <IconBell />
-                    </Button>
+                    </ActionIcon>
                   </Menu.Target>
                   <Menu.Dropdown>
                     {user?.noti.map((item, index) => {
@@ -218,7 +205,6 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
                               item.name === "message" ? `chats` : `order`
                             )
                           }
-                          className="noti"
                         >
                           {item.number !== 0 ? item.number : "No "} new{" "}
                           {item.name}(s)
@@ -251,22 +237,15 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
               </Menu.Item>
 
               <Menu.Item onClick={logout}>
-                <Button
-                  leftSection={<IconLogout size={18} />}
-                  rightSection={
-                    <IconChevronRight
-                      size="0.8rem"
-                      stroke={1.5}
-                      className="mantine-rotate-rtl"
-                    />
-                  }
-                  autoContrast
-                  p={0}
-                  size="compact-sm"
-                  c={"red"}
-                >
+                <ActionIcon autoContrast p={0} size="compact-sm" c={"red"}>
+                  <IconLogout size={18} />
                   Logout
-                </Button>
+                  <IconChevronRight
+                    size="0.8rem"
+                    stroke={1.5}
+                    className="mantine-rotate-rtl"
+                  />
+                </ActionIcon>
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

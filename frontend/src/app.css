@@ -75,9 +75,7 @@ body {
         }
       }
 
-      .noti svg {
-        animation: shake 1s linear infinite;
-      }
+
 
 
     }
@@ -279,6 +277,10 @@ body {
             background: unset;
           }
         }
+      }
+
+      .noti svg {
+        animation: shake 1s linear infinite;
       }
 
       .noti {

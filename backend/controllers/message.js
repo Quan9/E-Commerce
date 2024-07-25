@@ -1,7 +1,7 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
 const Chat = require("../models/Chat");
-const allMessages = (async (req, res) => {
+const allMessages = async (req, res) => {
   try {
     const total = req.query.total - 20 < 0 ? 0 : req.query.total - 20;
     if (req.query.user) {
@@ -53,8 +53,8 @@ const allMessages = (async (req, res) => {
   } catch (error) {
     res.status(400);
   }
-});
-const sendMessage = (async (req, res) => {
+};
+const sendMessage = async (req, res) => {
   const { content, chatId, user } = req.body;
   if (!content || !chatId) {
     return res.sendStatus(400).json("Invalid data passed into request");
@@ -98,6 +98,7 @@ const sendMessage = (async (req, res) => {
         "noti.name": "message",
       });
       if (hasDoc > 0) {
+        console.log(hasDoc, "hasDoc");
         await User.updateMany(
           { role: { $nin: ["user", "guess"] }, "noti.name": "message" },
           { $inc: { "noti.$.number": 1 } }
@@ -115,8 +116,8 @@ const sendMessage = (async (req, res) => {
   } catch (error) {
     res.status(400).json(error);
   }
-});
-const messageRead = (async (req, res) => {
+};
+const messageRead = async (req, res) => {
   const { id } = req.params;
   const { totalMessage, user } = req.query;
   const findUser = await User.findOne({ username: user });
@@ -146,5 +147,5 @@ const messageRead = (async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: "error" });
   }
-});
+};
 module.exports = { allMessages, sendMessage, messageRead };

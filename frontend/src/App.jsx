@@ -38,36 +38,39 @@ import {
 } from "./pages";
 
 const App = () => {
+  const [socket, setSocket] = useState(null);
   const [anoUser, setAnoUser] = useState();
   const { user } = useSelector((state) => state.user);
   const clientSocket = io(import.meta.env.VITE_URL, {
     transports: ["websocket"],
   });
   useEffect(() => {
-    if (user === null) {
+    if (!socket && user === null) {
+      setSocket(clientSocket);
       const checkUser =
         JSON.parse(sessionStorage.getItem("userSes"))?.username || null;
       clientSocket.emit("loggedUser", checkUser);
     } else {
+      setSocket(clientSocket);
       clientSocket.emit("loggedUser", user.username);
     }
   }, []);
   useEffect(() => {
-    const addSesUser = (data) => {
-      sessionStorage.setItem("userSes", JSON.stringify(data));
-      setAnoUser(data);
-    };
-    clientSocket.on("user", addSesUser);
-    return () => {
-      clientSocket.off("user", addSesUser);
-    };
-  });
+    clientSocket.on("user", (res) => {
+      sessionStorage.setItem("userSes", JSON.stringify(res));
+      setAnoUser(res);
+    });
+  }, [socket]);
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      {clientSocket && anoUser && (
+      {socket && anoUser && (
         <BrowserRouter>
-          <NavBar socket={clientSocket} anoUser={anoUser} currentUser={user} />
+          <NavBar socket={socket} anoUser={anoUser} currentUser={user} />
           <Routes>
+            <Route
+              path="/verifyEmail/:username/:token"
+              element={<VerifyEmail />}
+            />
             <Route path="/" element={<Home />} />
             <Route
               path="/login"
@@ -75,15 +78,11 @@ const App = () => {
                 user ? <Navigate to={"/"} /> : <Login socket={clientSocket} />
               }
             />
-            <Route
-              path="/verifyEmail/:username/:token"
-              element={<VerifyEmail />}
-            />
             <Route path="/order" element={<Order />} />
             <Route path="/register" element={<Register />} />
             <Route
               path="/checkoutsuccess"
-              element={<CheckOut socket={clientSocket} />}
+              element={<CheckOut socket={socket} />}
             />
             <Route path="/cart" element={<Cart />} />
             <Route path="/Phone">
@@ -100,6 +99,7 @@ const App = () => {
                 element={<ProductDetail user={user ? user : anoUser} />}
               />
             </Route>
+
             <Route path="/Tablet">
               <Route index element={<ProductsByCategory />} />
               <Route
@@ -113,10 +113,7 @@ const App = () => {
               element={user ? <ProtectedRoute /> : <Navigate to={"/"} />}
             >
               <Route index element={<ProfilePage />} />
-              <Route
-                path="chats"
-                element={<ChatAgent socket={clientSocket} />}
-              />
+              <Route path="chats" element={<ChatAgent socket={socket} />} />
               <Route path="order">
                 <Route index element={<TotalOrders />} />
                 <Route path=":_id" element={<EditOrder />} />
@@ -134,11 +131,11 @@ const App = () => {
             </Route>
           </Routes>
           {user === null ? (
-            <Chat user={anoUser} socket={clientSocket} loggedIn={false} />
+            <Chat user={anoUser} socket={socket} loggedIn={false} />
           ) : (
             user &&
             user.role === "user" && (
-              <Chat user={user} socket={clientSocket} loggedIn={true} />
+              <Chat user={user} socket={socket} loggedIn={true} />
             )
           )}
         </BrowserRouter>
