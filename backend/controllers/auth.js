@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-const verifyUserEmail = require("../services/verifyEmail");
+const { verifyUserEmail } = require("../services/verifyEmail");
 const register = async (req, res) => {
   const newUser = new User({
     username: req.body.username,
@@ -45,11 +45,7 @@ const registerGoogle = async (req, res) => {
     { expiresIn: "1h" }
   );
   try {
-    verifyUserEmail.verifyUserEmail(
-      req.body.username,
-      req.body.email,
-      emailToken
-    );
+    await verifyUserEmail(req.body.username, req.body.email, emailToken);
     await newUser.save();
     return res
       .status(201)

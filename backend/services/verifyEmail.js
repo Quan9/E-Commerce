@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 let transporter = nodemailer.createTransport({
   host: "smtp.example.com",  //<= add smtp server here
   port: 587, //add port
-  secure: false, // upgrade later with STARTTLS
+  // secure: true, // upgrade later with STARTTLS
   debug: true, // show debug output
   logger: true, // log information in console  **NEW**
   auth: {
