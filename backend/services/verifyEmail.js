@@ -2,7 +2,8 @@ var dotenv = require("dotenv");
 dotenv.config();
 const nodemailer = require("nodemailer");
 let transporter = nodemailer.createTransport({
-  host: "smtp.example.com", //<= add smtp server here
+  service: "gmail",
+  host: "smtp.gmail.com", //<= add smtp server here
   port: 587, //add port
   // secure: true, // upgrade later with STARTTLS
   debug: true, // show debug output
@@ -14,7 +15,7 @@ let transporter = nodemailer.createTransport({
 });
 const verifyUserEmail = async (username, email, token) => {
   try {
-    console.log("email");
+    console.log("email", email, username);
     await transporter.sendMail({
       from: process.env.EMAIL,
       to: email,
