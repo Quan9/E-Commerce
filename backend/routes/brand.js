@@ -5,7 +5,7 @@ const {
     deleteBrand,
     editBrand,
     newBrand,
-  } = require("../controllers/Brand");
+  } = require("../controllers/brand");
   const router = express.Router();
   router.get("/all", verifyTokenAndAdmin, allBrands);
   router.delete("/:id", verifyTokenAndAdmin, deleteBrand);
