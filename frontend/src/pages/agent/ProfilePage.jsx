@@ -109,7 +109,7 @@ const ProfilePage = () => {
             Edit Profile
           </Button>
           <Button
-            onClick={() => nav(`/user/orders`)}
+            onClick={() => nav(`/user/order`)}
             variant="default"
             c={"blue"}
           >

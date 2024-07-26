@@ -72,7 +72,7 @@ const emailVerify = async (req, res) => {
     );
     return res.status(200).json({ status: "okay" });
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return res.status(404).json({ status: "error" });
   }
 };
