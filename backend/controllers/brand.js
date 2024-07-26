@@ -11,11 +11,10 @@ const allBrands = async (req, res) => {
 const newBrand = async (req, res) => {
   try {
     const { name } = req.body;
-    const brand = new Brand({ name: name });
-    brand.save();
+    await Brand.create({ name: name });
     return res.status(200).json("Created!");
   } catch (err) {
-    return res.status(400).json(err);
+    return res.status(400).json("Name already exist");
   }
 };
 const editBrand = async (req, res) => {
@@ -37,10 +36,10 @@ const deleteBrand = async (req, res) => {
       { brand: { $in: req.params.id } },
       { $pull: { brand: req.params.id } }
     );
-    await Product.updateMany(
-      { brand: { $in: req.params.id } },
-      { $pull: { brand: req.params.id } }
-    );
+    // await Product.updateMany(
+    //   { brand: { $in: req.params.id } },
+    //   { $pull: { brand: req.params.id } }
+    // );
     return res.status(200).json("Deleted!");
   } catch (err) {
     return res.status(400).json(err);

@@ -7,8 +7,6 @@ import {
   Card,
   Center,
   FileInput,
-  Grid,
-  GridCol,
   Group,
   Image,
   Input,
@@ -20,7 +18,6 @@ import {
 import { IconFileImport } from "@tabler/icons-react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { LOGIN_SUCCESS } from "../../../slices/UserSlice";
 const EditUser = () => {
   const [data, setData] = useState();
   const { id } = useParams();

@@ -4,7 +4,7 @@ const Chat = require("../models/Chat");
 const createUser = async (req, res) => {
   const newUser = req.body;
   try {
-    const savedUser = await User.saved(newUser);
+    await User.saved(newUser);
     res.status(200).json("User Created Successfully");
   } catch (err) {
     res.status(401).json(err);
@@ -18,7 +18,7 @@ const updateUser = async (req, res) => {
     ).toString();
   }
   try {
-    const updatedUser = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       req.params.id,
       {
         $set: req.body,
@@ -55,6 +55,14 @@ const deleteUser = async (req, res) => {
     if (chat) {
       await Chat.findByIdAndDelete(chat._id);
     }
+    await Chat.updateMany(
+      { users: { $in: req.params.id } },
+      {
+        $pull: {
+          users: req.params.id,
+        },
+      }
+    );
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json("User has been deleted...");
   } catch (err) {

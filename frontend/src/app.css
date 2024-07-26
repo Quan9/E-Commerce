@@ -24,7 +24,7 @@ body {
       position: sticky;
       top: 0;
       z-index: 2;
-
+      max-height: 7dvh;
       @mixin dark {
         background: rgb(100, 100, 100);
       }

@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const productTestRoute = require("./routes/productTest");
 const userRoute = require("./routes/user");
 const authRoute = require("./routes/auth");
 const productRoute = require("./routes/product");
@@ -154,6 +155,7 @@ app.use("/api/chat", chatRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/color", colorRoute);
 app.use("/api/brand", brandRoute);
+app.use("/api/test", productTestRoute);
 app.use("/api/category", categoryRoute);
 http.listen(process.env.PORT || 5000, () => {
   console.log("Backend server is running on port", process.env.PORT || 5000);

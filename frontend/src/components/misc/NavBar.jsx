@@ -181,15 +181,15 @@ const NavBar = ({ socket, anoUser, currentUser }) => {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item component={NavLink} to={"/user"}>
-                <Text>Dashboard</Text>
+                <ActionIcon w={"100%"}>Dashboard</ActionIcon>
               </Menu.Item>
               <Menu.Item>
                 <Menu position="left-end">
                   <Menu.Target>
                     <ActionIcon
                       className={checkNoti() && "noti"}
-                      bg={"blue"}
                       w={"100%"}
+                      bg={"blue"}
                     >
                       <IconBell />
                     </ActionIcon>

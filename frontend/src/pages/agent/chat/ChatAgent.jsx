@@ -291,7 +291,7 @@ const ChatAgent = ({ socket }) => {
   });
 
   return (
-    <Flex mah={"80vh"}>
+    <Flex mah={"80dvh"}>
       {chats ? (
         <>
           <Box style={{ overflow: "auto" }}>
@@ -311,7 +311,7 @@ const ChatAgent = ({ socket }) => {
                     bg={
                       searchParams.get("room") === chat._id
                         ? "#38B2AC"
-                        : "#E8E8E8"
+                        : "unset"
                     }
                     onMouseEnter={(e) => (e.target.style.cursor = "pointer")}
                   >

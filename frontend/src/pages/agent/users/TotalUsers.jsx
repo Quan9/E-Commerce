@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { deleteUser, getAllUsers } from "../../../services/user";
 import {
   ActionIcon,
+  Box,
   Button,
   Center,
   Flex,
@@ -29,6 +29,7 @@ import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "mantine-datatable";
 import { toast } from "react-toastify";
+import { deleteUser, getAllUsers } from "../../../services/user";
 const TotalUsers = () => {
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
@@ -115,7 +116,7 @@ const TotalUsers = () => {
       });
   };
   return (
-    <Paper>
+    <Box>
       {data ? (
         <>
           <Title ta={"center"}>Users</Title>
@@ -250,7 +251,7 @@ const TotalUsers = () => {
           <Loader size={"xl"} />
         </Center>
       )}
-    </Paper>
+    </Box>
   );
 };
 

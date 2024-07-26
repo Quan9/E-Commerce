@@ -14,7 +14,7 @@ const register = async (req, res) => {
     role: req.body?.role,
   });
   try {
-    const savedUser = await newUser.save();
+    await newUser.save();
     return res.status(201).json("User created successfully!");
   } catch (err) {
     const error = err.keyPattern;
