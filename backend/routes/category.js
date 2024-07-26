@@ -5,7 +5,7 @@ const {
   deleteCategory,
   editCategory,
   newCategory,
-} = require("../controllers/Category");
+} = require("../controllers/category");
 const router = express.Router();
 router.get("/all", allCategories);
 router.delete("/:id", verifyTokenAndAdmin, deleteCategory);
