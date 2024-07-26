@@ -1,5 +1,3 @@
-var dotenv = require("dotenv");
-dotenv.config();
 const nodemailer = require("nodemailer");
 let transporter = nodemailer.createTransport({
   service: "gmail",
@@ -23,7 +21,7 @@ const verifyUserEmail = async (username, email, token) => {
         "Hello " + username + ",verify your email by clicking the link below. ",
       html:
         "<p>Your password is 123456</p>" +
-        `<a href=${process.env.CLIENT_URL}/${verifyEmail}/${username}/${token}>` +
+        `<a href=${process.env.CLIENT_URL}/verifyEmail/${username}/${token}>` +
         "Click here to verify your email</a>",
     });
   } catch (error) {
