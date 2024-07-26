@@ -26,7 +26,9 @@ const verifyUserEmail = async (username, email, token) => {
         `<a href=${process.env.CLIENT_URL}/${verifyEmail}/${username}/${token}>` +
         "Click here to verify your email</a>",
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 module.exports = {
   verifyUserEmail,
