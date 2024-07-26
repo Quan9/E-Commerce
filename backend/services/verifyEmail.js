@@ -2,7 +2,7 @@ var dotenv = require("dotenv");
 dotenv.config();
 const nodemailer = require("nodemailer");
 let transporter = nodemailer.createTransport({
-  host: "smtp.example.com",  //<= add smtp server here
+  host: "smtp.example.com", //<= add smtp server here
   port: 587, //add port
   // secure: true, // upgrade later with STARTTLS
   debug: true, // show debug output
@@ -14,7 +14,8 @@ let transporter = nodemailer.createTransport({
 });
 const verifyUserEmail = async (username, email, token) => {
   try {
-    let info = await transporter.sendMail({
+    console.log("email");
+    await transporter.sendMail({
       from: process.env.EMAIL,
       to: email,
       subject:
@@ -24,8 +25,7 @@ const verifyUserEmail = async (username, email, token) => {
         `<a href=${process.env.CLIENT_URL}/${verifyEmail}/${username}/${token}>` +
         "Click here to verify your email</a>",
     });
-  } catch (error) {
-  }
+  } catch (error) {}
 };
 module.exports = {
   verifyUserEmail,
