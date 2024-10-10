@@ -4,7 +4,9 @@ const allCategories = async (req, res) => {
   try {
     const categories = await Category.find({})
       .sort({ createdAt: -1 })
-      .populate("brand", "name -_id");
+      .populate("brand", "name -_id")
+      .populate("products", "name -id");
+
     return res.status(200).json(categories);
   } catch (err) {
     return res.status(400).json(err);

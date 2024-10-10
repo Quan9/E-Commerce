@@ -1,9 +1,16 @@
 const ProductTest = require("../models/ProductTest");
 const User = require("../models/User");
+const Category = require("../models/Category");
+const Brand = require("../models/Brand");
 const createProduct = async (req, res) => {
   try {
     const newProduct = new ProductTest(req.body);
     await newProduct.save();
+    await Category.findOneAndUpdate(
+      { name: req.body?.category },
+      { $push: { products: newProduct._id } }
+    );
+
     res.status(200).json("Product Created Successfully!");
   } catch (err) {
     res.status(500).json(err);
@@ -33,14 +40,15 @@ const deleteProduct = async (req, res) => {
 };
 const getSingleProduct = async (req, res) => {
   try {
+    console.log("1234");
     const product = await ProductTest.findById(req.params.id);
     const similarProduct = await ProductTest.find(
       {
-        categories: product.categories,
+        category: product.category,
         _id: { $ne: product._id },
         isActive: "Active",
       },
-      { name: 1, colors: { $slice: 1 }, _id: 1, categories: 1, discount: 1 }
+      { name: 1, colors: { $slice: 1 }, _id: 1, category: 1, discount: 1 }
     )
       .sort({ createdAt: -1 })
       .limit(5);
@@ -53,10 +61,8 @@ const getSingleProduct = async (req, res) => {
 const getAllProduct = async (req, res) => {
   try {
     const items = await ProductTest.find({}).sort({ createdAt: -1 });
-    console.log('123');
     return res.status(200).json(items);
   } catch (e) {
-    console.log('error')
     return res.status(401).json(e);
   }
 };

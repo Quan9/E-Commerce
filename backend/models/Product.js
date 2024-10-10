@@ -18,8 +18,10 @@ const ProductReviewSchema = new mongoose.Schema(
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    slug: { type: String },
     desc: { type: String },
     categories: { type: String, required: true },
+    brand: { type: String, required: true },
     colors: [
       {
         color: { type: String },

@@ -41,24 +41,29 @@ const createOrder = async (req, res) => {
     // Document not exists then add document
     res.status(200).json(savedOrder);
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
 const getSingleOrder = async (req, res) => {
-  console.log(req.params);
-  try {
-    const order = await Order.find({
-      phone: req.params.id,
-    });
-    if (order.length === 0) {
-      return res
-        .status(403)
-        .json("Can't find orders based on given phone number");
-    }
-    return res.status(200).json(order);
-  } catch (err) {
-    return res.status(403).json("error");
+  if (req.path.includes("get")) {
+    await Order.findById(req.params.id, "-_id -createdAt -updatedAt -__v")
+      .then((result) => {
+        return res.status(200).json(result);
+      })
+      .catch((err) => {
+        return res.status(403).json("error");
+      });
+  } else {
+    await Order.find({ phone: req.params.id })
+      .then((results) => {
+        if (results.length === 0) {
+          return res.status(403).json("No orders found!");
+        }
+        return res.status(200).json(results);
+      })
+      .catch((err) => {
+        return res.status(403).json("error");
+      });
   }
 };
 const updatedOrder = async (req, res) => {

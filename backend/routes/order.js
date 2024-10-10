@@ -20,6 +20,7 @@ router.put("/:id", verifyTokenAndAdmin, updatedOrder); //UPDATE
 router.delete("/:id", verifyTokenAndAdmin, deleteOrder); //DELETE
 router.get("/find/:id", verifyTokenAndAuthorization, getUserOrder); //GET USER ORDERS
 router.get("/", verifyTokenAndAdmin, getAllOrder); // //GET ALL
+router.get('/getSingle/:id',verifyTokenAndAdmin,getSingleOrder)
 router.get("/single/:id", getSingleOrder);
 router.get("/income", verifyTokenAndAdmin, getMonthlyIncome); // GET MONTHLY INCOME
 

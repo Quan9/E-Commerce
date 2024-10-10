@@ -1,8 +1,13 @@
 const Product = require("../models/Product");
+const Category = require("../models/Category");
 const User = require("../models/User");
 const createProduct = async (req, res) => {
   try {
     const newProduct = new Product(req.body);
+    await Category.findOneAndUpdate(
+      { name: req.body?.categories },
+      { $push: { products: newProduct._id } }
+    );
     await newProduct.save();
     res.status(200).json("Product Created Successfully!");
   } catch (err) {

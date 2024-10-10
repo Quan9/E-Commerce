@@ -17,32 +17,21 @@ const ProductReviewSchema = new mongoose.Schema(
 );
 const ProductSchema = new mongoose.Schema(
   {
-    id: { type: Number, required: true },
     name: String,
-    shortDesc: String,
-    longDesc: String,
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
-    brand: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand",
-      require: true,
-    },
-    color: [
+    desc: String,
+    category: String,
+    brand: String,
+    colors: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Color",
-        img: String,
+        color: String,
+        image: String,
         inStock: Number,
       },
     ],
     images: Array,
     price: { type: Number, required: true },
-    systemInfo: Object,
-    discountedValue: Number,
+    systeminfo: Object,
+    discount: Number,
     isActive: { type: String, default: "Inactive" },
     image360: Array,
     attributes: [{ type: mongoose.Schema.Types.Mixed }],
